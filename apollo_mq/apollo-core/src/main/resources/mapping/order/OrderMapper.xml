@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.OrderMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.OrderDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_code" jdbcType="VARCHAR" property="orderCode" />
+    <result column="order_status" jdbcType="TINYINT" property="orderStatus" />
+    <result column="pay_status" jdbcType="TINYINT" property="payStatus" />
+    <result column="pay_method" jdbcType="TINYINT" property="payMethod" />
+    <result column="sale_currency" jdbcType="VARCHAR" property="saleCurrency" />
+    <result column="channel_code" jdbcType="VARCHAR" property="channelCode" />
+    <result column="order_sum" jdbcType="DECIMAL" property="orderSum" />
+    <result column="is_manual_order" jdbcType="TINYINT" property="isManualOrder" />
+    <result column="is_immediately_confirm" jdbcType="TINYINT" property="isImmediatelyConfirm" />
+    <result column="balance_method" jdbcType="TINYINT" property="balanceMethod" />
+    <result column="confirm_no" jdbcType="VARCHAR" property="confirmNo" />
+    <result column="receivable_amount" jdbcType="DECIMAL" property="receivableAmount" />
+    <result column="agent_code" jdbcType="VARCHAR" property="agentCode" />
+    <result column="agent_name" jdbcType="VARCHAR" property="agentName" />
+    <result column="merchant_code" jdbcType="VARCHAR" property="merchantCode" />
+    <result column="merchant_name" jdbcType="VARCHAR" property="merchantName" />
+    <result column="special_request" jdbcType="VARCHAR" property="specialRequest" />
+    <result column="contract_name" jdbcType="VARCHAR" property="contractName" />
+    <result column="contract_phone" jdbcType="VARCHAR" property="contractPhone" />
+    <result column="belong_user" jdbcType="VARCHAR" property="belongUser" />
+    <result column="belong_name" jdbcType="VARCHAR" property="belongName" />
+    <result column="city_code" jdbcType="VARCHAR" property="cityCode" />
+    <result column="city_name" jdbcType="VARCHAR" property="cityName" />
+    <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+    <result column="hotel_name" jdbcType="VARCHAR" property="hotelName" />
+    <result column="room_type_names" jdbcType="VARCHAR" property="roomTypeNames" />
+    <result column="checkin_date" jdbcType="DATE" property="checkinDate" />
+    <result column="checkout_date" jdbcType="DATE" property="checkoutDate" />
+    <result column="room_num" jdbcType="INTEGER" property="roomNum" />
+    <result column="lock_user" jdbcType="VARCHAR" property="lockUser" />
+    <result column="lock_name" jdbcType="VARCHAR" property="lockName" />
+    <result column="lock_time" jdbcType="TIMESTAMP" property="lockTime" />
+    <result column="change_fee" jdbcType="DECIMAL" property="changeFee" />
+    <result column="cancel_reason" jdbcType="VARCHAR" property="cancelReason" />
+    <result column="confirm_content" jdbcType="VARCHAR" property="confirmContent" />
+    <result column="customer_order_code" jdbcType="VARCHAR" property="customerOrderCode" />
+    <result column="channel_order_status" jdbcType="VARCHAR" property="channelOrderStatus" />
+    <result column="is_group_room" jdbcType="TINYINT" property="isGroupRoom" />
+    <result column="guest_names" jdbcType="VARCHAR" property="guestNames" />
+    <result column="supply_order_codes" jdbcType="VARCHAR" property="supplyOrderCodes" />
+    <result column="breakfast_type" jdbcType="TINYINT" property="breakfastType" />
+    <result column="group_no" jdbcType="VARCHAR" property="groupNo" />
+    <result column="merchant_bm" jdbcType="VARCHAR" property="merchantBm" />
+    <result column="merchant_pm" jdbcType="VARCHAR" property="merchantPm" />
+    <result column="supply_status" jdbcType="VARCHAR" property="supplyStatus" />
+    <result column="guide" jdbcType="VARCHAR" property="guide" />
+    <result column="guide_phone" jdbcType="VARCHAR" property="guidePhone" />
+    <result column="rateplan_name" jdbcType="VARCHAR" property="rateplanName" />
+    <result column="cancel_policy" jdbcType="VARCHAR" property="cancelPolicy" />
+    <result column="supply_confirm_no" jdbcType="VARCHAR" property="supplyConfirmNo" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="channel_sub_code" jdbcType="VARCHAR" property="channelSubCode" />
+    <result column="supply_codes" jdbcType="VARCHAR" property="supplyCodes" />
+    <result column="rate" jdbcType="DECIMAL" property="rate" />
+    <result column="profit" jdbcType="DECIMAL" property="profit" />
+    <result column="is_hold_room" jdbcType="VARCHAR" property="isHoldRoom" />
+    <result column="is_abatement_order" jdbcType="INTEGER" property="isAbatementOrder" />
+    <result column="relation_order_code" jdbcType="VARCHAR" property="relationOrderCode" />
+    <result column="exception_amount" jdbcType="DECIMAL" property="exceptionAmount" />
+  </resultMap>
+
+  <select id="queryOrderList" parameterType="com.fangcang.order.request.OrderListRequestDTO"
+          resultMap="BaseResultMap">
+    SELECT
+      *
+    FROM o_order o
+    WHERE o.merchant_code=#{merchantCode}
+    <choose>
+      <when test="quickQueryType == 1">
+        AND o.belong_user=#{operatorUser}
+      </when>
+      <when test="quickQueryType == 2">
+        AND o.checkin_date=DATE_FORMAT(SYSDATE(),"%Y-%m-%d")
+      </when>
+      <when test="quickQueryType == 3">
+        AND o.order_status!=4
+        AND (o.order_status IN (1,2) OR o.supply_status LIKE '%1%' OR o.supply_status LIKE '%2%')
+      </when>
+      <when test="quickQueryType == 4">
+        AND o.order_status=4
+      </when>
+      <when test="quickQueryType == 5">
+        AND o.order_status=1
+        AND o.create_time >= DATE_FORMAT(SYSDATE(),"%Y-%m-%d") AND o.create_time &lt; date_add(DATE_FORMAT(SYSDATE(),"%Y-%m-%d"),interval 1 day)
+      </when>
+      <when test="quickQueryType == 6">
+        AND o.is_manual_order=1
+      </when>
+      <when test="quickQueryType == 7">
+        AND o.order_status!=4
+        AND EXISTS (SELECT 1 FROM o_order_request r WHERE r.handle_result = 0 AND r.request_type=1 AND r.order_id=o.id)
+      </when>
+      <when test="quickQueryType == 8">
+        AND EXISTS (SELECT 1 FROM o_order_request r WHERE r.handle_result = 0 AND r.request_type=2 AND r.order_id=o.id)
+      </when>
+      <when test="quickQueryType == 9">
+        AND EXISTS (SELECT 1 FROM o_order_request r WHERE r.handle_result = 0 AND r.request_type=3 AND r.order_id=o.id)
+      </when>
+      <otherwise>
+        <if test="orderCode != null and orderCode!=''">
+          AND o.order_code LIKE concat(concat('%',#{orderCode}),'%')
+        </if>
+        <if test="isGroupRoom != null">
+          AND o.is_group_room = #{isGroupRoom}
+        </if>
+        <choose>
+          <when test="dateQueryType==1">
+            <if test="startDate!=null and startDate!=''">
+              AND o.create_time >= #{startDate}
+            </if>
+            <if test="endDate!=null and endDate!=''">
+              AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+            </if>
+          </when>
+          <when test="dateQueryType==2">
+            <if test="startDate!=null and startDate!=''">
+              AND o.checkin_date >= #{startDate}
+            </if>
+            <if test="endDate!=null and endDate!=''">
+              AND o.checkin_date &lt;= #{endDate}
+            </if>
+          </when>
+          <when test="dateQueryType==3">
+            <if test="startDate!=null and startDate!=''">
+              AND o.checkout_date >= #{startDate}
+            </if>
+            <if test="endDate!=null and endDate!=''">
+              AND o.checkout_date &lt;= #{endDate}
+            </if>
+          </when>
+        </choose>
+        <if test="createDateStart!=null and createDateStart!=''">
+          AND o.create_time >= #{createDateStart}
+        </if>
+        <if test="createDateEnd!=null and createDateEnd!=''">
+          AND o.create_time &lt; date_add(#{createDateEnd},interval 1 day)
+        </if>
+        <if test="checkInDateStart!=null and checkInDateStart!=''">
+          AND o.checkin_date >= #{checkInDateStart}
+        </if>
+        <if test="checkInDateEnd!=null and checkInDateEnd!=''">
+          AND o.checkin_date &lt;= #{checkInDateEnd}
+        </if>
+        <if test="checkOutDateStart!=null and checkOutDateStart!=''">
+          AND o.checkout_date >= #{checkOutDateStart}
+        </if>
+        <if test="checkOutDateEnd!=null and checkOutDateEnd!=''">
+          AND o.checkout_date &lt;= #{checkOutDateEnd}
+        </if>
+        <if test="guest!=null and guest!=''">
+          AND o.guest_names LIKE concat(concat('%',#{guest}),'%')
+        </if>
+        <choose>
+          <when test="hotelId!=null">
+            AND o.hotel_id=#{hotelId}
+          </when>
+          <otherwise>
+            <if test="hotelName!=null and hotelName!=''">
+              AND o.hotel_name LIKE concat(concat('%',#{hotelName}),'%')
+            </if>
+          </otherwise>
+        </choose>
+        <if test="payStatus!=null">
+          AND o.pay_status=#{payStatus}
+        </if>
+        <if test="payStatusList != null and payStatusList.size > 0">
+          AND o.pay_status IN
+          <foreach collection="payStatusList" item="item" open="(" separator="," close=")">#{item}</foreach>
+        </if>
+        <if test="orderStatus!=null">
+          AND o.order_status=#{orderStatus}
+        </if>
+        <if test="orderStatusList != null and orderStatusList.size > 0">
+          AND o.order_status IN
+          <foreach collection="orderStatusList" item="item" open="(" separator="," close=")">#{item}</foreach>
+        </if>
+        <if test="supplyOrderCode!=null and supplyOrderCode!=''">
+          AND o.supply_order_codes LIKE concat(concat('%',#{supplyOrderCode}),'%')
+        </if>
+        <if test="confirmNo!=null and confirmNo!=''">
+          AND o.supply_confirm_no LIKE concat(concat('%',#{confirmNo}),'%')
+        </if>
+        <if test="customerOrderCode!=null and customerOrderCode!=''">
+          AND o.customer_order_code LIKE concat(concat('%',#{customerOrderCode}),'%')
+        </if>
+        <choose>
+          <when test="agentCode!=null">
+            AND o.agent_code=#{agentCode}
+          </when>
+          <otherwise>
+            <if test="agentName!=null and agentName!=''">
+              AND o.agent_name LIKE concat(concat('%',#{agentName}),'%')
+            </if>
+          </otherwise>
+        </choose>
+        <if test="merchantBm!=null and merchantBm!=''">
+          AND o.merchant_bm LIKE concat(concat('%',#{merchantBm}),'%')
+        </if>
+        <if test="merchantPm!=null and merchantPm!=''">
+          AND o.merchant_pm LIKE concat(concat('%',#{merchantPm}),'%')
+        </if>
+        <if test="merchantOp!=null and merchantOp!=''">
+          AND o.merchant_op LIKE concat(concat('%',#{merchantOp}),'%')
+        </if>
+        <if test="supplyStatus!=null">
+          AND o.supply_status LIKE concat(concat('%',#{supplyStatus}),'%')
+        </if>
+        <if test="belongName!=null and belongName!=''">
+          AND o.belong_name LIKE concat(concat('%',#{belongName}),'%')
+        </if>
+        <if test="supplyCode!=null and supplyCode!=''">
+          AND o.supply_codes LIKE concat(concat('%',#{supplyCode}),'%')
+        </if>
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="channelCode=='ctrip'">
+        AND o.channel_code IN ('ctrip','ctrip_b2b','ctrip_channel_a')
+      </when>
+      <otherwise>
+        <if test="channelCode!=null and channelCode!=''">
+          AND o.channel_code=#{channelCode}
+        </if>
+      </otherwise>
+    </choose>
+    ORDER BY o.id DESC
+  </select>
+</mapper>

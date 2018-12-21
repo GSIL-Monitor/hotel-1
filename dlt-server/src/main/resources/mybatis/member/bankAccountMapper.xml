@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.member.dao.BankAccountDao">
+
+	<!-- 保存银行账户信息 -->
+	<insert id="saveBankAccount" parameterType="com.travel.common.dto.member.response.BankAccountDTO" useGeneratedKeys="true" keyProperty="bankAccountId">
+		insert into t_bank_account (bank_no,bank_name,currency,dept,creator,create_date,modifier,modify_date,is_active, bank_username) 
+		values (#{bankNo,jdbcType=VARCHAR},#{bankName,jdbcType=VARCHAR},#{currency,jdbcType=VARCHAR},#{dept,jdbcType=VARCHAR},#{creator,jdbcType=VARCHAR},now(),#{modifier,jdbcType=VARCHAR},now(),1,#{bankUserName,jdbcType=VARCHAR})
+	</insert>
+	
+	<!-- 修改银行账户信息 -->
+	<update id="updateBankAccount" parameterType="com.travel.common.dto.member.response.BankAccountDTO">
+		update t_bank_account t
+		<set>
+			<if test="bankNo != null and bankNo != ''">t.bank_no = #{bankNo},</if>
+			<if test="bankName != null and bankName != ''">t.bank_name = #{bankName},</if>
+			<if test="currency != null and currency != ''">t.currency = #{currency},</if>
+			<if test="dept != null">t.dept = #{dept},</if>
+			<if test="isActive != null">t.is_active = #{isActive},</if>
+			<if test="modifier != null">t.modifier = #{modifier},</if>
+			<if test="bankUserName != null and bankUserName != ''">t.bank_username = #{bankUserName},</if>
+			t.modifydate = now()
+		</set>
+		where t.bank_id = #{bankAccountId}
+	</update>
+	
+	<!-- 删除银行账户信息 -->
+	<delete id="deleteBankAccount" parameterType="java.lang.Long">
+		delete t from t_bank_account t where t.bank_id = #{bankAccountId}
+	</delete>
+	
+	<sql id="queryColumn">
+		  t.bank_id       as bankAccountId,
+		  t.bank_no       as bankNo,
+		  t.bank_name     as bankName,
+		  t.currency      as currency,
+		  t.dept          as dept,
+		  t.creator       as creator,
+		  t.create_date   as createDate,
+		  t.modifier      as modifier,
+		  t.modify_date   as modifyDate,
+		  t.is_active     as isActive,
+		  t.bank_username as bankUserName
+	</sql>
+	
+	<!-- 根据id查询银行账户信息 -->
+	<select id="queryBankAccountById" parameterType="java.lang.Long" resultType="com.travel.common.dto.member.response.BankAccountDTO">
+		select
+			<include refid="queryColumn" />
+		from t_bank_account t
+		where t.bank_id = #{bankAccountId}
+	</select>
+
+	<!-- 查询有效银行账户集合 -->
+	<select id="queryBankAccountListByCondition" parameterType="com.travel.common.dto.member.query.BankAccountQueryDTO" resultType="com.travel.common.dto.member.response.BankAccountDTO">
+		select
+		  <include refid="queryColumn" />
+		from t_bank_account t
+		<where>
+			<if test="bankNo != '' and bankNo != null">t.bank_no = #{bankNo}</if>
+			<if test="bankName != '' and bankName != null">t.bank_name like concat('%',#{bankName},'%')</if>
+			<if test="isActive != null">t.is_active = #{isActive}</if>
+		</where>
+		order by t.create_date desc
+	</select>
+	
+</mapper>

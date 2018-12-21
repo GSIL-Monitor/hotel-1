@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.agent.mapper.AgentOperLogMapper">
+	<resultMap id="BaseResultMap" type="com.fangcang.agent.domain.AgentOperLogDO">
+        <id column="id" jdbcType="INTEGER" property="agentOperLogId" />
+        <result column="oper_agent_id" jdbcType="INTEGER" property="operAgentId" />
+        <result column="oper_agent_user_id" jdbcType="INTEGER" property="operAgentUserId" />
+        <result column="content" jdbcType="VARCHAR" property="content" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+    	id, oper_agent_id, oper_agent_user_id, content, creator,create_time
+  	</sql>
+    <select id="queryAgentOperLogList" resultMap="BaseResultMap" parameterType="com.fangcang.agent.request.GetAgentOperLogRequestDTO">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_agent_oper_log
+        WHERE 1=1
+        <if test="agentId != null">
+            AND oper_agent_id=#{agentId}
+        </if>
+        <if test="userId != null">
+            AND oper_agent_user_id=#{userId}
+        </if>
+    </select>
+    
+</mapper>

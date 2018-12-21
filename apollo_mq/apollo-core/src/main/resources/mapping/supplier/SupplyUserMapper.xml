@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.supplier.mapper.SupplyUserMapper">
+    <resultMap id="BaseResultMap" type="com.fangcang.supplier.domain.SupplyUserDO">
+        <id column="supply_user_id" property="supplyUserId" jdbcType="INTEGER"/>
+        <result column="username" property="userName" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="is_active" property="isActive" jdbcType="TINYINT"/>
+        <result column="supply_id" property="supplyId" jdbcType="INTEGER"/>
+        <result column="master" property="master" jdbcType="TINYINT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    supply_user_id, username, password, real_name, phone, create_time, creator, modify_time, 
+    modifier, is_active, supply_id, master
+    </sql>
+
+    <select id="getUserInfo" parameterType="com.fangcang.supplier.request.SingleUserRequestDTO"
+            resultType="com.fangcang.supplier.response.SingleUserResponseDTO">
+        SELECT u.supply_user_id userID ,u.password,u.real_name realName,u.username userName,u.supply_id supplyId,u.is_active isActive
+        FROM t_supply s,t_supply_user u
+        WHERE s.supply_id=u.supply_id
+        <if test="userId != null ">
+            AND u.supply_user_id=#{userId}
+        </if>
+        <if test="userName != null">
+            AND u.username=#{userName}
+        </if>
+        <if test="merchantId != null">
+            AND s.merchant_id=#{merchantId}
+        </if>
+    </select>
+
+    <insert id="insertUsers" parameterType="java.util.List">
+        INSERT INTO t_supply_user(
+        username,
+        password,
+        real_name,create_time,supply_id,creator,master,is_active,phone) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.userName,jdbcType=VARCHAR}, #{item.password,jdbcType=VARCHAR},
+            #{item.realName,jdbcType=VARCHAR},NOW(),#{item.supplyId,jdbcType=INTEGER},
+            #{item.creator,jdbcType=VARCHAR},#{item.master,jdbcType=TINYINT},1,#{item.phone,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <update id="batchUpdateUsers" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            UPDATE t_supply_user
+            <set>
+                username=#{item.userName},
+                password=#{item.password},
+                real_name=#{item.realName},
+                modifier=#{item.modifier},
+                modify_time=#{item.modifyTime}
+                master=#{item.master,jdbcType=TINYINT}
+            </set>
+            WHERE supply_user_id=#{item.supplyUserId,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <select id="selectSupplyUserByMasterAndSupplyId"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_supply_user WHERE master=1 AND supply_id = #{supply_id}
+    </select>
+
+    <!--添加单个供应商用户 后来添加的用户master都为0-->
+    <insert id="insertSingleSupplyUser" parameterType="com.fangcang.supplier.domain.SupplyUserDO"
+            useGeneratedKeys="true" keyProperty="supplyUserId">
+        INSERT INTO t_supply_user(
+        username,
+        password,
+        real_name,create_time,supply_id,creator,master,is_active,phone) VALUES (
+            #{userName,jdbcType=VARCHAR},
+            #{password,jdbcType=VARCHAR},
+            #{realName,jdbcType=VARCHAR},
+            NOW(),
+            #{supplyId,jdbcType=INTEGER},
+            #{creator,jdbcType=VARCHAR},
+            0,
+            1,
+            #{phone,jdbcType=VARCHAR})
+    </insert>
+
+    <!--编辑单个供应商用户-->
+    <update id="updateSingleSupplyUser" parameterType="com.fangcang.supplier.domain.SupplyUserDO">
+        UPDATE t_supply_user
+        <set>
+            password=#{password},
+            real_name=#{realName},
+            modifier=#{modifier},
+            modify_time=NOW(),
+        </set>
+        WHERE supply_user_id=#{supplyUserId,jdbcType=INTEGER}
+    </update>
+
+    <!--根据id获取详情-->
+    <select id="getUserByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_supply_user WHERE supply_user_id=#{supplyUserId,jdbcType=INTEGER}
+    </select>
+
+    <update id="setUserActive" parameterType="com.fangcang.supplier.domain.SupplyUserDO">
+        UPDATE t_supply_user
+        <set>
+            is_active=#{isActive,jdbcType=TINYINT},
+            modifier=#{modifier,jdbcType=VARCHAR},
+            modify_time=NOW(),
+        </set>
+        WHERE supply_user_id=#{supplyUserId,jdbcType=INTEGER}
+    </update>
+
+    <!--根据supplyId查询所有供应商用户-->
+    <select id="selectUserListBySupplyId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_supply_user
+        WHERE supply_id = #{supply_id,jdbcType=INTEGER}
+    </select>
+    <resultMap id="BaseResultMap2" type="com.fangcang.supplier.dto.MasterAccountDTO">
+        <id column="supply_user_id" property="supplyUserId" jdbcType="INTEGER"/>
+        <result column="username" property="userName" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="is_active" property="isActive" jdbcType="TINYINT"/>
+        <result column="supply_id" property="supplyId" jdbcType="INTEGER"/>
+        <result column="master" property="master" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <select id="selectMasterUser" resultMap="BaseResultMap2" parameterType="java.lang.Long">
+        SELECT 
+        supply_user_id,username,password,real_name,is_active,supply_id,master
+        FROM t_supply_user
+        WHERE supply_id = #{supply_id,jdbcType=INTEGER} AND master=1
+    </select>
+
+    <!--新增单个用户用-->
+    <select id="selectUserByUsernameAndMerchantId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM t_supply_user u LEFT JOIN t_supply s ON u.supply_id=s.supply_id
+        WHERE u.username = #{username} AND s.merchant_id = #{merchantId}
+    </select>
+
+    <!--新增供应商用-->
+    <select id="selectUserByUsernameListAndMerchantId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM t_supply_user u LEFT JOIN t_supply s ON u.supply_id=s.supply_id
+        WHERE u.username IN
+        <foreach collection="list" index="index" item="username" open="(" separator="," close=")">
+            #{username}
+        </foreach>
+        AND s.merchant_id = #{merchantId}
+    </select>
+
+</mapper>

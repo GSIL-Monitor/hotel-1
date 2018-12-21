@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.SupplyFinanceMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.SupplyFinanceDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="supply_order_id" jdbcType="INTEGER" property="supplyOrderId" />
+    <result column="settlement_amount" jdbcType="DECIMAL" property="settlementAmount" />
+    <result column="account_status" jdbcType="TINYINT" property="accountStatus" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="supply_order_code" jdbcType="VARCHAR" property="supplyOrderCode" />
+    <result column="receipt_amount" jdbcType="DECIMAL" property="receiptAmount" />
+  </resultMap>
+</mapper>

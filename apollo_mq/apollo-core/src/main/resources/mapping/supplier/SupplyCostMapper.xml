@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.supplier.mapper.SupplyCostMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.supplier.domain.SupplyCostDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="supply_id" jdbcType="INTEGER" property="supplyId" />
+    <result column="cost_name" jdbcType="VARCHAR" property="costName" />
+    <result column="begin_use_date" jdbcType="DATE" property="beginUseDate" />
+    <result column="end_use_date" jdbcType="DATE" property="endUseDate" />
+    <result column="cost_price" jdbcType="DECIMAL" property="costPrice" />
+    <result column="is_active" jdbcType="INTEGER" property="isActive" />
+    <result column="create_time" jdbcType="DATE" property="createTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modify_time" jdbcType="DATE" property="modifyTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+  </resultMap>
+</mapper>

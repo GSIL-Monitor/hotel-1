@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.financeorder.mapper.AgentFinanceOrderSQLMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.financeorder.domain.AgentSingleBalanceDO">
+
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_code" jdbcType="VARCHAR" property="orderCode" />
+    <result column="sale_currency" jdbcType="VARCHAR" property="saleCurrency" />
+    <result column="balance_method" jdbcType="TINYINT" property="balanceMethod" />
+    <result column="receivable_amount" jdbcType="DECIMAL" property="receivableAmount" />
+    <result column="settlement_amount" jdbcType="DECIMAL" property="hasReceivedAmount" />
+    <result column="agent_code" jdbcType="VARCHAR" property="agentCode" />
+    <result column="agent_name" jdbcType="VARCHAR" property="agentName" />
+    <result column="merchant_code" jdbcType="VARCHAR" property="merchantCode" />
+    <result column="merchant_name" jdbcType="VARCHAR" property="merchantName" />
+    <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+    <result column="hotel_name" jdbcType="VARCHAR" property="hotelName" />
+    <result column="room_type_names" jdbcType="VARCHAR" property="roomTypeNames" />
+    <result column="rateplan_name" jdbcType="VARCHAR" property="rateplanName" />
+    <result column="checkin_date" jdbcType="DATE" property="checkinDate" />
+    <result column="checkout_date" jdbcType="DATE" property="checkoutDate" />
+    <result column="room_num" jdbcType="INTEGER" property="roomNum" />
+    <result column="is_group_room" jdbcType="TINYINT" property="isGroupRoom" />
+    <result column="guest_names" jdbcType="VARCHAR" property="guestNames" />
+    <result column="breakfast_type" jdbcType="TINYINT" property="breakfastType" />
+    <result column="rateplan_name" jdbcType="VARCHAR" property="rateplanName" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="account_status" jdbcType="TINYINT" property="accountStatus" />
+
+  </resultMap>
+
+  <select id="queryUnreceived" parameterType="com.fangcang.finance.financeorder.domain.AgentSingleBalanceDO" resultMap="BaseResultMap">
+
+    SELECT	o.id, o.order_code, sale_currency, channel_code, receivable_amount,agent_code, agent_name, merchant_code, merchant_name, hotel_id, hotel_name, room_type_names, checkin_date, checkout_date, room_num,  is_group_room, guest_names,breakfast_type,rateplan_name,o.creator, o.create_time, modifier, modify_time,b.settlement_amount,b.settlement_status account_status
+      FROM	o_order o left join o_order_finance b  on o.id = b.order_id
+     WHERE	EXISTS (
+              SELECT *
+                FROM t_fin_agent_finance_order a
+                WHERE o.order_code = a.order_code
+                AND a.finance_status = 0)
+      and o.balance_method = 4
+      <if test="orderCode != null and orderCode !=''">
+          and o.order_code like concat('%',#{orderCode},'%')
+      </if>
+      <if test="agentCode != null and  agentCode !=''">
+          and o.agent_code = #{agentCode,jdbcType=VARCHAR}
+      </if>
+      <if test="agentName != null and agentName !=''">
+          and o.agent_name like concat('%',#{agentName},'%')
+      </if>
+      <if test="hotelId != null ">
+           and o.hotel_id = #{hotelId,jdbcType=INTEGER}
+      </if>
+      <if test="hotelName != null ">
+           and o.hotel_name like concat('%',#{hotelName},'%')
+      </if>
+      <if test="guestNames != null ">
+           and o.guest_names like concat('%',#{guestNames},'%')
+      </if>
+      <if test="checkinStartDate != null ">
+        <![CDATA[
+           and o.checkin_date >= #{checkinStartDate,jdbcType=TIMESTAMP}
+         ]]>
+      </if>
+      <if test="checkinEndDate != null ">
+    <![CDATA[
+           and o.checkin_date <= #{checkinEndDate,jdbcType=TIMESTAMP}
+           ]]>
+      </if>
+      <if test="checkoutStartDate != null ">
+      <![CDATA[
+           and o.checkout_date >= #{checkoutStartDate,jdbcType=TIMESTAMP}
+           ]]>
+      </if>
+      <if test="checkoutEndDate != null ">
+      <![CDATA[
+           and o.checkout_date <= #{checkoutEndDate,jdbcType=TIMESTAMP}
+           ]]>
+      </if>
+
+      <if test="createStartDate != null ">
+      <![CDATA[
+           and o.create_time >= #{createStartDate,jdbcType=TIMESTAMP}
+           ]]>
+      </if>
+      <if test="createEndDate != null ">
+      <![CDATA[
+           and o.create_time <= #{createEndDate,jdbcType=TIMESTAMP}
+           ]]>
+      </if>
+
+  </select>
+
+  <select id="queryReceived" parameterType="com.fangcang.finance.financeorder.domain.AgentSingleBalanceDO" resultMap="BaseResultMap">
+
+        SELECT	o.id, o.order_code, sale_currency, channel_code, receivable_amount,agent_code, agent_name, merchant_code, merchant_name, hotel_id, hotel_name, room_type_names, checkin_date, checkout_date, room_num,  is_group_room, guest_names,breakfast_type,rateplan_name,o.creator, o.create_time, modifier, modify_time,f.settlement_amount,f.settlement_status account_status
+          FROM	o_order o,o_order_finance f
+         where o.order_code = f.order_code
+           and f.settlement_status = 1
+           and o.balance_method = 4
+          <if test="orderCode != null and orderCode !=''">
+              and o.order_code like concat('%',#{orderCode},'%')
+          </if>
+          <if test="agentCode != null and  agentCode !=''">
+              and o.agent_code = #{agentCode,jdbcType=VARCHAR}
+          </if>
+          <if test="agentName != null and agentName !=''">
+              and o.agent_name like concat('%',#{agentName},'%')
+          </if>
+          <if test="hotelId != null ">
+               and o.hotel_id = #{hotelId,jdbcType=INTEGER}
+          </if>
+          <if test="hotelName != null ">
+               and o.hotel_name like concat('%',#{hotelName},'%')
+          </if>
+          <if test="guestNames != null ">
+               and o.guest_names like concat('%',#{guestNames},'%')
+          </if>
+          <if test="checkinStartDate != null ">
+                <![CDATA[and o.checkin_date >= #{checkinStartDate,jdbcType=TIMESTAMP} ]]>
+          </if>
+          <if test="checkinEndDate != null ">
+              <![CDATA[ and o.checkin_date <= #{checkinEndDate,jdbcType=TIMESTAMP} ]]>
+          </if>
+          <if test="checkoutStartDate != null ">
+              <![CDATA[and o.checkout_date >= #{checkoutStartDate,jdbcType=TIMESTAMP} ]]>
+          </if>
+          <if test="checkoutEndDate != null ">
+              <![CDATA[and o.checkout_date <= #{checkoutEndDate,jdbcType=TIMESTAMP} ]]>
+          </if>
+
+          <if test="createStartDate != null ">
+              <![CDATA[and o.create_time >= #{createStartDate,jdbcType=TIMESTAMP} ]]>
+          </if>
+          <if test="createEndDate != null ">
+              <![CDATA[and o.create_time <= #{createEndDate,jdbcType=TIMESTAMP} ]]>
+          </if>
+
+
+  </select>
+
+
+  <select id="queryUnfinished" parameterType="com.fangcang.finance.financeorder.domain.AgentSingleBalanceDO" resultMap="BaseResultMap">
+
+    SELECT	o.id, o.order_code, order_status, pay_status, pay_method, sale_currency, channel_code, order_sum, is_manual_order, is_immediately_confirm, balance_method, confirm_no, receivable_amount, agent_code, agent_name, merchant_code, merchant_name, special_request, contract_name, contract_phone, belong_user, belong_name, city_code, city_name, hotel_id, hotel_name, room_type_names, checkin_date, checkout_date, room_num, lock_user, lock_name, lock_time, change_fee, cancel_reason, confirm_content, customer_order_code, channel_order_status, is_group_room, guest_names, supply_order_codes, breakfast_type, group_no, merchant_bm, merchant_pm, supply_status, guide, guide_phone, rateplan_name, cancel_policy, supply_confirm_no, o.creator, o.create_time, o.modifier, o.modify_time, channel_sub_code, supply_codes, rate, profit,b.settlement_amount,b.settlement_status account_status
+      FROM	o_order o left join o_order_finance b  on o.id = b.order_id
+     WHERE NOT EXISTS
+             (SELECT *
+                FROM t_fin_agent_finance_order a
+               WHERE o.order_code = a.order_code
+                 AND a.finance_status = 0)
+       AND NOT EXISTS
+                     (SELECT *
+                        FROM o_order_finance f
+                       where o.order_code = f.order_code
+                         and f.settlement_status = 1)
+       and o.balance_method = 4
+          <if test="orderCode != null and orderCode !=''">
+              and o.order_code like concat('%',#{orderCode},'%')
+          </if>
+          <if test="agentCode != null and  agentCode !=''">
+              and o.agent_code = #{agentCode,jdbcType=VARCHAR}
+          </if>
+          <if test="agentName != null and agentName !=''">
+              and o.agent_name like concat('%',#{agentName},'%')
+          </if>
+          <if test="hotelId != null ">
+               and o.hotel_id = #{hotelId,jdbcType=INTEGER}
+          </if>
+          <if test="hotelName != null ">
+               and o.hotel_name like concat('%',#{hotelName},'%')
+          </if>
+          <if test="guestNames != null ">
+               and o.guest_names like concat('%',#{guestNames},'%')
+          </if>
+          <if test="checkinStartDate != null ">
+                <![CDATA[and o.checkin_date >= #{checkinStartDate,jdbcType=TIMESTAMP}  ]]>
+          </if>
+          <if test="checkinEndDate != null ">
+               <![CDATA[and o.checkin_date <= #{checkinEndDate,jdbcType=TIMESTAMP}  ]]>
+          </if>
+          <if test="checkoutStartDate != null ">
+               <![CDATA[and o.checkout_date >= #{checkoutStartDate,jdbcType=TIMESTAMP}  ]]>
+          </if>
+          <if test="checkoutEndDate != null ">
+               <![CDATA[and o.checkout_date <= #{checkoutEndDate,jdbcType=TIMESTAMP}  ]]>
+          </if>
+
+          <if test="createStartDate != null ">
+               <![CDATA[and o.create_time >= #{createStartDate,jdbcType=TIMESTAMP}  ]]>
+          </if>
+          <if test="createEndDate != null ">
+               <![CDATA[and o.create_time <= #{createEndDate,jdbcType=TIMESTAMP}  ]]>
+          </if>
+
+
+
+  </select>
+</mapper>

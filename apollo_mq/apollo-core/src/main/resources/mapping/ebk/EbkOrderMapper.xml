@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.ebk.mapper.EbkOrderMapper">
+
+    <resultMap id="orderDetailMap" type="com.fangcang.ebk.response.EbkOrderDTO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="supply_order_code" property="supplyOrderCode" jdbcType="VARCHAR"/>
+        <result column="order_status" property="orderStatus" jdbcType="INTEGER"/>
+        <result column="is_groupon" property="isGroupon" jdbcType="INTEGER"/>
+        <result column="hotel_id" property="hotelId" jdbcType="INTEGER"/>
+        <result column="hotel_name" property="hotelName" jdbcType="VARCHAR"/>
+        <result column="roomtype_id" property="roomtypeId" jdbcType="INTEGER"/>
+        <result column="roomtype_name" property="roomtypeName" jdbcType="VARCHAR"/>
+        <result column="rateplan_id" property="rateplanId" jdbcType="INTEGER"/>
+        <result column="rateplan_name" property="rateplanName" jdbcType="VARCHAR"/>
+        <result column="check_in_date" property="checkInDate" jdbcType="VARCHAR"/>
+        <result column="check_out_date" property="checkOutDate" jdbcType="VARCHAR"/>
+        <result column="night_num" property="nightNum" jdbcType="INTEGER"/>
+        <result column="room_num" property="roomNum" jdbcType="INTEGER"/>
+        <result column="guest" property="guest" jdbcType="VARCHAR"/>
+        <result column="guest_attach_url" property="guestAttachUrl" jdbcType="VARCHAR"/>
+        <result column="order_sum" property="orderSum" jdbcType="DECIMAL"/>
+        <result column="currency" property="currency" jdbcType="VARCHAR"/>
+        <result column="special_requirement" property="specialRequirement" jdbcType="VARCHAR"/>
+        <result column="supply_code" property="supplyCode" jdbcType="VARCHAR"/>
+        <result column="supply_name" property="supplyName" jdbcType="VARCHAR"/>
+        <result column="merchant_code" property="merchantCode" jdbcType="VARCHAR"/>
+        <result column="merchant_name" property="merchantName" jdbcType="VARCHAR"/>
+        <result column="merchant_remark" property="merchantRemark" jdbcType="VARCHAR"/>
+        <result column="balance_method" property="balanceMethod" jdbcType="INTEGER"/>
+        <result column="guide" property="guide" jdbcType="VARCHAR"/>
+        <result column="guide_phone" property="guidePhone" jdbcType="VARCHAR"/>
+        <result column="belong_user" property="belongUser" jdbcType="VARCHAR"/>
+        <result column="belong_name" property="belongName" jdbcType="VARCHAR"/>
+        <result column="lock_user" property="lockUser" jdbcType="VARCHAR"/>
+        <result column="lock_name" property="lockName" jdbcType="VARCHAR"/>
+        <result column="lock_time" property="lockTime" jdbcType="VARCHAR"/>
+        <result column="ebk_request_id" property="requestId" jdbcType="INTEGER"/>
+        <result column="confirm_no" property="confirmNo" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <association property="productList" column="id" select="queryProductList"/>
+        <association property="additionList" column="id" select="queryAdditionList"/>
+        <association property="derateList" column="id" select="queryDerateList"/>
+        <association property="logList" column="id" select="queryLogList"/>
+        <association property="untreatedRequest" column="supply_order_code" select="queryUntreatedRequest"/>
+    </resultMap>
+
+    <resultMap id="derateMap" type="com.fangcang.ebk.response.EbkOrderProductDTO">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="itemType" property="itemType" jdbcType="INTEGER"/>
+        <result column="itemName" property="itemName" jdbcType="VARCHAR"/>
+        <result column="nightNum" property="nightNum" jdbcType="INTEGER"/>
+        <result column="roomNum" property="roomNum" jdbcType="INTEGER"/>
+        <result column="salePrice" property="salePrice" jdbcType="DECIMAL"/>
+        <result column="salePriceSum" property="salePriceSum" jdbcType="DECIMAL"/>
+        <association property="priceList" column="id" select="queryDeratePriceList"/>
+    </resultMap>
+
+    <select id="queryOrderList" parameterType="com.fangcang.ebk.request.QueryEbkOrderDTO"
+            resultType="com.fangcang.ebk.response.EbkOrderSimpleDTO">
+        SELECT
+          o.id,
+          o.supply_order_code supplyOrderCode,
+          o.order_status orderStatus,
+          o.is_groupon isGroupon,
+          o.order_sum orderSum,
+          o.currency,
+          o.hotel_name hotelName,
+          o.roomtype_name roomtypeName,
+          o.rateplan_name rateplanName,
+          DATE_FORMAT(o.check_in_date,"%Y-%m-%d")checkInDate,
+          DATE_FORMAT(o.check_out_date,"%Y-%m-%d")checkOutDate,
+          DATEDIFF(o.check_out_date,o.check_in_date)nightNum,
+          o.room_num roomNum,
+          o.guest,
+          o.belong_name belongName,
+          o.lock_name lockName,
+          o.ebk_request_id requestId,
+          o.confirm_no confirmNo,
+          o.guide,
+          o.guide_phone guidePhone,
+          DATE_FORMAT(o.create_time,"%Y-%m-%d %T")createTime
+        FROM t_ebk_order o INNER JOIN t_ebk_request r ON o.ebk_request_id=r.id
+        WHERE 1=1
+        and o.supply_code=#{supplyCode}
+        <choose>
+            <when test="tagType==1">
+                and o.order_status in (1,2,3)
+            </when>
+            <when test="tagType==2">
+                and o.check_in_date=CURDATE()
+            </when>
+            <when test="tagType==3">
+                and o.order_status in (2,3)
+            </when>
+        </choose>
+        <if test="keyWord != null and keyWord !=''">
+            and (o.supply_order_code LIKE concat(concat('%',#{keyWord}),'%') or o.guest LIKE concat(concat('%',#{keyWord}),'%'))
+        </if>
+        <if test="isGroupon !=null and isGroupon!=-1">
+            and o.is_groupon=#{isGroupon}
+        </if>
+        <if test="supplyOrderCode != null and supplyOrderCode !=''">
+            and o.supply_order_code LIKE concat(concat('%',#{supplyOrderCode}),'%')
+        </if>
+        <choose>
+            <when test="dateType==1">
+                <if test="beginDate != null and beginDate !=''">
+                    AND o.create_time >= #{beginDate}
+                </if>
+                <if test="endDate != null and endDate !=''">
+                    AND o.create_time &lt;= #{endDate}
+                </if>
+            </when>
+            <when test="dateType==2">
+                <if test="beginDate != null and beginDate !=''">
+                    AND  o.check_in_date >= #{beginDate}
+                </if>
+                <if test="endDate != null and endDate !=''">
+                    AND o.check_in_date &lt;= #{endDate}
+                </if>
+            </when>
+            <when test="dateType==3">
+                <if test="beginDate != null and beginDate !=''">
+                    AND o.check_out_date >= #{beginDate}
+                </if>
+                <if test="endDate != null and endDate !=''">
+                    AND o.check_out_date &lt;= #{endDate}
+                </if>
+            </when>
+        </choose>
+        <if test="grouponCode != null and grouponCode !=''">
+            and o.groupon_code LIKE concat(concat('%',#{grouponCode}),'%')
+        </if>
+        <if test="orderStatusList != null and orderStatusList.size > 0">
+            AND order_status IN
+            <foreach collection="orderStatusList" item="item" open="(" separator="," close=")">#{item}</foreach>
+        </if>
+        <if test="guide != null and guide !=''">
+            and o.guide LIKE concat(concat('%',#{guide}),'%')
+        </if>
+        <if test="guest != null and guest !=''">
+            and o.guest LIKE concat(concat('%',#{guest}),'%')
+        </if>
+        <if test="confirmNo != null and confirmNo !=''">
+            and o.confirm_no=#{confirmNo}
+        </if>
+        ORDER BY r.create_time DESC
+    </select>
+
+    <select id="queryOrderDetail" parameterType="java.lang.String"
+            resultMap="orderDetailMap">
+        SELECT
+          id,
+          supply_order_code,
+          order_status,
+          is_groupon,
+          hotel_id,
+          hotel_name,
+          roomtype_id,
+          roomtype_name,
+          rateplan_id,
+          rateplan_name,
+          DATE_FORMAT(check_in_date,"%Y-%m-%d")check_in_date,
+          DATE_FORMAT(check_out_date,"%Y-%m-%d")check_out_date,
+          DATEDIFF(check_out_date,check_in_date)night_num,
+          room_num,
+          guest,
+          guest_attach_url,
+          order_sum,
+          currency,
+          special_requirement,
+          supply_code,
+          supply_name,
+          merchant_code,
+          merchant_name,
+          merchant_remark,
+          balance_method,
+          guide,
+          guide_phone,
+          belong_user,
+          belong_name,
+          lock_user,
+          lock_name,
+          DATE_FORMAT(lock_time,"%Y-%m-%d %T")lock_time,
+          ebk_request_id,
+          confirm_no,
+          creator,
+          DATE_FORMAT(create_time,"%Y-%m-%d %T")create_time
+        FROM t_ebk_order o
+        WHERE o.supply_order_code=#{supplyOrderCode}
+    </select>
+
+    <select id="queryProductList" parameterType="int"
+            resultType="com.fangcang.ebk.response.EbkOrderProductDTO">
+        SELECT
+          id,
+          item_type itemType,
+          item_name itemName,
+          roomtype_id roomtypeId,
+          roomtype_name roomtypeName,
+          rateplan_id rateplanId,
+          rateplan_name rateplanName,
+          bed_type bedType,
+          breakfast_type breakfastType,
+          check_in_date checkInDate,
+          check_out_date checkOutDate,
+          night_num nightNum,
+          room_num roomNum,
+          sale_price salePrice,
+          night_num*room_num*sale_price salePriceSum
+        FROM t_ebk_order_item WHERE item_type=1 and ebk_order_id=#{ebkOrderId,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryAdditionList" parameterType="int"
+            resultType="com.fangcang.ebk.response.EbkOrderProductDTO">
+        SELECT
+          id,
+          item_type itemType,
+          item_name itemName,
+          night_num nightNum,
+          room_num roomNum,
+          sale_price salePrice,
+          night_num*room_num*sale_price salePriceSum
+        FROM t_ebk_order_item WHERE item_type=2 and ebk_order_id=#{ebkOrderId,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryDerateList" parameterType="int"
+            resultMap="derateMap">
+        SELECT
+          id,
+          item_type itemType,
+          item_name itemName,
+          night_num nightNum,
+          room_num roomNum,
+          sale_price salePrice,
+          sale_price salePriceSum
+        FROM t_ebk_order_item WHERE item_type=3 and ebk_order_id=#{ebkOrderId,jdbcType=INTEGER}
+    </select>
+    
+    <select id="queryDeratePriceList" parameterType="int"
+            resultType="com.fangcang.ebk.response.EbkOrderProductPriceDTO">
+        SELECT
+          id,
+          order_item_id orderItemId,
+          DATE_FORMAT(sale_date,"%Y-%m-%d") saleDate,
+          room_num roomNum,
+          sale_price salePrice
+        FROM t_ebk_order_item_price WHERE order_item_id=#{orderItemId,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryLogList" parameterType="int"
+            resultType="com.fangcang.ebk.response.EbkOrderLogDTO">
+        SELECT
+          l.id,
+          l.content,
+          if(r.exist_snap=1,l.ebk_request_id,NULL) ebkRequestId,
+          l.creator,
+          DATE_FORMAT(l.create_time,"%Y-%m-%d %T")createTime
+        FROM t_ebk_order_log l LEFT JOIN t_ebk_request r ON l.ebk_request_id=r.id
+        WHERE ebk_order_id=#{ebkOrderId,jdbcType=INTEGER}
+        ORDER BY l.create_time
+    </select>
+
+    <select id="queryUntreatedRequest" parameterType="java.lang.String"
+            resultType="com.fangcang.ebk.response.EbkRequestDTO">
+        SELECT * FROM (
+        SELECT
+          id,
+          request_type requestType,
+          request_status requestStatus,
+          confirm_no confirmNo,
+          refuse_reason refuseReason,
+          supply_remark supplyRemark,
+          creator,
+          DATE_FORMAT(create_time,"%Y-%m-%d %T")createTime
+        FROM t_ebk_request WHERE supply_order_code=#{supplyOrderCode,jdbcType=VARCHAR}
+        ORDER BY create_time desc LIMIT 1)tmp
+        WHERE tmp.requestStatus=0
+    </select>
+
+    <update id="lock" parameterType="com.fangcang.ebk.request.LockRequestDTO">
+        UPDATE t_ebk_order
+        SET lock_user=#{lockUser},lock_name=#{lockName},lock_time=SYSDATE()
+        WHERE (lock_user IS NULL OR lock_user=#{lockUser})
+        AND supply_order_code IN
+        <foreach collection="supplyOrderCodeList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </update>
+
+    <update id="unlock" parameterType="com.fangcang.ebk.request.LockRequestDTO">
+        UPDATE t_ebk_order
+        SET lock_user=NULL,lock_name=NULL,lock_time=NULL
+        WHERE lock_user=#{lockUser}
+        AND supply_order_code IN
+        <foreach collection="supplyOrderCodeList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </update>
+
+    <update id="updateNotifyCount" parameterType="java.util.List">
+        UPDATE t_ebk_order
+        SET notify_count=notify_count+1,last_notify_time=SYSDATE()
+        WHERE id IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </update>
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.SupplyRequestMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.SupplyRequestDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="supply_order_id" jdbcType="INTEGER" property="supplyOrderId" />
+    <result column="supply_type" jdbcType="TINYINT" property="supplyType" />
+    <result column="send_type" jdbcType="TINYINT" property="sendType" />
+    <result column="send_status" jdbcType="TINYINT" property="sendStatus" />
+    <result column="is_display_price" jdbcType="TINYINT" property="isDisplayPrice" />
+    <result column="this_confirm_type" jdbcType="TINYINT" property="thisConfirmType" />
+    <result column="this_confirm_no" jdbcType="VARCHAR" property="thisConfirmNo" />
+    <result column="this_confirm_name" jdbcType="VARCHAR" property="thisConfirmName" />
+    <result column="refuse_reason" jdbcType="VARCHAR" property="refuseReason" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+</mapper>

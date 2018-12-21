@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.merchant.mapper.ResourceMapper">
+	<resultMap id="BaseResultMap" type="com.fangcang.merchant.domain.ResourceDO">
+        <id column="id" jdbcType="INTEGER" property="resourceId" />
+        <result column="resource_code" jdbcType="VARCHAR" property="resourceCode" />
+        <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
+        <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+        <result column="url_pattern" jdbcType="VARCHAR" property="urlPattern" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+        <result column="pid" jdbcType="INTEGER" property="pid" />
+        <result column="level" jdbcType="INTEGER" property="level" />
+        <result column="is_active" jdbcType="INTEGER" property="isActive" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="modify_date" jdbcType="TIMESTAMP" property="modifyTime" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+    	id, resource_code, resource_name, resource_type, url_pattern,description,pid,level,is_active,creator,create_date,modifier,modify_date
+  	</sql>
+    <select id="queryResourceList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_resource
+    </select>
+
+    <select id="queryRoleResourceList" resultType="com.fangcang.merchant.domain.RoleResourceDO">
+      select r.role_code roleCode,s.url_pattern urlPattern
+        from t_resource s , t_role_resource rs ,t_role r
+       where r.id = rs.role_id and s.id = rs.resource_id
+    </select>
+
+
+</mapper>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.report.mapper.ReceivablePayableReportMapper">
+
+    <select id="receivableReport" parameterType="com.fangcang.report.request.ReceivableReportQueryDTO"
+            resultType="com.fangcang.report.response.ReceivableReportResponseDTO">
+        SELECT
+            tmp.`agent_code` agentCode,
+            tmp.`agent_name` agentName,
+            tmp.`channel_code` channelCode,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`settlement_amount` ) settlementAmount,
+            SUM( tmp.`receivable_amount` - tmp.`settlement_amount` ) unReceivableAmount,
+            SUM( tmp.`profit` ) profit,
+            SUM(tmp.roomNight) roomNight
+        FROM(
+        SELECT
+            o.`agent_code`,
+            o.`agent_name`,
+            CASE
+            o.channel_code
+            WHEN 'ctrip_b2b' THEN
+            'ctrip'
+            WHEN 'ctrip_channel_a' THEN
+            'ctrip' ELSE o.channel_code
+            END channel_code,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            f.`settlement_amount`,
+            o.`profit`,
+            SUM(TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num`) roomNight
+        FROM
+        o_order o,
+        o_order_finance f,
+        o_supply_order so,
+        o_supply_product sp
+        WHERE
+        o.id = f.order_id
+        AND o.id = so.order_id
+        AND so.id = sp.supply_order_id
+        AND so.supply_status != 4
+        AND o.`merchant_code` = #{merchantCode}
+        <choose>
+            <when test="queryType != null and queryType != '' and queryType == 1">
+                AND o.`create_time` >= #{startDate}
+                AND o.`create_time` &lt; date_add(#{endDate},interval 1 day)
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 2">
+                AND o.`checkin_date` >= #{startDate}
+                AND o.`checkin_date` &lt;= #{endDate}
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 3">
+                AND o.`checkout_date` >= #{startDate}
+                AND o.`checkout_date` &lt;= #{endDate}
+            </when>
+        </choose>
+        <if test="agentCode != null and agentCode != ''">
+            AND o.`agent_code` = #{agentCode}
+        </if>
+        <if test="channelCode != null and channelCode != ''">
+            AND o.`channel_code` = #{channelCode}
+        </if>
+        <if test="merchantBm != null and merchantBm != ''">
+            AND o.`merchant_bm` = #{merchantBm}
+        </if>
+        GROUP BY o.`order_code`,
+            o.`agent_code`,
+            o.`agent_name`,
+            o.channel_code,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            f.`settlement_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`agent_code`,tmp.`channel_code`
+        ORDER BY tmp.`agent_code`,tmp.`channel_code`ASC
+    </select>
+
+    <select id="receivableReportSum" parameterType="com.fangcang.report.request.ReceivableReportQueryDTO"
+            resultType="com.fangcang.report.response.ReceivableSummaryDTO">
+        SELECT
+        SUM( o.`receivable_amount` ) receivableAmountSum,
+        SUM( f.`settlement_amount` ) settlementAmountSum,
+        SUM( o.`receivable_amount` - f.`settlement_amount` ) unReceivableAmountSum,
+        SUM( o.`profit` ) profitSum
+        FROM
+        `o_order` o,
+        o_order_finance f
+        WHERE
+        o.id = f.order_id
+        AND o.`merchant_code` = #{merchantCode}
+        <choose>
+            <when test="queryType != null and queryType != '' and queryType == 1">
+                AND o.`create_time` >= #{startDate}
+                AND o.`create_time` &lt; date_add(#{endDate},interval 1 day)
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 2">
+                AND o.`checkin_date` >= #{startDate}
+                AND o.`checkin_date` &lt;= #{endDate}
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 3">
+                AND o.`checkout_date` >= #{startDate}
+                AND o.`checkout_date` &lt;= #{endDate}
+            </when>
+        </choose>
+        <if test="agentCode != null and agentCode != ''">
+            AND o.`agent_code` = #{agentCode}
+        </if>
+        <if test="channelCode != null and channelCode != ''">
+            AND o.`channel_code` = #{channelCode}
+        </if>
+        <if test="merchantBm != null and merchantBm != ''">
+            AND o.`merchant_bm` = #{merchantBm}
+        </if>
+    </select>
+
+    <select id="payableReport" parameterType="com.fangcang.report.request.PayableReportQueryDTO"
+            resultType="com.fangcang.report.response.PayableReportResponseDTO">
+        SELECT
+            tmp.`supply_code` supplyCode,
+            tmp.`supply_name` supplyName,
+            tmp.`base_currency` baseCurrency,
+            SUM( tmp.`payable_amount` ) payableAmount,
+            SUM( tmp.`settlement_amount` ) settlementAmount,
+            SUM( tmp.`payable_amount` - tmp.`settlement_amount` ) unPayableAmount,
+            SUM( tmp.`sale_price_sum` - tmp.`payable_amount` ) profit,
+            SUM(tmp.roomNight) roomNight
+        FROM (
+        SELECT
+            so.`supply_code`,
+            so.`supply_name`,
+            so.`base_currency`,
+            so.`payable_amount`,
+            sf.`settlement_amount`,
+            so.`sale_price_sum`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+        `o_order` o,
+        `o_supply_order` so,
+        `o_supply_finance` sf,
+        `o_supply_product` sp,
+        `t_supply` s
+        WHERE
+        o.`id` = so.`order_id`
+        AND so.`id` = sp.`supply_order_id`
+        AND so.`id` = sf.`supply_order_id`
+        AND so.`supply_code` = s.`supply_code`
+        AND so.supply_status != 4
+        AND o.`merchant_code` = #{merchantCode}
+        <choose>
+            <when test="queryType != null and queryType != '' and queryType == 1">
+                AND o.`create_time` >= #{startDate}
+                AND o.`create_time` &lt; date_add(#{endDate},interval 1 day)
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 2">
+                AND so.`checkin_date` >= #{startDate}
+                AND so.`checkin_date` &lt;= #{endDate}
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 3">
+                AND so.`checkout_date` >= #{startDate}
+                AND so.`checkout_date` &lt;= #{endDate}
+            </when>
+        </choose>
+        <if test="supplyCode != null and supplyCode != ''">
+            AND so.`supply_code` = #{supplyCode}
+        </if>
+        <if test="merchantPmId != null and merchantPmId != ''">
+            AND s.`merchant_pm` = #{merchantPmId}
+        </if>
+        GROUP BY so.supply_order_code,
+        so.`supply_code`,
+        so.`supply_name`,
+        so.`base_currency`,
+        so.`payable_amount`,
+        sf.`settlement_amount`,
+        so.`sale_price_sum`)tmp
+        GROUP BY tmp.supply_code
+        ORDER BY tmp.supply_code ASC
+    </select>
+
+    <select id="payableReportSum" parameterType="com.fangcang.report.request.PayableReportQueryDTO"
+            resultType="com.fangcang.report.response.PayableSummaryDTO">
+        SELECT
+        SUM( so.`payable_amount` ) payableAmountSum,
+        SUM( sf.`settlement_amount` ) settlementAmountSum,
+        SUM( so.`payable_amount` - sf.`settlement_amount` ) unPayableAmountSum,
+        SUM( so.`sale_price_sum` - so.`payable_amount` ) profitSum
+        FROM
+        `o_order` o,
+        `o_supply_order` so,
+        `o_supply_finance` sf,
+        `t_supply` s
+        WHERE
+        o.`id` = so.`order_id`
+        AND so.`id` = sf.`supply_order_id`
+        AND so.`supply_code` = s.`supply_code`
+        AND so.supply_status != 4
+        AND o.`merchant_code` = #{merchantCode}
+        <choose>
+            <when test="queryType != null and queryType != '' and queryType == 1">
+                AND o.`create_time` >= #{startDate}
+                AND o.`create_time` &lt; date_add(#{endDate},interval 1 day)
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 2">
+                AND so.`checkin_date` >= #{startDate}
+                AND so.`checkin_date` &lt;= #{endDate}
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 3">
+                AND so.`checkout_date` >= #{startDate}
+                AND so.`checkout_date` &lt;= #{endDate}
+            </when>
+        </choose>
+        <if test="supplyCode != null and supplyCode != ''">
+            AND so.`supply_code` = #{supplyCode}
+        </if>
+        <if test="merchantPmId != null and merchantPmId != ''">
+            AND s.`merchant_pm` = #{merchantPmId}
+        </if>
+    </select>
+
+</mapper>

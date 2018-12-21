@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.base.mapper.ExchangeMapper">
+
+    <select id="queryExchange" parameterType="com.fangcang.base.request.QueryExchangeDTO"
+            resultType="com.fangcang.base.response.ExchangeDTO">
+        SELECT
+          id,
+          merchant_code merchantCode,
+          source_currency sourceCurrency,
+          target_currency targetCurrency,
+          rate
+        FROM t_exchange e
+        WHERE 1=1
+        <if test="merchantCode != null">
+            AND e.merchant_code=#{merchantCode}
+        </if>
+        <if test="sourceCurrency !=null">
+            AND e.source_currency=#{sourceCurrency}
+        </if>
+        <if test="targetCurrency != null">
+            AND e.target_currency=#{targetCurrency}
+        </if>
+    </select>
+</mapper>

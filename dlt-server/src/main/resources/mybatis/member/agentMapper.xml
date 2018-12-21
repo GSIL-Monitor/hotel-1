@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.member.dao.AgentDao">
+
+	<!-- 保存分销商信息 -->
+	<insert id="saveAgent" parameterType="com.travel.member.entity.Agent" useGeneratedKeys="true" keyProperty="agentId">
+		insert into t_agent (agent_code,agent_name,address,tel,fax,settlement,email,contacts,isactive,creator,createdate,credit_line, used_credit_amount,settlement_rmb) 
+		values (#{agentCode,jdbcType=VARCHAR},#{agentName,jdbcType=VARCHAR},#{address,jdbcType=VARCHAR},#{tel,jdbcType=VARCHAR},#{fax,jdbcType=VARCHAR},#{settlement,jdbcType=VARCHAR},#{email,jdbcType=VARCHAR},#{contacts,jdbcType=VARCHAR},1,#{creator,jdbcType=VARCHAR},now(),#{creditLine,jdbcType=DECIMAL}, #{usedCreditAmount,jdbcType=DECIMAL}, #{settlementRMB,jdbcType=INTEGER})
+	</insert>
+	
+	<!-- 修改分销商信息 -->
+	<update id="updateAgent" parameterType="com.travel.member.entity.Agent">
+		update t_agent t
+		<set>
+			<if test="agentName != null and agentName != ''">t.agent_name = #{agentName},</if>
+			<if test="address != null">t.address = #{address},</if>
+			<if test="tel != null">t.tel = #{tel},</if>
+			<if test="settlement != null">t.settlement = #{settlement},</if>
+			<if test="contacts != null">t.contacts = #{contacts},</if>
+			<if test="isActive != null">t.isactive = #{isActive},</if>
+			<if test="modifier != null">t.modifier = #{modifier},</if>
+			t.settlement_rmb = #{settlementRMB},
+			t.fax = #{fax},
+			t.email = #{email},
+			t.credit_line = #{creditLine},
+			t.used_credit_amount = #{usedCreditAmount},
+			t.modifydate = now()
+		</set>
+		where t.agent_id = #{agentId}
+	</update>
+	
+	<!-- 删除分销商信息 -->
+	<delete id="deleteAgent" parameterType="java.lang.Long">
+		delete t from t_agent t where t.agent_id = #{agentId}
+	</delete>
+	
+	<sql id="queryColumn">
+		  t.agent_id           as agentId,
+		  t.agent_code         as agentCode,
+		  t.agent_name         as agentName,
+		  t.address            as address,
+		  t.tel                as tel,
+		  t.fax                as fax,
+		  t.settlement         as settlement,
+		  t.email              as email,
+		  t.contacts           as contacts,
+		  t.isactive           as isActive,
+		  t.credit_line        as creditLine,
+		  t.used_credit_amount as usedCreditAmount,
+		  t.settlement_rmb     as settlementRMB,
+		  t.creator            as creator,
+		  t.createdate         as createDate,
+		  t.modifydate         as updateDate,
+		  t.modifier           as updator
+	</sql>
+	
+	<!-- 根据分销商id查询分销商 -->
+	<select id="queryAgentById" parameterType="java.lang.Long" resultType="com.travel.member.entity.Agent">
+		select
+			<include refid="queryColumn" />
+		from t_agent t
+		where t.agent_id = #{agentId}
+	</select>
+
+	<select id="queryAgentByCode" parameterType="java.lang.String" resultType="com.travel.member.entity.Agent">
+		select
+		<include refid="queryColumn" />
+		from t_agent t
+		where t.agent_code = #{agentCode}
+	</select>
+
+	<!-- 根据分销商名称查询分销商 -->
+	<select id="queryAgentByName" parameterType="java.lang.String" resultType="com.travel.member.entity.Agent">
+		select
+			<include refid="queryColumn" />
+		from t_agent t
+		where t.agent_name = #{agentName}
+	</select>
+	
+	<!-- 查询分销商集合 -->
+	<select id="listAgent" parameterType="com.travel.common.dto.member.query.AgentQueryDTO" resultType="com.travel.member.entity.Agent">
+		select
+		  <include refid="queryColumn" />
+		from t_agent t
+		<where>
+			<if test="isActive != null">
+				and t.isactive = #{isActive}
+			</if>
+			<if test="agentCode != null and agentCode != ''">
+				and t.agent_code = #{agentCode}
+			</if>
+			<if test="agentCode == null or agentCode == ''">
+				<if test="agentName != null and agentName != ''">
+					and t.agent_name like concat('%',#{agentName},'%')
+				</if>
+			</if>
+		</where>
+		order by t.createdate desc
+	</select>
+	
+</mapper>

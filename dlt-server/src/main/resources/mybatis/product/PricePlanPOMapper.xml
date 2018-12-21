@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.product.dao.PricePlanPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.product.entity.po.PricePlanPO" >
+    <id column="priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+    <result column="priceplan_name" property="priceplanName" jdbcType="VARCHAR" />
+    <result column="supply_code" property="supplyCode" jdbcType="VARCHAR" />
+    <result column="hotel_id" property="hotelId" jdbcType="BIGINT" />
+    <result column="pay_method" property="payMethod" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+    <result column="room_type_id" property="roomTypeId" jdbcType="BIGINT" />
+    <result column="account_id" property="accountId" jdbcType="BIGINT" />
+    <result column="quota_type" property="quotaType" jdbcType="BIGINT" />
+    <result column="is_active" property="isActive" jdbcType="INTEGER" />
+    <result column="sale_b_currency" property="saleBCurrency" jdbcType="VARCHAR" />
+    <result column="sale_c_currency" property="saleCCurrency" jdbcType="VARCHAR" />
+    <result column="base_currency" property="baseCurrency" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    priceplan_id, priceplan_name, supply_code, hotel_id, pay_method, creator, createdate, 
+    modifier, modifydate, room_type_id, account_id,quota_type,is_active,sale_b_currency,sale_c_currency,base_currency
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_htlpro_priceplan
+    where priceplan_id = #{priceplanId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_htlpro_priceplan
+    where priceplan_id = #{priceplanId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.product.entity.po.PricePlanPO" >
+    insert into t_htlpro_priceplan (priceplan_id, priceplan_name, supply_code, 
+      hotel_id, pay_method, creator, 
+      createdate, modifier, modifydate, 
+      room_type_id, account_id,quota_type,is_active,sale_b_currency,sale_c_currency,base_currency)
+    values (#{priceplanId,jdbcType=BIGINT}, #{priceplanName,jdbcType=VARCHAR}, #{supplyCode,jdbcType=VARCHAR}, 
+      #{hotelId,jdbcType=BIGINT}, #{payMethod,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, 
+      now(), #{modifier,jdbcType=VARCHAR}, now(),
+      #{roomTypeId,jdbcType=BIGINT}, #{accountId,jdbcType=BIGINT},#{quotaType,jdbcType=VARCHAR}, #{isActive,jdbcType=INTEGER}
+      #{saleBCurrency,jdbcType=VARCHAR},#{saleCCurrency,jdbcType=VARCHAR}，#{baseCurrency,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.product.entity.po.PricePlanPO" useGeneratedKeys="true" keyProperty="priceplanId">
+    insert into t_htlpro_priceplan
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="priceplanId != null" >
+        priceplan_id,
+      </if>
+      <if test="priceplanName != null" >
+        priceplan_name,
+      </if>
+      <if test="supplyCode != null" >
+        supply_code,
+      </if>
+      <if test="hotelId != null" >
+        hotel_id,
+      </if>
+      <if test="payMethod != null" >
+        pay_method,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createdate != null" >
+        createdate,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifydate != null" >
+        modifydate,
+      </if>
+      <if test="roomTypeId != null" >
+        room_type_id,
+      </if>
+      <if test="accountId != null" >
+        account_id,
+      </if>
+      <if test="quotaType != null" >
+        quota_type,
+      </if>
+      <if test="isActive != null" >
+        is_active,
+      </if>
+      <if test="saleBCurrency != null" >
+        sale_b_currency,
+      </if>
+      <if test="saleCCurrency != null" >
+        sale_c_currency,
+      </if>
+      <if test="baseCurrency != null" >
+        base_currency,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="priceplanId != null" >
+        #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="priceplanName != null" >
+        #{priceplanName,jdbcType=VARCHAR},
+      </if>
+      <if test="supplyCode != null" >
+        #{supplyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelId != null" >
+        #{hotelId,jdbcType=BIGINT},
+      </if>
+      <if test="payMethod != null" >
+        #{payMethod,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        #{modifydate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="roomTypeId != null" >
+        #{roomTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="accountId != null" >
+        #{accountId,jdbcType=BIGINT},
+      </if>
+      <if test="quotaType != null" >
+        #{quotaType,jdbcType=VARCHAR},
+      </if>
+      <if test="isActive != null" >
+        #{isActive,jdbcType=INTEGER},
+      </if>
+      <if test="saleBCurrency != null" >
+        #{saleBCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="saleCCurrency != null" >
+        #{saleCCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="baseCurrency != null" >
+        #{baseCurrency,jdbcType=VARCHAR}
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.product.entity.po.PricePlanPO" >
+    update t_htlpro_priceplan
+    <set >
+      <if test="priceplanName != null" >
+        priceplan_name = #{priceplanName,jdbcType=VARCHAR},
+      </if>
+      <if test="supplyCode != null" >
+        supply_code = #{supplyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelId != null" >
+        hotel_id = #{hotelId,jdbcType=BIGINT},
+      </if>
+      <if test="payMethod != null" >
+        pay_method = #{payMethod,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        createdate = #{createdate,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        modifydate = now(),
+      </if>
+      <if test="roomTypeId != null" >
+        room_type_id = #{roomTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="accountId != null" >
+        account_id = #{accountId,jdbcType=BIGINT},
+      </if>
+      <if test="quotaType != null" >
+        quota_type = #{quotaType,jdbcType=VARCHAR},
+      </if>
+      <if test="isActive != null" >
+        is_active = #{isActive,jdbcType=INTEGER}
+      </if>
+    </set>
+    where priceplan_id = #{priceplanId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.product.entity.po.PricePlanPO" >
+    update t_htlpro_priceplan
+    set priceplan_name = #{priceplanName,jdbcType=VARCHAR},
+      supply_code = #{supplyCode,jdbcType=VARCHAR},
+      hotel_id = #{hotelId,jdbcType=BIGINT},
+      pay_method = #{payMethod,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      createdate = now(),
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modifydate = now(),
+      room_type_id = #{roomTypeId,jdbcType=BIGINT},
+      account_id = #{accountId,jdbcType=BIGINT},
+      quota_type = #{quotaType,jdbcType=VARCHAR},
+      is_active = #{isActive,jdbcType=INTEGER}
+    where priceplan_id = #{priceplanId,jdbcType=BIGINT}
+  </update>
+  	
+  	<!-- 根据酒店id查询价格计划和房型 -->
+	<select id="queryPricePlanRoomByHotelId" resultType="com.travel.hotel.product.entity.PricePlanRoom" parameterType="com.travel.common.dto.product.request.PricePlanQueryDTO">
+		select
+		  p.priceplan_id    pricePlanId,
+		  p.priceplan_name  pricePlanName,
+		  hr.room_type_id   roomTypeId,
+		  hr.room_name      roomTypeName,
+		  hr.bed_type       bedType,
+		  p.sale_b_currency saleBCurrency,
+		  p.sale_c_currency saleCCurrency,
+		  p.base_currency   baseCurrency
+		from t_htlpro_priceplan p, t_htlpro_room hr
+		where p.room_type_id = hr.room_type_id and p.hotel_id = #{hotelId}
+	</select>
+
+  <!-- 查询价格计划列表 -->
+  <select id="queryPricePlanList" resultType="com.travel.hotel.product.entity.PricePlanDTO" parameterType="com.travel.hotel.product.entity.po.PricePlanPO">
+      select p.priceplan_id priceplanId,
+              p.priceplan_name priceplanName,
+              s.supply_code supplyCode,
+              p.hotel_id hotelId,
+              p.pay_method payMethod,
+              p.creator,
+              p.createdate,
+              p.modifier,
+              p.modifydate,
+              p.room_type_id roomTypeId,
+              p.account_id accountId,
+              p.quota_type quotaType,
+              p.is_active isActive,
+              h.hotel_name hotelName,
+              r.ROOM_NAME roomTypeName ,
+              s.supply_name supplyName,
+              h.pre_Hold_Quota preHoldQuota,
+              p.base_Currency baseCurrency,
+              p.sale_C_Currency saleCCurrency,
+              p.sale_B_Currency saleBCurrency
+        from t_htlpro_priceplan p ,t_htlpro_hotel h, t_htlpro_room r,t_supply_hotel_relation sr, t_supply s
+       where h.hotel_id = r.hotel_id and p.room_type_id = r.room_type_id and p.hotel_id = r.hotel_id and sr.hotel_id = h.hotel_id AND sr.supply_code = s.supply_code
+      <if test="priceplanId != null" >
+        AND p.priceplan_id = #{priceplanId,jdbcType=BIGINT}
+      </if>
+        <if test="priceplanName != null" >
+          AND p.priceplan_name = #{priceplanName,jdbcType=VARCHAR}
+        </if>
+        <if test="supplyCode != null" >
+          AND s.supply_code = #{supplyCode,jdbcType=VARCHAR}
+        </if>
+        <if test="hotelId != null" >
+          AND p.hotel_id = #{hotelId,jdbcType=BIGINT}
+        </if>
+        <if test="payMethod != null" >
+          AND p.pay_method = #{payMethod,jdbcType=INTEGER}
+        </if>
+        <if test="roomTypeId != null" >
+          AND p.room_type_id = #{roomTypeId,jdbcType=BIGINT}
+        </if>
+        <if test="accountId != null" >
+          AND p.account_id = #{accountId,jdbcType=BIGINT}
+        </if>
+        <if test="quotaType != null" >
+          AND p.quota_type in (#{quotaType,jdbcType=VARCHAR})
+        </if>
+      <if test="quotaTypeList != null and quotaTypeList.size() > 0" >
+        and quota_type in <foreach collection="quotaTypeList" index="idx" item="it" open="(" separator="," close=")">#{it}</foreach>
+      </if>
+        <if test="isActive != null" >
+          AND p.is_active = #{isActive,jdbcType=INTEGER}
+        </if>
+    <if test="cityCode != null" >
+      AND h.city_code = #{cityCode,jdbcType=VARCHAR}
+    </if>
+    	<if test="null != cityType">
+	      <if test="cityType == 1">
+	        and h.city_code in ('ZHH')
+	      </if>
+	      <if test="cityType == 0">
+	        and h.city_code in ('HKG','MAC')
+	      </if>
+	  </if>
+  </select>
+
+
+	
+</mapper>

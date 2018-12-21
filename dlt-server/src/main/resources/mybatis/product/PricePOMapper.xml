@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.product.dao.PricePOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.product.entity.po.PricePO" >
+    <id column="price_id" property="priceId" jdbcType="BIGINT" />
+    <result column="priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+    <result column="SALE_DATE" property="saleDate" jdbcType="DATE" />
+    <result column="base_currency" property="baseCurrency" jdbcType="VARCHAR" />
+    <result column="base_price" property="basePrice" jdbcType="DECIMAL" />
+    <result column="breakfast_num" property="breakfastNum" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+    <result column="sale_b_price" property="saleBPrice" jdbcType="DECIMAL" />
+    <result column="sale_channel_currency" property="saleChannelCurrency" jdbcType="VARCHAR" />
+    <result column="sale_c_price" property="saleCPrice" jdbcType="DECIMAL" />
+    <result column="sale_c_currency" property="saleCCurrency" jdbcType="VARCHAR" />
+    <result column="tm_price" property="tmPrice" jdbcType="DECIMAL" />
+    <result column="ctrip_price" property="ctripPrice" jdbcType="DECIMAL" />
+    <result column="jd_price" property="jdPrice" jdbcType="DECIMAL" />
+    <result column="xmd_price" property="xmdPrice" jdbcType="DECIMAL" />
+    <result column="tuniu_price" property="tuniuPrice" jdbcType="DECIMAL" />
+    <result column="tongcheng_price" property="tongchengPrice" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    price_id, priceplan_id, SALE_DATE, base_currency, base_price, breakfast_num, creator,
+    createdate, modifier, modifydate, sale_b_price, sale_channel_currency, sale_c_price, 
+    sale_c_currency, tm_price, ctrip_price, jd_price, xmd_price, tuniu_price, tongcheng_price
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_htlpro_price
+    where price_id = #{priceId,jdbcType=BIGINT}
+  </select>
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select
+    <include refid="Base_Column_List" />
+    from t_htlpro_price
+    <where>
+      1 = 1
+      <if test="priceplanId != null" >
+        and priceplan_id = #{priceplanId,jdbcType=BIGINT}
+      </if>
+      <if test="InPriceplanId != null and InPriceplanId.size() > 0" >
+        and priceplan_id in <foreach collection="InPriceplanId" index="idx" item="it" open="(" separator="," close=")">#{it}</foreach>
+      </if>
+      <if test="checkInDate != null">
+        <![CDATA[and cast(SALE_DATE as date) >= cast(#{checkInDate} as date)]]>
+      </if>
+      <if test="checkOutDate != null">
+        <![CDATA[and cast(SALE_DATE as date) < cast(#{checkOutDate} as date)]]>
+      </if>
+    </where>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_htlpro_price
+    where price_id = #{priceId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deleteByPricePlanIdAndSaleDate" parameterType="com.travel.hotel.product.entity.po.PricePO" >
+    delete from t_htlpro_price
+    where priceplan_id = #{priceplanId,jdbcType=BIGINT}
+    and SALE_DATE =  #{saleDate,jdbcType=DATE}
+  </delete>
+
+  <insert id="insert" parameterType="com.travel.hotel.product.entity.po.PricePO" >
+    insert into t_htlpro_price (price_id, priceplan_id, SALE_DATE, 
+      base_currency, base_price, breakfast_num, 
+      creator, createdate, modifier, 
+      modifydate, sale_b_price, sale_channel_currency, 
+      sale_c_price, sale_c_currency, tm_price, 
+      ctrip_price, jd_price, xmd_price, 
+      tuniu_price, tongcheng_price)
+    values (#{priceId,jdbcType=BIGINT}, #{priceplanId,jdbcType=BIGINT}, #{saleDate,jdbcType=DATE}, 
+      #{baseCurrency,jdbcType=VARCHAR}, #{basePrice,jdbcType=DECIMAL}, #{breakfastNum,jdbcType=VARCHAR},
+      #{creator,jdbcType=VARCHAR}, #{createdate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{modifydate,jdbcType=TIMESTAMP}, #{saleBPrice,jdbcType=DECIMAL}, #{saleChannelCurrency,jdbcType=VARCHAR}, 
+      #{saleCPrice,jdbcType=DECIMAL}, #{saleCCurrency,jdbcType=VARCHAR}, #{tmPrice,jdbcType=DECIMAL}, 
+      #{ctripPrice,jdbcType=DECIMAL}, #{jdPrice,jdbcType=DECIMAL}, #{xmdPrice,jdbcType=DECIMAL}, 
+      #{tuniuPrice,jdbcType=DECIMAL}, #{tongchengPrice,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.product.entity.po.PricePO" >
+    insert into t_htlpro_price
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="priceId != null" >
+        price_id,
+      </if>
+      <if test="priceplanId != null" >
+        priceplan_id,
+      </if>
+      <if test="saleDate != null" >
+        SALE_DATE,
+      </if>
+      <if test="baseCurrency != null" >
+        base_currency,
+      </if>
+      <if test="basePrice != null" >
+        base_price,
+      </if>
+      <if test="breakfastNum != null" >
+        breakfast_num,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createdate != null" >
+        createdate,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifydate != null" >
+        modifydate,
+      </if>
+      <if test="saleBPrice != null" >
+        sale_b_price,
+      </if>
+      <if test="saleChannelCurrency != null" >
+        sale_channel_currency,
+      </if>
+      <if test="saleCPrice != null" >
+        sale_c_price,
+      </if>
+      <if test="saleCCurrency != null" >
+        sale_c_currency,
+      </if>
+      <if test="tmPrice != null" >
+        tm_price,
+      </if>
+      <if test="ctripPrice != null" >
+        ctrip_price,
+      </if>
+      <if test="jdPrice != null" >
+        jd_price,
+      </if>
+      <if test="xmdPrice != null" >
+        xmd_price,
+      </if>
+      <if test="tuniuPrice != null" >
+        tuniu_price,
+      </if>
+      <if test="tongchengPrice != null" >
+        tongcheng_price,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="priceId != null" >
+        #{priceId,jdbcType=BIGINT},
+      </if>
+      <if test="priceplanId != null" >
+        #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="saleDate != null" >
+        #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="baseCurrency != null" >
+        #{baseCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="basePrice != null" >
+        #{basePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="breakfastNum != null" >
+        #{breakfastNum,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        now(),
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        now(),
+      </if>
+      <if test="saleBPrice != null" >
+        #{saleBPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="saleChannelCurrency != null" >
+        #{saleChannelCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="saleCPrice != null" >
+        #{saleCPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="saleCCurrency != null" >
+        #{saleCCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="tmPrice != null" >
+        #{tmPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="ctripPrice != null" >
+        #{ctripPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="jdPrice != null" >
+        #{jdPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="xmdPrice != null" >
+        #{xmdPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="tuniuPrice != null" >
+        #{tuniuPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="tongchengPrice != null" >
+        #{tongchengPrice,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+
+
+  <insert id="batchInsertSelective" parameterType="java.util.List" >
+    insert into t_htlpro_price
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="priceId != null" >
+        price_id,
+      </if>
+      <if test="priceplanId != null" >
+        priceplan_id,
+      </if>
+      <if test="saleDate != null" >
+        SALE_DATE,
+      </if>
+      <if test="baseCurrency != null" >
+        base_currency,
+      </if>
+      <if test="basePrice != null" >
+        base_price,
+      </if>
+      <if test="breakfastNum != null" >
+        breakfast_num,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createdate != null" >
+        createdate,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifydate != null" >
+        modifydate,
+      </if>
+      <if test="saleBPrice != null" >
+        sale_b_price,
+      </if>
+      <if test="saleChannelCurrency != null" >
+        sale_channel_currency,
+      </if>
+      <if test="saleCPrice != null" >
+        sale_c_price,
+      </if>
+      <if test="saleCCurrency != null" >
+        sale_c_currency,
+      </if>
+      <if test="tmPrice != null" >
+        tm_price,
+      </if>
+      <if test="ctripPrice != null" >
+        ctrip_price,
+      </if>
+      <if test="jdPrice != null" >
+        jd_price,
+      </if>
+      <if test="xmdPrice != null" >
+        xmd_price,
+      </if>
+      <if test="tuniuPrice != null" >
+        tuniu_price,
+      </if>
+      <if test="tongchengPrice != null" >
+        tongcheng_price,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <foreach collection="list" item="priceItem" index="index" separator=",">
+        <if test="priceItem.priceId != null" >
+          #{priceItem.priceId,jdbcType=BIGINT},
+        </if>
+        <if test="priceItem.priceplanId != null" >
+          #{priceItem.priceplanId,jdbcType=BIGINT},
+        </if>
+        <if test="priceItem.saleDate != null" >
+          #{priceItem.saleDate,jdbcType=DATE},
+        </if>
+        <if test="priceItem.baseCurrency != null" >
+          #{priceItem.baseCurrency,jdbcType=VARCHAR},
+        </if>
+        <if test="priceItem.basePrice != null" >
+          #{priceItem.basePrice,jdbcType=DECIMAL},
+        </if>
+        <if test="priceItem.breakfastNum != null" >
+          #{priceItem.breakfastNum,jdbcType=VARCHAR},
+        </if>
+        <if test="priceItem.creator != null" >
+          #{priceItem.creator,jdbcType=VARCHAR},
+        </if>
+        <if test="priceItem.createdate != null" >
+          now(),
+        </if>
+        <if test="priceItem.modifier != null" >
+          #{priceItem.modifier,jdbcType=VARCHAR},
+        </if>
+        <if test="priceItem.modifydate != null" >
+          now(),
+        </if>
+        <if test="priceItem.saleBPrice != null" >
+          #{priceItem.saleBPrice,jdbcType=DECIMAL},
+        </if>
+        <if test="priceItem.saleChannelCurrency != null" >
+          #{priceItem.saleChannelCurrency,jdbcType=VARCHAR},
+        </if>
+        <if test="priceItem.saleCPrice != null" >
+          #{priceItem.saleCPrice,jdbcType=DECIMAL},
+        </if>
+        <if test="priceItem.saleCCurrency != null" >
+          #{priceItem.saleCCurrency,jdbcType=VARCHAR},
+        </if>
+        <if test="priceItem.tmPrice != null" >
+          #{priceItem.tmPrice,jdbcType=DECIMAL},
+        </if>
+        <if test="priceItem.ctripPrice != null" >
+          #{priceItem.ctripPrice,jdbcType=DECIMAL},
+        </if>
+        <if test="priceItem.jdPrice != null" >
+          #{priceItem.jdPrice,jdbcType=DECIMAL},
+        </if>
+        <if test="priceItem.xmdPrice != null" >
+          #{priceItem.xmdPrice,jdbcType=DECIMAL},
+        </if>
+        <if test="priceItem.tuniuPrice != null" >
+          #{priceItem.tuniuPrice,jdbcType=DECIMAL},
+        </if>
+        <if test="priceItem.tongchengPrice != null" >
+          #{priceItem.tongchengPrice,jdbcType=DECIMAL},
+        </if>
+      </foreach>
+    </trim>
+  </insert>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.product.entity.po.PricePO" >
+    update t_htlpro_price
+    <set >
+      <if test="priceplanId != null" >
+        priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="saleDate != null" >
+        SALE_DATE = #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="baseCurrency != null" >
+        base_currency = #{baseCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="basePrice != null" >
+        base_price = #{basePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="breakfastNum != null" >
+        breakfast_num = #{breakfastNum,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        createdate = now(),
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        modifydate = now(),
+      </if>
+      <if test="saleBPrice != null" >
+        sale_b_price = #{saleBPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="saleChannelCurrency != null" >
+        sale_channel_currency = #{saleChannelCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="saleCPrice != null" >
+        sale_c_price = #{saleCPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="saleCCurrency != null" >
+        sale_c_currency = #{saleCCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="tmPrice != null" >
+        tm_price = #{tmPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="ctripPrice != null" >
+        ctrip_price = #{ctripPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="jdPrice != null" >
+        jd_price = #{jdPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="xmdPrice != null" >
+        xmd_price = #{xmdPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="tuniuPrice != null" >
+        tuniu_price = #{tuniuPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="tongchengPrice != null" >
+        tongcheng_price = #{tongchengPrice,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where price_id = #{priceId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.product.entity.po.PricePO" >
+    update t_htlpro_price
+    set priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      SALE_DATE = #{saleDate,jdbcType=DATE},
+      base_currency = #{baseCurrency,jdbcType=VARCHAR},
+      base_price = #{basePrice,jdbcType=DECIMAL},
+      breakfast_num = #{breakfastNum,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      createdate = #{createdate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modifydate = #{modifydate,jdbcType=TIMESTAMP},
+      sale_b_price = #{saleBPrice,jdbcType=DECIMAL},
+      sale_channel_currency = #{saleChannelCurrency,jdbcType=VARCHAR},
+      sale_c_price = #{saleCPrice,jdbcType=DECIMAL},
+      sale_c_currency = #{saleCCurrency,jdbcType=VARCHAR},
+      tm_price = #{tmPrice,jdbcType=DECIMAL},
+      ctrip_price = #{ctripPrice,jdbcType=DECIMAL},
+      jd_price = #{jdPrice,jdbcType=DECIMAL},
+      xmd_price = #{xmdPrice,jdbcType=DECIMAL},
+      tuniu_price = #{tuniuPrice,jdbcType=DECIMAL},
+      tongcheng_price = #{tongchengPrice,jdbcType=DECIMAL}
+    where price_id = #{priceId,jdbcType=BIGINT}
+  </update>
+  
+  	<!-- 根据酒店查询早餐 -->
+	<select id="queryBreakfastByHotelId" resultType="com.travel.hotel.product.entity.po.PricePO" parameterType="com.travel.common.dto.product.request.PricePlanQueryDTO">
+		select pr.breakfast_num breakfastNum
+		from t_htlpro_price pr
+		where pr.priceplan_id in (
+		  select p.priceplan_id
+		  from t_htlpro_priceplan p
+		  where p.hotel_id = #{hotelId} and p.supply_code = #{supplyCode})
+		group by pr.breakfast_num
+	</select>
+	
+	<!-- 根据价格计划和售卖日期查询价格 -->
+	<select id="selectPriceByCondition" resultMap="BaseResultMap" parameterType="com.travel.common.dto.product.request.PriceQueryDTO" >
+    select
+    	<include refid="Base_Column_List" />
+    from t_htlpro_price
+    <where>
+      <if test="pricePlanId != null" >
+        and priceplan_id = #{pricePlanId,jdbcType=BIGINT}
+      </if>
+      <if test="saleDate != null" >
+        and SALE_DATE = #{saleDate,jdbcType=DATE}
+      </if>
+    </where>
+  </select>
+	
+</mapper>

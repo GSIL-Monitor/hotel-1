@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.product.mapper.PriceInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.fangcang.product.domain.PriceInfoDO">
+        <id column="priceinfo_id" jdbcType="INTEGER" property="priceInfoId" />
+        <result column="priceplan_id" jdbcType="INTEGER" property="pricePlanId" />
+        <result column="sale_date" jdbcType="DATE" property="saleDate" />
+        <result column="base_price" jdbcType="DECIMAL" property="basePrice" />
+        <result column="group_baseprice" jdbcType="DECIMAL" property="groupBasePrice" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="b2b_saleprice" jdbcType="DECIMAL" property="b2bSalePrice" />
+        <result column="group_saleprice" jdbcType="DECIMAL" property="groupSalePrice" />
+        <result column="ctrip_saleprice" jdbcType="DECIMAL" property="ctripSalePrice" />
+        <result column="qunar_saleprice" jdbcType="DECIMAL" property="qunarSalePrice" />
+        <result column="elong_saleprice" jdbcType="DECIMAL" property="elongSalePrice" />
+        <result column="tongcheng_saleprice" jdbcType="DECIMAL" property="tongchengSalePrice" />
+        <result column="tuniu_saleprice" jdbcType="DECIMAL" property="tuniuSalePrice" />
+        <result column="xmd_saleprice" jdbcType="DECIMAL" property="xmdSalePrice" />
+        <result column="jd_saleprice" jdbcType="DECIMAL" property="jdSalePrice" />
+        <result column="taobao_saleprice" jdbcType="DECIMAL" property="taobaoSalePrice" />
+        <result column="qunar_b2b_saleprice" jdbcType="DECIMAL" property="qunarB2bSalePrice" />
+        <result column="qunar_ngt_saleprice" jdbcType="DECIMAL" property="qunarNgtSalePrice" />
+        <result column="qunar_usd_saleprice" jdbcType="DECIMAL" property="qunarUsdSalePrice" />
+        <result column="qunar_son_saleprice" jdbcType="DECIMAL" property="qunarSonSalePrice" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        priceinfo_id, priceplan_id, sale_date, base_price, group_baseprice, create_time,
+        creator, modify_time, modifier, b2b_saleprice, group_saleprice, ctrip_saleprice,
+        qunar_saleprice, elong_saleprice, tongcheng_saleprice, tuniu_saleprice, xmd_saleprice,
+        jd_saleprice, taobao_saleprice, qunar_b2b_saleprice, qunar_ngt_saleprice, qunar_usd_saleprice,qunar_son_saleprice
+    </sql>
+
+    <select id="queryDailyPriceInfo" parameterType="com.fangcang.product.request.ProductDailyInfoQueryDTO" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" />
+          from t_htlpro_priceinfo p
+        <where>
+            <if test="pricePlanId != null">
+                and p.priceplan_id = #{pricePlanId,jdbcType=INTEGER}
+            </if>
+            <if test="startDate != null">
+                and <![CDATA[p.sale_date >= DATE_FORMAT(#{startDate,jdbcType=DATE}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="endDate != null">
+                and <![CDATA[p.sale_date <= DATE_FORMAT(#{endDate,jdbcType=DATE},'%Y-%m-%d')]]>
+            </if>
+            <if test="pricePlanIds != null and '' != pricePlanIds">
+                and p.priceplan_id in (${pricePlanIds})
+            </if>
+        </where>
+    </select>
+
+    <select id="queryPriceInfoByHotelId" parameterType="com.fangcang.product.request.ProductDailyInfoQueryDTO" resultMap="BaseResultMap">
+        SELECT pi.priceinfo_id,pi.priceplan_id, pi.sale_date, pi.base_price, pi.group_baseprice, pi.create_time,
+                pi.creator, pi.modify_time, pi.modifier, pi.b2b_saleprice, pi.group_saleprice, pi.ctrip_saleprice,
+                pi.qunar_saleprice, pi.elong_saleprice, pi.tongcheng_saleprice, pi.tuniu_saleprice, pi.xmd_saleprice,
+                pi.jd_saleprice, pi.taobao_saleprice, pi.qunar_b2b_saleprice, pi.qunar_ngt_saleprice, pi.qunar_usd_saleprice,pi.qunar_son_saleprice
+          FROM  apollo.t_htlpro_priceinfo pi,
+                apollo.t_htlpro_priceplan p,
+                apollo.t_htlpro_sale_state s
+         WHERE  p.priceplan_id = pi.priceplan_id
+           AND p.is_active = 1
+           and p.priceplan_id = s.priceplan_id
+           AND p.hotel_id = #{hotelId,jdbcType=INTEGER}
+           AND p.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+          <if test="startDate != null">
+             AND <![CDATA[pi.sale_date >= DATE_FORMAT(#{startDate,jdbcType=DATE}, '%Y-%m-%d') ]]>
+          </if>
+          <if test="endDate != null">
+            AND <![CDATA[pi.sale_date <= DATE_FORMAT(#{endDate,jdbcType=DATE},'%Y-%m-%d')]]>
+          </if>
+          <if test="null != channelCode and '' != channelCode and 'B2B' == channelCode">
+              AND s.b2b_sale_state = 1
+              <if  test="null != minPrice">
+                  AND <![CDATA[pi.b2b_saleprice >= #{minPrice,jdbcType=DECIMAL}]]>
+              </if>
+              <if test="null != maxPrice">
+                  AND <![CDATA[pi.b2b_saleprice <= #{maxPrice,jdbcType=DECIMAL}]]>
+              </if>
+          </if>
+    </select>
+
+    <insert id="batchSaveOrUpdatePriceInfo" parameterType="com.fangcang.product.domain.PriceInfoDO">
+        insert into t_htlpro_priceinfo (priceplan_id,
+                                          sale_date,
+                                          base_price,
+                                          group_baseprice,
+                                          create_time,
+                                          creator,
+                                          b2b_saleprice,
+                                          group_saleprice,
+                                          ctrip_saleprice,
+                                          qunar_saleprice,
+                                          elong_saleprice,
+                                          tongcheng_saleprice,
+                                          tuniu_saleprice,
+                                          xmd_saleprice,
+                                          jd_saleprice,
+                                          taobao_saleprice,
+                                          qunar_b2b_saleprice,
+                                          qunar_ngt_saleprice,
+                                          qunar_usd_saleprice,
+                                          qunar_son_saleprice)
+                                  values
+                                    <foreach collection="list" item="pi" separator=",">
+                                        (#{pi.pricePlanId,jdbcType=INTEGER},
+                                        #{pi.saleDate,jdbcType=DATE},
+                                        #{pi.basePrice,jdbcType=DECIMAL},
+                                        #{pi.groupBasePrice,jdbcType=DECIMAL},
+                                        NOW(),
+                                        #{pi.creator,jdbcType=VARCHAR},
+                                        #{pi.b2bSalePrice,jdbcType=DECIMAL},
+                                        #{pi.groupSalePrice,jdbcType=DECIMAL},
+                                        #{pi.ctripSalePrice,jdbcType=DECIMAL},
+                                        #{pi.qunarSalePrice,jdbcType=DECIMAL},
+                                        #{pi.elongSalePrice,jdbcType=DECIMAL},
+                                        #{pi.tongchengSalePrice,jdbcType=DECIMAL},
+                                        #{pi.tuniuSalePrice,jdbcType=DECIMAL},
+                                        #{pi.xmdSalePrice,jdbcType=DECIMAL},
+                                        #{pi.jdSalePrice,jdbcType=DECIMAL},
+                                        #{pi.taobaoSalePrice,jdbcType=DECIMAL},
+                                        #{pi.qunarB2bSalePrice,jdbcType=DECIMAL},
+                                        #{pi.qunarNgtSalePrice,jdbcType=DECIMAL},
+                                        #{pi.qunarUsdSalePrice,jdbcType=DECIMAL},
+                                        #{pi.qunarSonSalePrice,jdbcType=DECIMAL}
+                                        )
+                                    </foreach>
+                    ON DUPLICATE KEY
+                              UPDATE
+                            <trim suffixOverrides=",">
+                                <trim prefix="modifier =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        <if test="null != pi.modifier">
+                                            when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                            then #{pi.modifier}
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="modify_time =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        then NOW()
+                                    </foreach>
+                                </trim>
+                                <trim prefix="base_price =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.basePrice and null != pi.basePriceOperateType">
+                                            <choose>
+                                                <when test="pi.basePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                                <otherwise>
+                                                    <!--加-->
+                                                    <if test="1 == pi.basePriceOperateType">
+                                                        then IFNULL(t_htlpro_priceinfo.base_price,0) + #{pi.basePrice,jdbcType=DECIMAL}
+                                                    </if>
+                                                    <!--减-->
+                                                    <if test="2 == pi.basePriceOperateType">
+                                                        then if(t_htlpro_priceinfo.base_price > #{pi.basePrice},t_htlpro_priceinfo.base_price - #{pi.basePrice,jdbcType=DECIMAL},0)
+                                                    </if>
+                                                    <!--乘-->
+                                                    <if test="3 == pi.basePriceOperateType">
+                                                        then t_htlpro_priceinfo.base_price * #{pi.basePrice,jdbcType=DECIMAL}
+                                                    </if>
+                                                    <!--设置为-->
+                                                    <if test="4 == pi.basePriceOperateType">
+                                                        then #{pi.basePrice,jdbcType=DECIMAL}
+                                                    </if>
+                                                </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.basePrice">
+                                            then t_htlpro_priceinfo.base_price
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="group_baseprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.groupBasePrice and null != pi.groupBaseOperateType">
+                                            <choose>
+                                                <when test="pi.groupBasePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.groupBaseOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.group_baseprice,0) + #{pi.groupBasePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.groupBaseOperateType">
+                                                    then if(t_htlpro_priceinfo.group_baseprice > #{pi.groupBasePrice},t_htlpro_priceinfo.group_baseprice - #{pi.groupBasePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.groupBaseOperateType">
+                                                    then t_htlpro_priceinfo.group_baseprice * #{pi.groupBasePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.groupBaseOperateType">
+                                                    then #{pi.groupBasePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.groupBasePrice">
+                                            then t_htlpro_priceinfo.group_baseprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="b2b_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.b2bSalePrice and null != pi.b2bOperateType">
+                                            <choose>
+                                                <when test="pi.b2bSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.b2bOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.b2b_saleprice,0) + #{pi.b2bSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.b2bOperateType">
+                                                    then if(t_htlpro_priceinfo.b2b_saleprice > #{pi.b2bSalePrice},t_htlpro_priceinfo.b2b_saleprice - #{pi.b2bSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.b2bOperateType">
+                                                    then t_htlpro_priceinfo.b2b_saleprice * #{pi.b2bSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.b2bOperateType">
+                                                    then #{pi.b2bSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.b2bSalePrice">
+                                            then t_htlpro_priceinfo.b2b_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="group_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.groupSalePrice and null != pi.groupSaleOperateType">
+                                            <choose>
+                                                <when test="pi.groupSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.groupSaleOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.group_saleprice,0) + #{pi.groupSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.groupSaleOperateType">
+                                                    then if(t_htlpro_priceinfo.group_saleprice > #{pi.groupSalePrice},t_htlpro_priceinfo.group_saleprice - #{pi.groupSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.groupSaleOperateType">
+                                                    then t_htlpro_priceinfo.group_saleprice * #{pi.groupSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.groupSaleOperateType">
+                                                    then #{pi.groupSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.groupSalePrice">
+                                            then t_htlpro_priceinfo.group_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="ctrip_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.ctripSalePrice and null != pi.ctripOperateType">
+                                            <choose>
+                                                <when test="pi.ctripSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.ctripOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.ctrip_saleprice,0) + #{pi.ctripSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.ctripOperateType">
+                                                    then if(t_htlpro_priceinfo.ctrip_saleprice > #{pi.ctripSalePrice},t_htlpro_priceinfo.ctrip_saleprice - #{pi.ctripSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.ctripOperateType">
+                                                    then t_htlpro_priceinfo.ctrip_saleprice * #{pi.ctripSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.ctripOperateType">
+                                                    then #{pi.ctripSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.ctripSalePrice">
+                                            then t_htlpro_priceinfo.ctrip_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="qunar_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.qunarSalePrice and null != pi.qunarOperateType">
+                                            <choose>
+                                                <when test="pi.qunarSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.qunarOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.qunar_saleprice,0) + #{pi.qunarSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.qunarOperateType">
+                                                    then if(t_htlpro_priceinfo.qunar_saleprice > #{pi.qunarSalePrice},t_htlpro_priceinfo.qunar_saleprice - #{pi.qunarSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.qunarOperateType">
+                                                    then t_htlpro_priceinfo.qunar_saleprice * #{pi.qunarSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.qunarOperateType">
+                                                    then #{pi.qunarSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.qunarSalePrice">
+                                            then t_htlpro_priceinfo.qunar_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="elong_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.elongSalePrice and null != pi.elongOperateType">
+                                            <choose>
+                                                <when test="pi.elongSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.elongOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.elong_saleprice,0) + #{pi.elongSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.elongOperateType">
+                                                    then if(t_htlpro_priceinfo.elong_saleprice > #{pi.elongSalePrice},t_htlpro_priceinfo.elong_saleprice - #{pi.elongSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.elongOperateType">
+                                                    then t_htlpro_priceinfo.elong_saleprice * #{pi.elongSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.elongOperateType">
+                                                    then #{pi.elongSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.elongSalePrice">
+                                            then t_htlpro_priceinfo.elong_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="tongcheng_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.tongchengSalePrice and null != pi.tongchengOperateType">
+                                            <choose>
+                                                <when test="pi.tongchengSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.tongchengOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.tongcheng_saleprice,0) + #{pi.tongchengSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.tongchengOperateType">
+                                                    then if(t_htlpro_priceinfo.tongcheng_saleprice > #{pi.tongchengSalePrice},t_htlpro_priceinfo.tongcheng_saleprice - #{pi.tongchengSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.tongchengOperateType">
+                                                    then t_htlpro_priceinfo.tongcheng_saleprice * #{pi.tongchengSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.tongchengOperateType">
+                                                    then #{pi.tongchengSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.tongchengSalePrice">
+                                            then t_htlpro_priceinfo.tongcheng_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="tuniu_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.tuniuSalePrice and null != pi.tuniuOperateType">
+                                            <choose>
+                                                <when test="pi.tuniuSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.tuniuOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.tuniu_saleprice,0) + #{pi.tuniuSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.tuniuOperateType">
+                                                    then if(t_htlpro_priceinfo.tuniu_saleprice > #{pi.tuniuSalePrice},t_htlpro_priceinfo.tuniu_saleprice - #{pi.tuniuSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.tuniuOperateType">
+                                                    then t_htlpro_priceinfo.tuniu_saleprice * #{pi.tuniuSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.tuniuOperateType">
+                                                    then #{pi.tuniuSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.tuniuSalePrice">
+                                            then t_htlpro_priceinfo.tuniu_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="xmd_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.xmdSalePrice and null != pi.xmdOperateType">
+                                            <choose>
+                                                <when test="pi.xmdSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.xmdOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.xmd_saleprice,0) + #{pi.xmdSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.xmdOperateType">
+                                                    then if(t_htlpro_priceinfo.xmd_saleprice > #{pi.xmdSalePrice},t_htlpro_priceinfo.xmd_saleprice - #{pi.xmdSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.xmdOperateType">
+                                                    then t_htlpro_priceinfo.xmd_saleprice * #{pi.xmdSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.xmdOperateType">
+                                                    then #{pi.xmdSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.xmdSalePrice">
+                                            then t_htlpro_priceinfo.xmd_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="jd_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.jdSalePrice and null != pi.jdOperateType">
+                                            <choose>
+                                                <when test="pi.jdSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.jdOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.jd_saleprice,0) + #{pi.jdSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.jdOperateType">
+                                                    then if(t_htlpro_priceinfo.jd_saleprice > #{pi.jdSalePrice},t_htlpro_priceinfo.jd_saleprice - #{pi.jdSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.jdOperateType">
+                                                    then t_htlpro_priceinfo.jd_saleprice * #{pi.jdSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.jdOperateType">
+                                                    then #{pi.jdSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.jdSalePrice">
+                                            then t_htlpro_priceinfo.jd_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="taobao_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.taobaoSalePrice and null != pi.taobaoOperateType">
+                                            <choose>
+                                                <when test="pi.taobaoSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.taobaoOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.taobao_saleprice,0) + #{pi.taobaoSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.taobaoOperateType">
+                                                    then if(t_htlpro_priceinfo.taobao_saleprice > #{pi.taobaoSalePrice},t_htlpro_priceinfo.taobao_saleprice - #{pi.taobaoSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.taobaoOperateType">
+                                                    then t_htlpro_priceinfo.taobao_saleprice * #{pi.taobaoSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.taobaoOperateType">
+                                                    then #{pi.taobaoSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.taobaoSalePrice">
+                                            then t_htlpro_priceinfo.taobao_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="qunar_b2b_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.qunarB2bSalePrice and null != pi.qunarB2BOperateType">
+                                            <choose>
+                                                <when test="pi.qunarB2bSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.qunarB2BOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.qunar_b2b_saleprice,0) + #{pi.qunarB2bSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.qunarB2BOperateType">
+                                                    then if(t_htlpro_priceinfo.qunar_b2b_saleprice > #{pi.qunarB2bSalePrice},t_htlpro_priceinfo.qunar_b2b_saleprice - #{pi.qunarB2bSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.qunarB2BOperateType">
+                                                    then t_htlpro_priceinfo.qunar_b2b_saleprice * #{pi.qunarB2bSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.qunarB2BOperateType">
+                                                    then #{pi.qunarB2bSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.qunarB2bSalePrice">
+                                            then t_htlpro_priceinfo.qunar_b2b_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="qunar_ngt_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.qunarNgtSalePrice and null != pi.qunarNgtOperateType">
+                                            <choose>
+                                                <when test="pi.qunarNgtSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.qunarNgtOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.qunar_ngt_saleprice,0) + #{pi.qunarNgtSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.qunarNgtOperateType">
+                                                    then if(t_htlpro_priceinfo.qunar_ngt_saleprice > #{pi.qunarNgtSalePrice},t_htlpro_priceinfo.qunar_ngt_saleprice - #{pi.qunarNgtSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.qunarNgtOperateType">
+                                                    then t_htlpro_priceinfo.qunar_ngt_saleprice * #{pi.qunarNgtSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.qunarNgtOperateType">
+                                                    then #{pi.qunarNgtSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.qunarNgtSalePrice">
+                                            then t_htlpro_priceinfo.qunar_ngt_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="qunar_usd_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.qunarUsdSalePrice and null != pi.qunarUsdOperateType">
+                                            <choose>
+                                                <when test="pi.qunarUsdSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.qunarUsdOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.qunar_usd_saleprice,0) + #{pi.qunarUsdSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.qunarUsdOperateType">
+                                                    then if(t_htlpro_priceinfo.qunar_usd_saleprice > #{pi.qunarUsdSalePrice},t_htlpro_priceinfo.qunar_usd_saleprice - #{pi.qunarUsdSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.qunarUsdOperateType">
+                                                    then t_htlpro_priceinfo.qunar_usd_saleprice * #{pi.qunarUsdSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.qunarUsdOperateType">
+                                                    then #{pi.qunarUsdSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.qunarUsdSalePrice">
+                                            then t_htlpro_priceinfo.qunar_usd_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="qunar_son_saleprice =case" suffix="end,">
+                                    <foreach collection="list" item="pi">
+                                        when priceplan_id = #{pi.pricePlanId} and sale_date = #{pi.saleDate}
+                                        <if test="null != pi.qunarSonSalePrice and null != pi.qunarSonOperateType">
+                                            <choose>
+                                                <when test="pi.qunarSonSalePrice &lt;= 0">
+                                                    then NULL
+                                                </when>
+                                            <otherwise>
+                                                <!--加-->
+                                                <if test="1 == pi.qunarSonOperateType">
+                                                    then IFNULL(t_htlpro_priceinfo.qunar_son_saleprice,0) + #{pi.qunarSonSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--减-->
+                                                <if test="2 == pi.qunarSonOperateType">
+                                                    then if(t_htlpro_priceinfo.qunar_son_saleprice > #{pi.qunarSonSalePrice},t_htlpro_priceinfo.qunar_son_saleprice - #{pi.qunarSonSalePrice,jdbcType=DECIMAL},0)
+                                                </if>
+                                                <!--乘-->
+                                                <if test="3 == pi.qunarSonOperateType">
+                                                    then t_htlpro_priceinfo.qunar_son_saleprice * #{pi.qunarSonSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                                <!--设置为-->
+                                                <if test="4 == pi.qunarSonOperateType">
+                                                    then #{pi.qunarSonSalePrice,jdbcType=DECIMAL}
+                                                </if>
+                                            </otherwise>
+                                            </choose>
+                                        </if>
+                                        <if test="null == pi.qunarSonSalePrice">
+                                            then t_htlpro_priceinfo.qunar_son_saleprice
+                                        </if>
+                                    </foreach>
+                                </trim>
+                            </trim>
+
+    </insert>
+</mapper>

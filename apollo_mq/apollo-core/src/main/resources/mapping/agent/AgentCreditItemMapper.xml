@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.agent.mapper.AgentCreditItemMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.agent.domain.AgentCreditItemDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="agent_id" jdbcType="INTEGER" property="agentId" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <select id="queryOrderDeductCredit" parameterType="com.fangcang.agent.request.QueryOrderDeductCreditDTO"
+          resultType="com.fangcang.agent.response.OrderDeductCreditDTO">
+    SELECT SUM(IF(type = 1, amount, - amount))deductAmount FROM t_agent_credit_item i WHERE i.content=#{orderCode}
+  </select>
+</mapper>

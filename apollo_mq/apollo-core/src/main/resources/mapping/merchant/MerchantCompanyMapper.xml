@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.merchant.mapper.MerchantCompanyMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.merchant.domain.MerchantCompanyDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="merchant_code" jdbcType="VARCHAR" property="merchantCode" />
+    <result column="company" jdbcType="VARCHAR" property="company" />
+    <result column="telephone" jdbcType="VARCHAR" property="telephone" />
+    <result column="fax" jdbcType="VARCHAR" property="fax" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="email_subject" jdbcType="VARCHAR" property="emailSubject" />
+    <result column="logo_url" jdbcType="VARCHAR" property="logoUrl" />
+    <result column="seal" jdbcType="VARCHAR" property="seal" />
+    <result column="apply_supply" jdbcType="INTEGER" property="applySupply" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+  </resultMap>
+  
+  <select id="queryMerchantCompany" parameterType="com.fangcang.merchant.request.QueryMerchantCompanyDTO"
+          resultType="com.fangcang.merchant.response.MerchantCompanyDTO">
+    SELECT
+      id,
+      merchant_code merchantCode,
+      company,
+      telephone,
+      fax,
+      email,
+      email_subject emailSubject,
+      logo_url logoUrl,
+      seal,
+      apply_supply applySupply,
+      DATE_FORMAT(create_time,"%Y-%m-%d %T") createTime,
+      creator,
+      DATE_FORMAT(modify_time,"%Y-%m-%d %T") modifyTime,
+      modifier
+    FROM t_merchant_company
+    WHERE 1=1
+    <if test="merchantCode != null and merchantCompanyId != ''">
+      AND merchant_code=#{merchantCode}
+    </if>
+    <if test="merchantCompanyId != null and merchantCompanyId != 0">
+      AND id=#{merchantCompanyId}
+    </if>
+    <if test="supplyId != null and supplyId != 0">
+      AND id IN (SELECT DISTINCT company_id FROM t_merchant_company_apply a where a.supply_id=#{supplyId})
+    </if>
+  </select>
+</mapper>

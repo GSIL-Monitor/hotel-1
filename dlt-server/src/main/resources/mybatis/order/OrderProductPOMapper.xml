@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.order.dao.OrderProductPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.order.entity.po.OrderProductPO" >
+    <id column="opid" property="opid" jdbcType="BIGINT" />
+    <result column="hotel_id" property="hotelId" jdbcType="BIGINT" />
+    <result column="hotel_name" property="hotelName" jdbcType="VARCHAR" />
+    <result column="room_type_id" property="roomTypeId" jdbcType="BIGINT" />
+    <result column="room_type_name" property="roomTypeName" jdbcType="VARCHAR" />
+    <result column="priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+    <result column="priceplan_name" property="priceplanName" jdbcType="VARCHAR" />
+    <result column="checkin_date" property="checkinDate" jdbcType="DATE" />
+    <result column="checkout_date" property="checkoutDate" jdbcType="DATE" />
+    <result column="isactive" property="isactive" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="DATE" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="DATE" />
+    <result column="order_code" property="orderCode" jdbcType="VARCHAR" />
+    <result column="product_type" property="productType" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    opid, hotel_id, hotel_name, room_type_id, room_type_name, priceplan_id, priceplan_name, 
+    checkin_date, checkout_date, isactive, creator, create_date, modifier, modify_date, 
+    order_code, product_type
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.order.entity.po.OrderProductPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_order_product
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_order_product
+    where opid = #{opid,jdbcType=BIGINT}
+  </select>
+  <select id="queryList" resultMap="BaseResultMap" parameterType="com.travel.common.dto.order.OrderProductDTO" >
+    select
+    <include refid="Base_Column_List" />
+    from t_order_product
+    <where>
+      <if test="opid != null" >
+        opid = #{opid,jdbcType=BIGINT}
+      </if>
+      <if test="hotelId != null" >
+        and hotel_id = #{hotelId,jdbcType=BIGINT}
+      </if>
+      <if test="hotelName != null" >
+        and hotel_name like concat('%', #{hotelName}, '%')
+      </if>
+      <if test="roomTypeId != null" >
+        and room_type_id = #{roomTypeId,jdbcType=BIGINT}
+      </if>
+      <if test="roomTypeName != null" >
+        and room_type_name like concat('%', #{roomTypeName}, '%')
+      </if>
+      <if test="priceplanId != null" >
+        and priceplan_id = #{priceplanId,jdbcType=BIGINT}
+      </if>
+      <if test="priceplanName != null" >
+        and priceplan_name like concat('%', #{priceplanName}, '%')
+      </if>
+      <if test="checkinDate != null" >
+        and checkin_date > #{checkinDate,jdbcType=DATE}
+      </if>
+      <if test="checkoutDate != null" >
+        <![CDATA[and checkout_date < #{checkoutDate,jdbcType=DATE}]]>
+      </if>
+      <if test="isactive != null" >
+        and isactive = #{isactive,jdbcType=INTEGER}
+      </if>
+      <if test="creator != null" >
+        and creator = #{creator,jdbcType=VARCHAR}
+      </if>
+      <if test="createDate != null" >
+        and create_date > #{createDate,jdbcType=DATE}
+      </if>
+      <if test="modifier != null" >
+        and modifier = #{modifier,jdbcType=VARCHAR}
+      </if>
+      <if test="modifyDate != null" >
+        <![CDATA[
+        and modify_date < #{modifyDate,jdbcType=DATE}
+        ]]>
+      </if>
+      <if test="orderCode != null" >
+        and order_code = #{orderCode,jdbcType=VARCHAR}
+      </if>
+      <if test="productType != null" >
+        and product_type = #{productType,jdbcType=VARCHAR}
+      </if>
+    </where>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_order_product
+    where opid = #{opid,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.hotel.order.entity.po.OrderProductPOExample" >
+    delete from t_order_product
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.order.entity.po.OrderProductPO" useGeneratedKeys="true" keyProperty="opid">
+    insert into t_order_product (opid, hotel_id, hotel_name, 
+      room_type_id, room_type_name, priceplan_id, 
+      priceplan_name, checkin_date, checkout_date, 
+      isactive, creator, create_date, 
+      modifier, modify_date, order_code, 
+      product_type)
+    values (#{opid,jdbcType=BIGINT}, #{hotelId,jdbcType=BIGINT}, #{hotelName,jdbcType=VARCHAR}, 
+      #{roomTypeId,jdbcType=VARCHAR}, #{roomTypeName,jdbcType=VARCHAR}, #{priceplanId,jdbcType=BIGINT}, 
+      #{priceplanName,jdbcType=VARCHAR}, #{checkinDate,jdbcType=DATE}, #{checkoutDate,jdbcType=DATE}, 
+      #{isactive,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{createDate,jdbcType=DATE}, 
+      #{modifier,jdbcType=VARCHAR}, #{modifyDate,jdbcType=DATE}, #{orderCode,jdbcType=VARCHAR}, 
+      #{productType,jdbcType=VARCHAR})
+  </insert>
+
+  <insert id="insertBatch" parameterType="java.util.List" >
+    insert into t_order_product (opid, hotel_id, hotel_name,
+    room_type_id, room_type_name, priceplan_id,
+    priceplan_name, checkin_date, checkout_date,
+    isactive, creator, create_date,
+    modifier, modify_date, order_code,
+    product_type)
+    values
+    <foreach collection="list" item="orderProduct" separator=",">
+      (#{orderProduct.opid,jdbcType=BIGINT}, #{orderProduct.hotelId,jdbcType=BIGINT}, #{orderProduct.hotelName,jdbcType=VARCHAR},
+      #{orderProduct.roomTypeId,jdbcType=VARCHAR}, #{orderProduct.roomTypeName,jdbcType=VARCHAR}, #{orderProduct.priceplanId,jdbcType=BIGINT},
+      #{orderProduct.priceplanName,jdbcType=VARCHAR}, #{orderProduct.checkinDate,jdbcType=DATE}, #{orderProduct.checkoutDate,jdbcType=DATE},
+      #{orderProduct.isactive,jdbcType=INTEGER}, #{orderProduct.creator,jdbcType=VARCHAR}, #{orderProduct.createDate,jdbcType=DATE},
+      #{orderProduct.modifier,jdbcType=VARCHAR}, #{orderProduct.modifyDate,jdbcType=DATE}, #{orderProduct.orderCode,jdbcType=VARCHAR},
+      #{orderProduct.productType,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.order.entity.po.OrderProductPO" >
+    insert into t_order_product
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="opid != null" >
+        opid,
+      </if>
+      <if test="hotelId != null" >
+        hotel_id,
+      </if>
+      <if test="hotelName != null" >
+        hotel_name,
+      </if>
+      <if test="roomTypeId != null" >
+        room_type_id,
+      </if>
+      <if test="roomTypeName != null" >
+        room_type_name,
+      </if>
+      <if test="priceplanId != null" >
+        priceplan_id,
+      </if>
+      <if test="priceplanName != null" >
+        priceplan_name,
+      </if>
+      <if test="checkinDate != null" >
+        checkin_date,
+      </if>
+      <if test="checkoutDate != null" >
+        checkout_date,
+      </if>
+      <if test="isactive != null" >
+        isactive,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifyDate != null" >
+        modify_date,
+      </if>
+      <if test="orderCode != null" >
+        order_code,
+      </if>
+      <if test="productType != null" >
+        product_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="opid != null" >
+        #{opid,jdbcType=BIGINT},
+      </if>
+      <if test="hotelId != null" >
+        #{hotelId,jdbcType=BIGINT},
+      </if>
+      <if test="hotelName != null" >
+        #{hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="roomTypeId != null" >
+        #{roomTypeId,jdbcType=VARCHAR},
+      </if>
+      <if test="roomTypeName != null" >
+        #{roomTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="priceplanId != null" >
+        #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="priceplanName != null" >
+        #{priceplanName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkinDate != null" >
+        #{checkinDate,jdbcType=DATE},
+      </if>
+      <if test="checkoutDate != null" >
+        #{checkoutDate,jdbcType=DATE},
+      </if>
+      <if test="isactive != null" >
+        #{isactive,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=DATE},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=DATE},
+      </if>
+      <if test="orderCode != null" >
+        #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productType != null" >
+        #{productType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.hotel.order.entity.po.OrderProductPOExample" resultType="java.lang.Integer" >
+    select count(*) from t_order_product
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_order_product
+    <set >
+      <if test="record.opid != null" >
+        opid = #{record.opid,jdbcType=BIGINT},
+      </if>
+      <if test="record.hotelId != null" >
+        hotel_id = #{record.hotelId,jdbcType=BIGINT},
+      </if>
+      <if test="record.hotelName != null" >
+        HOTEL_NAME = #{record.hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roomTypeId != null" >
+        ROOM_TYPE_ID = #{record.roomTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.roomTypeName != null" >
+        room_type_name = #{record.roomTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.priceplanId != null" >
+        priceplan_id = #{record.priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="record.priceplanName != null" >
+        priceplan_name = #{record.priceplanName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkinDate != null" >
+        checkin_date = #{record.checkinDate,jdbcType=DATE},
+      </if>
+      <if test="record.checkoutDate != null" >
+        checkout_date = #{record.checkoutDate,jdbcType=DATE},
+      </if>
+      <if test="record.isactive != null" >
+        isactive = #{record.isactive,jdbcType=INTEGER},
+      </if>
+      <if test="record.creator != null" >
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createDate != null" >
+        create_date = #{record.createDate,jdbcType=DATE},
+      </if>
+      <if test="record.modifier != null" >
+        modifier = #{record.modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifyDate != null" >
+        modify_date = #{record.modifyDate,jdbcType=DATE},
+      </if>
+      <if test="record.orderCode != null" >
+        order_code = #{record.orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.productType != null" >
+        product_type = #{record.productType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_order_product
+    set opid = #{record.opid,jdbcType=BIGINT},
+      hotel_id = #{record.hotelId,jdbcType=BIGINT},
+      HOTEL_NAME = #{record.hotelName,jdbcType=VARCHAR},
+      ROOM_TYPE_ID = #{record.roomTypeId,jdbcType=BIGINT},
+      room_type_name = #{record.roomTypeName,jdbcType=VARCHAR},
+      priceplan_id = #{record.priceplanId,jdbcType=BIGINT},
+      priceplan_name = #{record.priceplanName,jdbcType=VARCHAR},
+      checkin_date = #{record.checkinDate,jdbcType=DATE},
+      checkout_date = #{record.checkoutDate,jdbcType=DATE},
+      isactive = #{record.isactive,jdbcType=INTEGER},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=DATE},
+      modifier = #{record.modifier,jdbcType=VARCHAR},
+      modify_date = #{record.modifyDate,jdbcType=DATE},
+      order_code = #{record.orderCode,jdbcType=VARCHAR},
+      product_type = #{record.productType,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.order.entity.po.OrderProductPO" >
+    update t_order_product
+    <set >
+      <if test="hotelId != null" >
+        hotel_id = #{hotelId,jdbcType=BIGINT},
+      </if>
+      <if test="hotelName != null" >
+        hotel_name = #{hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="roomTypeId != null" >
+        room_type_id = #{roomTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="roomTypeName != null" >
+        room_type_name = #{roomTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="priceplanId != null" >
+        priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="priceplanName != null" >
+        priceplan_name = #{priceplanName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkinDate != null" >
+        checkin_date = #{checkinDate,jdbcType=DATE},
+      </if>
+      <if test="checkoutDate != null" >
+        checkout_date = #{checkoutDate,jdbcType=DATE},
+      </if>
+      <if test="isactive != null" >
+        isactive = #{isactive,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=DATE},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        modify_date = #{modifyDate,jdbcType=DATE},
+      </if>
+      <if test="orderCode != null" >
+        order_code = #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productType != null" >
+        product_type = #{productType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where opid = #{opid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.order.entity.po.OrderProductPO" >
+    update t_order_product
+    set hotel_id = #{hotelId,jdbcType=BIGINT},
+      hotel_name = #{hotelName,jdbcType=VARCHAR},
+      room_type_id = #{roomTypeId,jdbcType=BIGINT},
+      room_type_name = #{roomTypeName,jdbcType=VARCHAR},
+      priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      priceplan_name = #{priceplanName,jdbcType=VARCHAR},
+      checkin_date = #{checkinDate,jdbcType=DATE},
+      checkout_date = #{checkoutDate,jdbcType=DATE},
+      isactive = #{isactive,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=DATE},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modify_date = #{modifyDate,jdbcType=DATE},
+      order_code = #{orderCode,jdbcType=VARCHAR},
+      product_type = #{productType,jdbcType=VARCHAR}
+    where opid = #{opid,jdbcType=BIGINT}
+  </update>
+</mapper>

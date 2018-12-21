@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.agent.mapper.AgentBankCardMapper">
+    <resultMap id="BaseResultMap" type="com.fangcang.agent.domain.AgentBankCardDO">
+        <id column="bank_card_id" property="bankCardId" jdbcType="INTEGER"/>
+        <result column="opening_bank" property="openingBank" jdbcType="VARCHAR"/>
+        <result column="account_name" property="accountName" jdbcType="VARCHAR"/>
+        <result column="account_number" property="accountNumber" jdbcType="VARCHAR"/>
+        <result column="agent_id" property="agentId" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    bank_card_id, opening_bank, account_name, account_number, agent_id, create_time,
+    creator, modifier, modify_time
+  </sql>
+
+    <insert id="insertAgentBankCard" parameterType="com.fangcang.agent.domain.AgentBankCardDO"
+            useGeneratedKeys="true" keyProperty="bankCardId">
+        INSERT INTO t_agent_bank_card(
+        opening_bank,
+        account_name,
+        account_number,create_time,agent_id,creator) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.openingBank,jdbcType=VARCHAR}, #{item.accountName,jdbcType=VARCHAR},
+            #{item.accountNumber,jdbcType=VARCHAR},NOW(),#{item.agentId,jdbcType=INTEGER},#{item.creator,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <update id="batchUpdateAgentBankCard" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            UPDATE t_agent_bank_card
+            <set>
+                opening_bank=#{item.openingBank},
+                account_name=#{item.accountName},
+                account_number=#{item.accountNumber},
+                modifier=#{item.modifier},
+                modify_time=#{item.modifyTime}
+            </set>
+            WHERE bank_card_id=#{item.bankCardId,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <!--添加单个银行卡信息-->
+    <insert id="insertSingleAgentBankCard" parameterType="com.fangcang.agent.domain.AgentBankCardDO"
+            useGeneratedKeys="true" keyProperty="bankCardId">
+        insert into t_agent_bank_card
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="openingBank != null">
+                opening_bank,
+            </if>
+            <if test="accountName != null">
+                account_name,
+            </if>
+            <if test="accountNumber != null">
+                account_number,
+            </if>
+            agent_id,
+            create_time,
+            creator,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="openingBank != null">
+                #{openingBank,jdbcType=VARCHAR},
+            </if>
+            <if test="accountName != null">
+                #{accountName,jdbcType=VARCHAR},
+            </if>
+            <if test="accountNumber != null">
+                #{accountNumber,jdbcType=VARCHAR},
+            </if>
+            #{agentId,jdbcType=INTEGER},
+            NOW(),
+            #{creator,jdbcType=VARCHAR},
+        </trim>
+    </insert>
+
+    <!--修改单个银行卡信息-->
+    <update id="updateSingleAgentBankCard" parameterType="com.fangcang.agent.domain.AgentBankCardDO">
+        UPDATE t_agent_bank_card
+        <set>
+            <if test="openingBank != null and openingBank!=''">
+                opening_bank=#{openingBank,jdbcType=VARCHAR},
+            </if>
+            <if test="accountName != null and accountName!=''">
+                account_name=#{accountName,jdbcType=VARCHAR},
+            </if>
+            <if test="accountNumber != null and accountNumber!=''">
+                account_number=#{accountNumber,jdbcType=VARCHAR},
+            </if>
+            agent_id=#{agentId,jdbcType=INTEGER},
+            modify_time=NOW(),
+            modifier=#{creator,jdbcType=VARCHAR}
+        </set>
+        WHERE bank_card_id=#{bankCardId,jdbcType=INTEGER}
+    </update>
+
+
+    <!-- 根据agentId查询分销商银行卡信息 -->
+    <select id="selectBankCardListByAgentId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_agent_bank_card WHERE agent_id = #{agent_id,jdbcType=INTEGER}
+    </select>
+
+    <!--删除银行卡-->
+    <delete id="deleteBankCardById" parameterType="java.lang.Long">
+        DELETE FROM t_agent_bank_card WHERE bank_card_id = #{bankCardId,jdbcType=INTEGER}
+    </delete>
+
+</mapper>

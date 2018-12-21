@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.OrderNoteMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.OrderNoteDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="note_type" jdbcType="TINYINT" property="noteType" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="note_object" jdbcType="VARCHAR" property="noteObject" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.merchant.mapper.MerchantCompanyApplyMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.merchant.domain.MerchantCompanyApplyDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="company_id" jdbcType="INTEGER" property="companyId" />
+    <result column="supply_id" jdbcType="INTEGER" property="supplyId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+  </resultMap>
+
+  <select id="queryMerchantCompanyApply" parameterType="java.util.List"
+          resultType="com.fangcang.merchant.response.MerchantCompanyApplyDTO">
+    SELECT
+      a.id,
+      a.company_id companyId,
+      a.supply_id supplyId,
+      s.supply_name supplyName,
+      DATE_FORMAT(a.create_time,"%Y-%m-%d %T") createTime,
+      a.creator,
+      DATE_FORMAT(a.modify_time,"%Y-%m-%d %T") modifyTime,
+      a.modifier
+    FROM t_merchant_company_apply a,t_supply s
+    WHERE a.supply_id=s.supply_id
+    AND a.company_id IN
+    <foreach collection="list" item="item" open="(" separator="," close=")">#{item}</foreach>
+  </select>
+</mapper>

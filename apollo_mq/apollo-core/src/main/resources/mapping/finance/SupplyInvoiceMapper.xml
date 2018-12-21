@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.invoice.mapper.SupplyInvoiceMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.invoice.domain.SupplyInvoiceDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="merchant_code" jdbcType="VARCHAR" property="merchantCode" />
+    <result column="org_code" jdbcType="VARCHAR" property="orgCode" />
+    <result column="org_name" jdbcType="VARCHAR" property="orgName" />
+    <result column="invoice_method" jdbcType="INTEGER" property="invoiceMethod" />
+    <result column="invoice_name" jdbcType="VARCHAR" property="invoiceName" />
+    <result column="invoice_type" jdbcType="INTEGER" property="invoiceType" />
+    <result column="invoice_code" jdbcType="VARCHAR" property="invoiceCode" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="identifier" jdbcType="VARCHAR" property="identifier" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="invoice_date" jdbcType="TIMESTAMP" property="invoiceDate" />
+    <result column="invoice_status" jdbcType="INTEGER" property="invoiceStatus" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="company_address" jdbcType="VARCHAR" property="companyAddress" />
+    <result column="company_telephone" jdbcType="VARCHAR" property="companyTelephone" />
+    <result column="company_bank_name" jdbcType="VARCHAR" property="companyBankName" />
+    <result column="postal_type" jdbcType="INTEGER" property="postalType" />
+    <result column="contacter" jdbcType="VARCHAR" property="contacter" />
+    <result column="contact_telephone" jdbcType="VARCHAR" property="contactTelephone" />
+    <result column="country" jdbcType="VARCHAR" property="country" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="express_company" jdbcType="VARCHAR" property="expressCompany" />
+    <result column="express_no" jdbcType="VARCHAR" property="expressNo" />
+    <result column="postal_date" jdbcType="TIMESTAMP" property="postalDate" />
+    <result column="is_invalid" jdbcType="INTEGER" property="isInvalid" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <update id="updateInvoiceAmount" parameterType="java.lang.Integer">
+    UPDATE t_fin_supply_invoice i LEFT JOIN (SELECT ii.invoice_id,SUM(ii.invoice_amount)amount FROM t_fin_supply_invoice_item ii GROUP BY ii.invoice_id)tmp ON i.id=tmp.invoice_id
+    SET i.amount=IFNULL(tmp.amount,0)
+    WHERE i.id=#{invoiceId}
+  </update>
+
+  <select id="querySupplyInvoice" parameterType="com.fangcang.finance.invoice.request.QueryInvoiceDTO"
+          resultType="com.fangcang.finance.invoice.response.InvoiceDTO">
+    SELECT
+    id,
+    merchant_code merchantCode,
+    org_code orgCode,
+    org_name orgName,
+    invoice_method invoiceMethod,
+    invoice_name invoiceName,
+    invoice_type invoiceType,
+    invoice_code invoiceCode,
+    title,
+    content,
+    identifier,
+    currency,
+    amount,
+    DATE_FORMAT(invoice_date,"%Y-%m-%d %T") invoiceDate,
+    invoice_status invoiceStatus,
+    note,
+    company_address companyAddress,
+    company_telephone companyTelephone,
+    company_bank_name companyBankName,
+    postal_type postalType,
+    contacter,
+    contact_telephone contactTelephone,
+    country,
+    province,
+    city,
+    address,
+    express_company expressCompany,
+    express_no expressNo,
+    DATE_FORMAT(postal_date,"%Y-%m-%d %T") postalDate,
+    creator creator,
+    DATE_FORMAT(create_time,"%Y-%m-%d %T") createTime
+    FROM t_fin_supply_invoice i
+    WHERE i.merchant_code=#{merchantCode}
+    AND i.is_invalid=#{isInvalid}
+    <if test="invoiceId != null">
+      AND i.id = #{invoiceId}
+    </if>
+    <if test="invoiceName != null and invoiceName != ''">
+      AND i.invoice_name LIKE concat(concat('%',#{invoiceName}),'%')
+    </if>
+    <choose>
+      <when test="orgCode!=null and orgCode!=''">
+        AND i.org_code=#{orgCode}
+      </when>
+      <otherwise>
+        <if test="orgName != null and orgName != ''">
+          AND i.org_name LIKE concat(concat('%',#{orgName}),'%')
+        </if>
+      </otherwise>
+    </choose>
+    <if test="startCreateTime != null and startCreateTime != ''">
+      AND i.create_time >= #{startCreateTime}
+    </if>
+    <if test="endCreateTime != null and endCreateTime != ''">
+      AND i.create_time &lt;= #{endCreateTime}
+    </if>
+    <if test="orderCode != null and orderCode != ''">
+      AND EXISTS (SELECT 1 FROM t_fin_supply_invoice_item ii WHERE i.id=ii.invoice_id AND i.business_code LIKE concat(concat('%',#{orderCode}),'%')
+    </if>
+    ORDER BY i.create_time DESC
+  </select>
+
+  <select id="querySupplyInvoiceSummary" parameterType="com.fangcang.finance.invoice.request.QueryInvoiceSummaryDTO"
+          resultType="com.fangcang.finance.invoice.response.InvoiceSummaryDTO">
+      SELECT
+        so.supply_code orgCode,
+        s.supply_name orgName,
+        sum(IFNULL(so.payable_amount,0) - IFNULL(sof.invoice_amount,0)) unInvoiceAmount,
+        sum(IFNULL(sof.invoice_amount,0)) invoiceAmount
+      FROM o_order o,o_supply_order so,o_supply_finance sof,t_supply s
+      WHERE o.id=so.order_id and so.id = sof.supply_order_id AND so.supply_code=s.supply_code
+      AND o.merchant_code=#{merchantCode}
+      <choose>
+        <when test="dateType==1">
+          <if test="beginDate!=null and beginDate!=''">
+            AND o.create_time >= #{beginDate}
+          </if>
+          <if test="endDate!=null and endDate!=''">
+            AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+          </if>
+        </when>
+        <when test="dateType==2">
+          <if test="beginDate!=null and beginDate!=''">
+            AND so.checkin_date >= #{beginDate}
+          </if>
+          <if test="endDate!=null and endDate!=''">
+            AND so.checkin_date &lt;= #{endDate}
+          </if>
+        </when>
+        <when test="dateType==3">
+          <if test="beginDate!=null and beginDate!=''">
+            AND so.checkout_date >= #{beginDate}
+          </if>
+          <if test="endDate!=null and endDate!=''">
+            AND so.checkout_date &lt;= #{endDate}
+          </if>
+        </when>
+      </choose>
+      <choose>
+        <when test="orgCode!=null and orgCode!=''">
+          AND so.supply_code=#{orgCode}
+        </when>
+        <otherwise>
+          <if test="orgName != null and orgName != ''">
+            AND s.supply_name LIKE concat(concat('%',#{orgName}),'%')
+          </if>
+        </otherwise>
+      </choose>
+      GROUP BY so.supply_code,s.supply_name
+      ORDER BY unInvoiceAmount DESC
+  </select>
+</mapper>

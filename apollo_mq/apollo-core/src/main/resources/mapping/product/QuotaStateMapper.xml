@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.product.mapper.QuotaStateMapper">
+
+    <insert id="batchInsertQuotaState" parameterType="java.util.List">
+        insert into t_htlpro_quota (quotaaccount_id,
+                                    sale_date,
+                                    create_time,
+                                    creator,
+                                    quota_num,
+                                    used_quota_num,
+                                    all_quota_num,
+                                    over_draft,
+                                    quota_state
+                                    )
+                                values
+                                <foreach collection="list" item="quota" separator=",">
+                                    ( #{quota.quotaAccountId,jdbcType=INTEGER},
+                                    #{quota.saleDate,jdbcType=DATE},
+                                    NOW(),
+                                    #{quota.creator,jdbcType=VARCHAR},
+                                    #{quota.quotaNum,jdbcType=INTEGER},
+                                    #{quota.usedQuotaNum,jdbcType=INTEGER},
+                                    #{quota.allQuotaNum,jdbcType=INTEGER},
+                                    #{quota.overDraft,jdbcType=TINYINT},
+                                    #{quota.quotaState,jdbcType=TINYINT}
+                                    )
+                                </foreach>
+    </insert>
+
+    <insert id="batchSaveOrUpdateQuotaState" parameterType="java.util.List">
+        insert into t_htlpro_quota (quotaaccount_id,
+                                    sale_date,
+                                    create_time,
+                                    creator,
+                                    quota_num,
+                                    used_quota_num,
+                                    all_quota_num,
+                                    over_draft,
+                                    quota_state
+                                    )
+                          values
+                            <foreach collection="list" item="quota" separator=",">
+                                      ( #{quota.quotaAccountId,jdbcType=INTEGER},
+                                      #{quota.saleDate,jdbcType=DATE},
+                                      NOW(),
+                                      #{quota.creator,jdbcType=VARCHAR},
+                                      IFNULL(#{quota.quotaNum,jdbcType=INTEGER},0),
+                                      0,
+                                      IFNULL(#{quota.quotaNum,jdbcType=INTEGER},0),
+                                      IFNULL(#{quota.overDraft,jdbcType=TINYINT},0),
+                                      IFNULL(#{quota.quotaState,jdbcType=TINYINT},0)
+                                     )
+                            </foreach>
+              ON DUPLICATE KEY
+                         UPDATE
+                            <trim suffixOverrides=",">
+                                <trim prefix="modifier =case" suffix="end,">
+                                    <foreach collection="list" item="quota">
+                                        <if test="null != quota.modifier">
+                                            when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                            then #{quota.modifier}
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="modify_time =case" suffix="end,">
+                                    <foreach collection="list" item="quota">
+                                        when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                        then NOW()
+                                    </foreach>
+                                </trim>
+                                <trim prefix="quota_num =case" suffix="end,">
+                                    <foreach collection="list" item="quota">
+                                        <if test="null != quota.quotaNum">
+                                            <!--增加-->
+                                            <if test="1 == quota.operateType">
+                                                when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                                then t_htlpro_quota.quota_num + #{quota.quotaNum}
+                                            </if>
+                                            <!--减少-->
+                                            <if test="2 == quota.operateType">
+                                                when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                                then if(t_htlpro_quota.quota_num > #{quota.quotaNum},t_htlpro_quota.quota_num -#{quota.quotaNum},0)
+                                            </if>
+                                            <!--设置为-->
+                                            <if test="3 == quota.operateType">
+                                                when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                                then #{quota.quotaNum}
+                                            </if>
+                                        </if>
+                                        <if test="null == quota.quotaNum">
+                                            when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                            then t_htlpro_quota.quota_num
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="used_quota_num =case" suffix="end,">
+                                    <foreach collection="list" item="quota">
+                                        <if test="null != quota.usedQuotaNum">
+                                            <!--增加-->
+                                            <if test="1 == quota.operateType">
+                                                when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                                then t_htlpro_quota.used_quota_num + #{quota.usedQuotaNum}
+                                            </if>
+                                            <!--减少-->
+                                            <if test="2 == quota.operateType">
+                                                when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                                then if(t_htlpro_quota.used_quota_num > #{quota.usedQuotaNum},t_htlpro_quota.used_quota_num -#{quota.usedQuotaNum},0)
+                                            </if>
+                                            <!--设置为-->
+                                            <if test="3 == quota.operateType">
+                                                when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                                then #{quota.used_quota_num}
+                                            </if>
+                                        </if>
+                                        <if test="null == quota.quotaNum">
+                                            when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                            then t_htlpro_quota.used_quota_num
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="all_quota_num =case" suffix="end,">
+                                    <foreach collection="list" item="quota">
+                                        <if test="null != quota.allQuotaNum">
+                                            <!--增加-->
+                                            <if test="1 == quota.operateType">
+                                                when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                                then t_htlpro_quota.all_quota_num + #{quota.allQuotaNum}
+                                            </if>
+                                            <!--减少-->
+                                            <if test="2 == quota.operateType">
+                                                when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                                then if(t_htlpro_quota.all_quota_num > #{quota.allQuotaNum},t_htlpro_quota.all_quota_num - #{quota.allQuotaNum},0)
+                                            </if>
+                                            <!--设置为-->
+                                            <if test="3 == quota.operateType">
+                                                when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                                then #{quota.allQuotaNum}
+                                            </if>
+                                        </if>
+                                        <if test="null == quota.allQuotaNum">
+                                            when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                            then t_htlpro_quota.all_quota_num
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="over_draft =case" suffix="end,">
+                                    <foreach collection="list" item="quota">
+                                        <if test="null != quota.overDraft">
+                                            when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                            then #{quota.overDraft}
+                                        </if>
+                                        <if test="null == quota.overDraft">
+                                            when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                            then t_htlpro_quota.over_draft
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <trim prefix="quota_state =case" suffix="end,">
+                                    <foreach collection="list" item="quota">
+                                        <if test="null != quota.quotaState">
+                                            when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                            then #{quota.quotaState}
+                                        </if>
+                                        <if test="null == quota.quotaState">
+                                            when quotaaccount_id = #{quota.quotaAccountId} and sale_date = #{quota.saleDate}
+                                            then t_htlpro_quota.quota_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                            </trim>
+
+    </insert>
+
+    <select id="queryQuotaStateDailyInfo" parameterType="com.fangcang.product.request.QuotaStateQueryDTO" resultType="com.fangcang.product.domain.QuotaStateDO">
+        SELECT qa.quotaaccount_id as quotaAccountId,
+                qa.quotaaccount_name as quotaAccountName,
+                q.sale_date as saleDate,
+                q.quota_num as quotaNum,
+                q.used_quota_num as usedQuotaNum,
+                q.all_quota_num as allQuotaNum,
+                q.over_draft as overDraft,
+                q.quota_state as quotaState
+         FROM   t_htlpro_quota_account qa
+    LEFT JOIN  t_htlpro_quota q ON qa.quotaaccount_id = q.quotaaccount_id
+           AND  <![CDATA[ q.sale_date >=  DATE_FORMAT(#{startDate}, '%Y-%m-%d')]]>
+           AND  <![CDATA[q.sale_date <= DATE_FORMAT(#{endDate}, '%Y-%m-%d')]]>
+        where   qa.quotaaccount_id = #{quotaAccountId,jdbcType=INTEGER}
+    </select>
+
+    <select id="dynamicQueryQuotaStateDailyInfo" parameterType="com.fangcang.product.request.QuotaStateQueryDTO" resultType="com.fangcang.product.domain.QuotaStateDO">
+        SELECT p.priceplan_id as pricePlanId,
+                qa.sale_date as saleDate,
+                qa.quota_num as quotaNum,
+                qa.used_quota_num as usedQuotaNum,
+                qa.all_quota_num as allQuotaNum,
+                qa.quota_state as quotaState,
+                qa.over_draft as overDraft
+          FROM  t_htlpro_priceplan p,t_htlpro_quota qa
+         where  p.quotaaccount_id = qa.quotaaccount_id
+            <if test="null != pricePlanId">
+                and p.priceplan_id = #{pricePlanId,jdbcType=INTEGER}
+            </if>
+            <if test="null != pricePlanIds and '' != pricePlanIds">
+                and p.priceplan_id in (${pricePlanIds})
+            </if>
+            <if test="null != startDate">
+                and   <![CDATA[ qa.sale_date >=  DATE_FORMAT(#{startDate}, '%Y-%m-%d')]]>
+            </if>
+            <if test="null != endDate">
+                and   <![CDATA[ qa.sale_date <=  DATE_FORMAT(#{endDate}, '%Y-%m-%d')]]>
+            </if>
+    </select>
+
+    <select id="queryQuotaDailyReport" parameterType="java.util.HashMap" resultType="com.fangcang.report.dto.QuotaDayDTO">
+        select t1.quotaaccount_id as quotaAccountId,
+                t1.priceplan_id as pricePlanId,
+                IFNULL(t1.quota_num, 0) as quotaNum,
+                IFNULL(t2.num,0) usedQuotaNum,
+                IFNULL(t1.all_quota_num,0) as allQuotaNum,
+                t1.sale_date saleDate
+        from (select hh.sale_date,hh.quota_num,h.quotaaccount_id,h.priceplan_id,hh.all_quota_num
+                from apollo.T_HTLPRO_PRICEPLAN h,apollo.t_htlpro_quota hh
+               where hh.quotaaccount_id = h.quotaaccount_id
+                 and hh.quotaaccount_id = #{quotaAccountId,jdbcType=INTEGER}
+                 and h.priceplan_id = #{pricePlanId,jdbcType=INTEGER}
+                 <![CDATA[and hh.sale_date >= #{startDate}]]>
+                  <![CDATA[and hh.sale_date <= #{endDate}]]>
+                 ) t1
+        left join
+            (select ht.quotaaccount_id,ht.sale_date,
+                  sum(case when ht.quota_type = 1 then ht.quota_num
+                            when ht.quota_type = 2 then -1 * ht.quota_num
+                            else 0
+                       end) as num
+                from apollo.t_htlpro_systemdebitedquota ht
+               where <![CDATA[ht.sale_date >= #{startDate}]]>
+                 and <![CDATA[ht.sale_date <=  #{endDate}]]>
+                 and ht.priceplan_id = #{pricePlanId,jdbcType=INTEGER}
+            group by ht.quotaaccount_id, ht.sale_date) t2
+        on t1.quotaaccount_id = t2.quotaaccount_id
+        and t1.sale_date = t2.sale_date
+        order by t1.priceplan_id desc,t1.sale_date desc
+    </select>
+</mapper>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.finance.dao.ReportMapper">
+
+	<!-- 分销商应收报表 -->
+	<select id="queryAgentReceivableList" resultType="com.travel.finance.entity.Receivable" parameterType="com.travel.common.dto.finance.query.ReceivableQueryDTO">
+		select
+		  o.agent_code                          agentcode,
+		  o.agent_name                          agentname,
+		  o.checkin_date                        checkindate,
+		  o.checkout_date                       checkoutdate,
+		  o.sale_currency                       salecurrency,
+		  sum(case when o.pay_method = 'pay'
+		    then 0 - ifnull(o.agent_commission, 0)
+		      else ifnull(o.receivable, 0) end) receivable
+		from t_order o
+		<where>
+			1 = 1
+			<if test="orgCode != null and orgCode != ''">
+				and o.agent_code = #{orgCode}
+			</if>
+			<if test="orgCode == null or orgCode == ''">
+				<if test="orgName != null and orgName != ''">
+					and o.agent_name like concat('%',#{orgName},'%')
+				</if>
+			</if>
+			<if test="dateType == 1">
+	             <if test="beginDate != null and beginDate != ''">
+             		and o.order_code in (select t.order_code from t_order_day_price t where cast(t.sale_date as date) >= cast(#{beginDate} as date) group by t.order_code)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and o.order_code in (select t.order_code from t_order_day_price t where cast(t.sale_date as date) <= cast(#{endDate} as date) group by t.order_code)]]>
+	             </if>
+             </if>
+             <if test="dateType == 2">
+	             <if test="beginDate != null and beginDate != ''">
+	             	and cast(o.checkin_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(o.checkin_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+             <if test="dateType == 3">
+	             <if test="beginDate != null and beginDate != ''">
+	             	and cast(o.checkout_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(o.checkout_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+             <if test="dateType == 4">
+	             <if test="beginDate != null and beginDate != ''">
+	             	and cast(o.create_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(o.create_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+		</where>
+		group by o.agent_code, o.agent_name, o.checkin_date, o.checkout_date, o.sale_currency
+	</select>
+	
+	<!-- 供应商应付报表 -->
+	<select id="querySupplyPayableList" resultType="com.travel.finance.entity.Payable" parameterType="com.travel.common.dto.finance.query.PayableQueryDTO">
+		select
+		  o.supply_code                      supplycode,
+		  o.supply_name                      supplyname,
+		  o.checkin_date                     checkindate,
+		  o.checkout_date                    checkoutdate,
+		  o.base_currency                    basecurrency,
+		  sum(case when o.pay_method = 'pay'
+		    then 0 - ifnull(o.supply_commission, 0)
+		      else ifnull(o.payable, 0) end) payable
+		from t_order o
+		<where>
+			1 = 1
+			<if test="orgCode != null and orgCode != ''">
+				and o.supply_code = #{orgCode}
+			</if>
+			<if test="orgCode == null or orgCode == ''">
+				<if test="orgName != null and orgName != ''">
+					and o.supply_name like concat('%',#{orgName},'%')
+				</if>
+			</if>
+			<if test="dateType == 1">
+	             <if test="beginDate != null and beginDate != ''">
+             		and o.order_code in (select t.order_code from t_order_day_price t where cast(t.sale_date as date) >= cast(#{beginDate} as date) group by t.order_code)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and o.order_code in (select t.order_code from t_order_day_price t where cast(t.sale_date as date) <= cast(#{endDate} as date) group by t.order_code)]]>
+	             </if>
+             </if>
+             <if test="dateType == 2">
+	             <if test="beginDate != null and beginDate != ''">
+	             	and cast(o.checkin_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(o.checkin_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+             <if test="dateType == 3">
+	             <if test="beginDate != null and beginDate != ''">
+	             	and cast(o.checkout_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(o.checkout_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+             <if test="dateType == 4">
+	             <if test="beginDate != null and beginDate != ''">
+	             	and cast(o.create_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(o.create_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+		</where>
+		group by o.supply_code, o.supply_name, o.checkin_date, o.checkout_date, o.base_currency
+	</select>
+	
+	<!-- 查询分销商利润 -->
+	<select id="queryAgentReceivableProfit" resultType="com.travel.finance.entity.Receivable" parameterType="com.travel.common.dto.finance.query.ReceivableQueryDTO">
+		select
+		  a.agent_code                       agentcode,
+		  a.agent_name                       agentname,
+		  sum(a.rooms)						 rooms,
+		  sum(a.receivable)                  receivable,
+		  sum(a.payable)                     payable,
+		  sum(a.receivable) - sum(a.payable) profit
+		from (
+		       select
+		         o.agent_code,
+		         o.agent_name,
+		         ifnull(p.rooms, 0) rooms,
+		         case when o.pay_method = 'pay'
+		           then 0 - (ifnull(p.agent_commission, 0) * ifnull(p.rooms, 0))
+		         else ifnull(p.sale_b_price, 0) * ifnull(p.rooms, 0) end * ifnull(p.sale_channel_rate, 1) receivable,
+		         case when o.pay_method = 'pay'
+		           then 0 - (ifnull(p.supply_commission, 0) * ifnull(p.rooms, 0))
+		         else ifnull(p.base_price, 0) * ifnull(p.rooms, 0) end * ifnull(p.base_rate, 1)           payable
+		       from t_order o, t_order_day_price p
+		       <where>
+		       		o.order_code = p.order_code 
+		       		and o.order_state = 'confirmed'
+		       		<if test="orgCode != null and orgCode != ''">
+						and o.agent_code = #{orgCode}
+					</if>
+					<if test="orgCode == null or orgCode == ''">
+						<if test="orgName != null and orgName != ''">
+							and o.agent_name like concat('%',#{orgName},'%')
+						</if>
+					</if>
+					<if test="dateType == 1">
+			             <if test="beginDate != null and beginDate != ''">
+		             		and cast(p.sale_date as date) >= cast(#{beginDate} as date)
+			             </if>
+			             <if test="endDate != null and endDate != ''">
+			             	<![CDATA[and cast(p.sale_date as date) <= cast(#{endDate} as date)]]>
+			             </if>
+		             </if>
+		             <if test="dateType == 2">
+			             <if test="beginDate != null and beginDate != ''">
+			             	and cast(o.checkin_date as date) >= cast(#{beginDate} as date)
+			             </if>
+			             <if test="endDate != null and endDate != ''">
+			             	<![CDATA[and cast(o.checkin_date as date) <= cast(#{endDate} as date)]]>
+			             </if>
+		             </if>
+		             <if test="dateType == 3">
+			             <if test="beginDate != null and beginDate != ''">
+			             	and cast(o.checkout_date as date) >= cast(#{beginDate} as date)
+			             </if>
+			             <if test="endDate != null and endDate != ''">
+			             	<![CDATA[and cast(o.checkout_date as date) <= cast(#{endDate} as date)]]>
+			             </if>
+		             </if>
+		             <if test="dateType == 4">
+			             <if test="beginDate != null and beginDate != ''">
+			             	and cast(o.create_date as date) >= cast(#{beginDate} as date)
+			             </if>
+			             <if test="endDate != null and endDate != ''">
+			             	<![CDATA[and cast(o.create_date as date) <= cast(#{endDate} as date)]]>
+			             </if>
+		             </if>
+		       </where>
+		     ) a
+		group by a.agent_code, a.agent_name
+	</select>
+	
+</mapper>

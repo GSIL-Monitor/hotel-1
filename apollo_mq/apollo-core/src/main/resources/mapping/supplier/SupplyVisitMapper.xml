@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.supplier.mapper.SupplyVisitMapper">
+    <resultMap id="BaseResultMap" type="com.fangcang.supplier.domain.SupplyVisitDO">
+        <id column="supply_visit_id" property="supplyVisitId" jdbcType="INTEGER"/>
+        <result column="supply_id" property="supplyId" jdbcType="INTEGER"/>
+        <result column="supply_code" property="supplyCode" jdbcType="VARCHAR"/>
+        <result column="visit_time" property="visitTime" jdbcType="TIMESTAMP"/>
+        <result column="visit_content" property="visitContent" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="visitor" property="visitor" jdbcType="VARCHAR"/>
+        <result column="supply_name" property="supplyName"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    supply_visit_id, supply_id, supply_code, visit_time, visit_content, create_time, 
+    creator, visitor
+  </sql>
+
+    <insert id="addVisit" parameterType="com.fangcang.supplier.domain.SupplyVisitDO" useGeneratedKeys="true"
+            keyProperty="supplyVisitId">
+        INSERT INTO t_supply_visit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            supply_id,
+            <if test="supplyCode != null">
+                supply_code,
+            </if>
+            <if test="visitTime != null">
+                visit_time,
+            </if>
+            <if test="visitContent != null">
+                visit_content,
+            </if>
+            <if test="visitor != null">
+                visitor,
+            </if>
+            create_time,
+            creator,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{supplyId,jdbcType=INTEGER},
+            <if test="supplyCode != null">
+                #{supplyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="visitTime != null">
+                #{visitTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="visitContent != null">
+                #{visitContent,jdbcType=VARCHAR},
+            </if>
+            <if test="visitor != null">
+                #{visitor,jdbcType=VARCHAR},
+            </if>
+            NOW(),
+            #{creator,jdbcType=VARCHAR},
+        </trim>
+    </insert>
+
+    <!--查询单个供应商详情所用到的关联查询 -->
+    <select id="selectVisitListBySupplyId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_supply_visit WHERE supply_id=#{supply_id,jdbcType=INTEGER}
+    </select>
+
+    <!--查询供应商拜访记录列表(单独的模块)-->
+    <select id="getVisitList" parameterType="com.fangcang.supplier.request.GetSupplyVisitListQueryDTO"
+            resultMap="BaseResultMap">
+        SELECT
+        sv.supply_visit_id, sv.supply_id, sv.supply_code, sv.visit_time, sv.visit_content, sv.create_time,
+        sv.creator, sv.visitor,s.supply_name
+        FROM t_supply s  RIGHT JOIN t_supply_visit sv ON sv.supply_code=s.supply_code AND sv.supply_id=s.supply_id
+        LEFT JOIN t_user u ON s.merchant_bm = u.id
+        WHERE 1=1 AND s.merchant_id = #{merchantId}
+        <if test="null!=supplyCode and ''!=supplyCode">
+            AND sv.supply_code=#{supplyCode,jdbcType=VARCHAR}
+        </if>
+        <if test="null!=supplyName and ''!=supplyName">
+            AND s.supply_name LIKE CONCAT('%',#{supplyName},'%')
+        </if>
+        <if test="null!=supplyId">
+            AND s.supply_id = #{supplyId,jdbcType=INTEGER}
+        </if>
+        <if test="null!=merchantBM">
+            AND u.id = #{merchantBM,jdbcType=INTEGER}
+        </if>
+        <if test="null!=merchantBMName and ''!=merchantBMName">
+            AND u.real_name LIKE CONCAT('%',#{merchantBMName},'%')
+        </if>
+        ORDER BY sv.visit_time DESC
+    </select>
+
+
+</mapper>

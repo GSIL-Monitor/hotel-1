@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.dlt.dao.DltOrderDetailPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.dlt.entity.po.DltOrderDetailPO" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="dlt_order_id" property="dltOrderId" jdbcType="VARCHAR" />
+    <result column="order_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="last_dlt_order_id" property="lastDltOrderId" jdbcType="VARCHAR" />
+    <result column="next_dlt_order_id" property="nextDltOrderId" jdbcType="VARCHAR" />
+    <result column="last_order_id" property="lastOrderId" jdbcType="VARCHAR" />
+    <result column="next_order_id" property="nextOrderId" jdbcType="VARCHAR" />
+    <result column="channel" property="channel" jdbcType="VARCHAR" />
+    <result column="child_channel" property="childChannel" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="order_date" property="orderDate" jdbcType="TIMESTAMP" />
+    <result column="order_currency" property="orderCurrency" jdbcType="VARCHAR" />
+    <result column="order_price" property="orderPrice" jdbcType="DECIMAL" />
+    <result column="form_type" property="formType" jdbcType="VARCHAR" />
+    <result column="order_status" property="orderStatus" jdbcType="VARCHAR" />
+    <result column="payment_type" property="paymentType" jdbcType="VARCHAR" />
+    <result column="confirm_no" property="confirmNo" jdbcType="VARCHAR" />
+    <result column="check_in_date" property="checkInDate" jdbcType="TIMESTAMP" />
+    <result column="check_out_Date" property="checkOutDate" jdbcType="TIMESTAMP" />
+    <result column="city_id" property="cityId" jdbcType="BIGINT" />
+    <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+    <result column="city_ename" property="cityEname" jdbcType="VARCHAR" />
+    <result column="hotel_id" property="hotelId" jdbcType="VARCHAR" />
+    <result column="hotel_name" property="hotelName" jdbcType="VARCHAR" />
+    <result column="hotel_ename" property="hotelEname" jdbcType="VARCHAR" />
+    <result column="room_id" property="roomId" jdbcType="VARCHAR" />
+    <result column="room_name" property="roomName" jdbcType="VARCHAR" />
+    <result column="room_ename" property="roomEname" jdbcType="VARCHAR" />
+    <result column="room_num" property="roomNum" jdbcType="INTEGER" />
+    <result column="bed_type" property="bedType" jdbcType="VARCHAR" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_did" property="customerDid" jdbcType="VARCHAR" />
+    <result column="special_memo" property="specialMemo" jdbcType="VARCHAR" />
+    <result column="order_memo" property="orderMemo" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+    <result column="m_order_code" property="zhOrderCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, dlt_order_id, order_id, last_dlt_order_id, next_dlt_order_id, last_order_id, next_order_id, channel, child_channel, update_time, order_date, order_currency,
+    order_price, form_type, order_status, payment_type, confirm_no, check_in_date, check_out_Date, 
+    city_id, city_name, city_ename, hotel_id, hotel_name, hotel_ename, room_id, room_name, 
+    room_ename, room_num, bed_type, customer_name, customer_did, special_memo, order_memo, 
+    creator, create_date, modifier, modify_date, m_order_code
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDetailPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_dlt_order_detail
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_dlt_order_detail
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_dlt_order_detail
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDetailPOExample" >
+    delete from t_dlt_order_detail
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDetailPO" >
+    insert into t_dlt_order_detail (id, dlt_order_id, order_id,
+      last_dlt_order_id, next_dlt_order_id, last_order_id, next_order_id,
+      channel, child_channel, update_time, 
+      order_date, order_currency, order_price, 
+      form_type, order_status, payment_type, 
+      confirm_no, check_in_date, check_out_Date, 
+      city_id, city_name, city_ename, 
+      hotel_id, hotel_name, hotel_ename, 
+      room_id, room_name, room_ename, 
+      room_num, bed_type, customer_name, 
+      customer_did, special_memo, order_memo, 
+      creator, create_date, modifier, 
+      modify_date, m_order_code)
+    values (#{id,jdbcType=BIGINT}, #{dltOrderId,jdbcType=VARCHAR}, #{orderId,jdbcType=VARCHAR},
+      #{lastDltOrderId,jdbcType=VARCHAR}, #{nextDltOrderId,jdbcType=VARCHAR}, #{lastOrderId,jdbcType=VARCHAR}, #{nextOrderId,jdbcType=VARCHAR},
+      #{channel,jdbcType=VARCHAR}, #{childChannel,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{orderDate,jdbcType=TIMESTAMP}, #{orderCurrency,jdbcType=VARCHAR}, #{orderPrice,jdbcType=DECIMAL}, 
+      #{formType,jdbcType=VARCHAR}, #{orderStatus,jdbcType=VARCHAR}, #{paymentType,jdbcType=VARCHAR}, 
+      #{confirmNo,jdbcType=VARCHAR}, #{checkInDate,jdbcType=TIMESTAMP}, #{checkOutDate,jdbcType=TIMESTAMP}, 
+      #{cityId,jdbcType=BIGINT}, #{cityName,jdbcType=VARCHAR}, #{cityEname,jdbcType=VARCHAR}, 
+      #{hotelId,jdbcType=VARCHAR}, #{hotelName,jdbcType=VARCHAR}, #{hotelEname,jdbcType=VARCHAR}, 
+      #{roomId,jdbcType=VARCHAR}, #{roomName,jdbcType=VARCHAR}, #{roomEname,jdbcType=VARCHAR}, 
+      #{roomNum,jdbcType=INTEGER}, #{bedType,jdbcType=VARCHAR}, #{customerName,jdbcType=VARCHAR}, 
+      #{customerDid,jdbcType=VARCHAR}, #{specialMemo,jdbcType=VARCHAR}, #{orderMemo,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{modifyDate,jdbcType=TIMESTAMP}, #{zhOrderCode,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDetailPO" >
+    insert into t_dlt_order_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="dltOrderId != null" >
+        dlt_order_id,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="lastDltOrderId != null" >
+        last_dlt_order_id,
+      </if>
+      <if test="nextDltOrderId != null" >
+        next_dlt_order_id,
+      </if>
+      <if test="lastOrderId != null" >
+        last_order_id,
+      </if>
+      <if test="nextOrderId != null" >
+        next_order_id,
+      </if>
+      <if test="channel != null" >
+        channel,
+      </if>
+      <if test="childChannel != null" >
+        child_channel,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="orderDate != null" >
+        order_date,
+      </if>
+      <if test="orderCurrency != null" >
+        order_currency,
+      </if>
+      <if test="orderPrice != null" >
+        order_price,
+      </if>
+      <if test="formType != null" >
+        form_type,
+      </if>
+      <if test="orderStatus != null" >
+        order_status,
+      </if>
+      <if test="paymentType != null" >
+        payment_type,
+      </if>
+      <if test="confirmNo != null" >
+        confirm_no,
+      </if>
+      <if test="checkInDate != null" >
+        check_in_date,
+      </if>
+      <if test="checkOutDate != null" >
+        check_out_Date,
+      </if>
+      <if test="cityId != null" >
+        city_id,
+      </if>
+      <if test="cityName != null" >
+        city_name,
+      </if>
+      <if test="cityEname != null" >
+        city_ename,
+      </if>
+      <if test="hotelId != null" >
+        hotel_id,
+      </if>
+      <if test="hotelName != null" >
+        hotel_name,
+      </if>
+      <if test="hotelEname != null" >
+        hotel_ename,
+      </if>
+      <if test="roomId != null" >
+        room_id,
+      </if>
+      <if test="roomName != null" >
+        room_name,
+      </if>
+      <if test="roomEname != null" >
+        room_ename,
+      </if>
+      <if test="roomNum != null" >
+        room_num,
+      </if>
+      <if test="bedType != null" >
+        bed_type,
+      </if>
+      <if test="customerName != null" >
+        customer_name,
+      </if>
+      <if test="customerDid != null" >
+        customer_did,
+      </if>
+      <if test="specialMemo != null" >
+        special_memo,
+      </if>
+      <if test="orderMemo != null" >
+        order_memo,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifyDate != null" >
+        modify_date,
+      </if>
+      <if test="zhOrderCode != null" >
+        m_order_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="dltOrderId != null" >
+        #{dltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastDltOrderId != null" >
+        #{lastDltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="nextDltOrderId != null" >
+        #{nextDltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastOrderId != null" >
+        #{lastOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="nextOrderId != null" >
+        #{nextOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null" >
+        #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="childChannel != null" >
+        #{childChannel,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderDate != null" >
+        #{orderDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderCurrency != null" >
+        #{orderCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="orderPrice != null" >
+        #{orderPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="formType != null" >
+        #{formType,jdbcType=VARCHAR},
+      </if>
+      <if test="orderStatus != null" >
+        #{orderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="paymentType != null" >
+        #{paymentType,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmNo != null" >
+        #{confirmNo,jdbcType=VARCHAR},
+      </if>
+      <if test="checkInDate != null" >
+        #{checkInDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkOutDate != null" >
+        #{checkOutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cityId != null" >
+        #{cityId,jdbcType=BIGINT},
+      </if>
+      <if test="cityName != null" >
+        #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="cityEname != null" >
+        #{cityEname,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelId != null" >
+        #{hotelId,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelName != null" >
+        #{hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelEname != null" >
+        #{hotelEname,jdbcType=VARCHAR},
+      </if>
+      <if test="roomId != null" >
+        #{roomId,jdbcType=VARCHAR},
+      </if>
+      <if test="roomName != null" >
+        #{roomName,jdbcType=VARCHAR},
+      </if>
+      <if test="roomEname != null" >
+        #{roomEname,jdbcType=VARCHAR},
+      </if>
+      <if test="roomNum != null" >
+        #{roomNum,jdbcType=INTEGER},
+      </if>
+      <if test="bedType != null" >
+        #{bedType,jdbcType=VARCHAR},
+      </if>
+      <if test="customerName != null" >
+        #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerDid != null" >
+        #{customerDid,jdbcType=VARCHAR},
+      </if>
+      <if test="specialMemo != null" >
+        #{specialMemo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderMemo != null" >
+        #{orderMemo,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="zhOrderCode != null" >
+        #{zhOrderCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDetailPOExample" resultType="java.lang.Integer" >
+    select count(*) from t_dlt_order_detail
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_dlt_order_detail
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.dltOrderId != null" >
+        dlt_order_id = #{record.dltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderId != null" >
+        order_id = #{record.orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastDltOrderId != null" >
+        last_dlt_order_id = #{record.lastDltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nextDltOrderId != null" >
+        next_dlt_order_id = #{record.nextDltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastOrderId != null" >
+        last_order_id = #{record.lastOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nextOrderId != null" >
+        next_order_id = #{record.nextOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.channel != null" >
+        channel = #{record.channel,jdbcType=VARCHAR},
+      </if>
+      <if test="record.childChannel != null" >
+        child_channel = #{record.childChannel,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.orderDate != null" >
+        order_date = #{record.orderDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.orderCurrency != null" >
+        order_currency = #{record.orderCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderPrice != null" >
+        order_price = #{record.orderPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.formType != null" >
+        form_type = #{record.formType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderStatus != null" >
+        order_status = #{record.orderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.paymentType != null" >
+        payment_type = #{record.paymentType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.confirmNo != null" >
+        confirm_no = #{record.confirmNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkInDate != null" >
+        check_in_date = #{record.checkInDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.checkOutDate != null" >
+        check_out_Date = #{record.checkOutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.cityId != null" >
+        city_id = #{record.cityId,jdbcType=BIGINT},
+      </if>
+      <if test="record.cityName != null" >
+        city_name = #{record.cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cityEname != null" >
+        city_ename = #{record.cityEname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.hotelId != null" >
+        hotel_id = #{record.hotelId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.hotelName != null" >
+        hotel_name = #{record.hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.hotelEname != null" >
+        hotel_ename = #{record.hotelEname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roomId != null" >
+        room_id = #{record.roomId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roomName != null" >
+        room_name = #{record.roomName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roomEname != null" >
+        room_ename = #{record.roomEname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roomNum != null" >
+        room_num = #{record.roomNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.bedType != null" >
+        bed_type = #{record.bedType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerName != null" >
+        customer_name = #{record.customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerDid != null" >
+        customer_did = #{record.customerDid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.specialMemo != null" >
+        special_memo = #{record.specialMemo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderMemo != null" >
+        order_memo = #{record.orderMemo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creator != null" >
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createDate != null" >
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.modifier != null" >
+        modifier = #{record.modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifyDate != null" >
+        modify_date = #{record.modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.zhOrderCode != null" >
+        m_order_code = #{record.zhOrderCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_dlt_order_detail
+    set id = #{record.id,jdbcType=BIGINT},
+      dlt_order_id = #{record.dltOrderId,jdbcType=VARCHAR},
+      order_id = #{record.orderId,jdbcType=VARCHAR},
+      last_dlt_order_id = #{record.lastDltOrderId,jdbcType=VARCHAR},
+      next_dlt_order_id = #{record.nextDltOrderId,jdbcType=VARCHAR},
+      last_order_id = #{record.lastOrderId,jdbcType=VARCHAR},
+      next_order_id = #{record.nextOrderId,jdbcType=VARCHAR},
+      channel = #{record.channel,jdbcType=VARCHAR},
+      child_channel = #{record.childChannel,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      order_date = #{record.orderDate,jdbcType=TIMESTAMP},
+      order_currency = #{record.orderCurrency,jdbcType=VARCHAR},
+      order_price = #{record.orderPrice,jdbcType=DECIMAL},
+      form_type = #{record.formType,jdbcType=VARCHAR},
+      order_status = #{record.orderStatus,jdbcType=VARCHAR},
+      payment_type = #{record.paymentType,jdbcType=VARCHAR},
+      confirm_no = #{record.confirmNo,jdbcType=VARCHAR},
+      check_in_date = #{record.checkInDate,jdbcType=TIMESTAMP},
+      check_out_Date = #{record.checkOutDate,jdbcType=TIMESTAMP},
+      city_id = #{record.cityId,jdbcType=BIGINT},
+      city_name = #{record.cityName,jdbcType=VARCHAR},
+      city_ename = #{record.cityEname,jdbcType=VARCHAR},
+      hotel_id = #{record.hotelId,jdbcType=VARCHAR},
+      hotel_name = #{record.hotelName,jdbcType=VARCHAR},
+      hotel_ename = #{record.hotelEname,jdbcType=VARCHAR},
+      room_id = #{record.roomId,jdbcType=VARCHAR},
+      room_name = #{record.roomName,jdbcType=VARCHAR},
+      room_ename = #{record.roomEname,jdbcType=VARCHAR},
+      room_num = #{record.roomNum,jdbcType=INTEGER},
+      bed_type = #{record.bedType,jdbcType=VARCHAR},
+      customer_name = #{record.customerName,jdbcType=VARCHAR},
+      customer_did = #{record.customerDid,jdbcType=VARCHAR},
+      special_memo = #{record.specialMemo,jdbcType=VARCHAR},
+      order_memo = #{record.orderMemo,jdbcType=VARCHAR},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      modifier = #{record.modifier,jdbcType=VARCHAR},
+      modify_date = #{record.modifyDate,jdbcType=TIMESTAMP},
+      m_order_code = #{record.zhOrderCode,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDetailPO" >
+    update t_dlt_order_detail
+    <set >
+      <if test="dltOrderId != null" >
+        dlt_order_id = #{dltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastDltOrderId != null" >
+        last_dlt_order_id = #{lastDltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="nextDltOrderId != null" >
+        next_dlt_order_id = #{nextDltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastOrderId != null" >
+        last_order_id = #{lastOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="nextOrderId != null" >
+        next_order_id = #{nextOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null" >
+        channel = #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="childChannel != null" >
+        child_channel = #{childChannel,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderDate != null" >
+        order_date = #{orderDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderCurrency != null" >
+        order_currency = #{orderCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="orderPrice != null" >
+        order_price = #{orderPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="formType != null" >
+        form_type = #{formType,jdbcType=VARCHAR},
+      </if>
+      <if test="orderStatus != null" >
+        order_status = #{orderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="paymentType != null" >
+        payment_type = #{paymentType,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmNo != null" >
+        confirm_no = #{confirmNo,jdbcType=VARCHAR},
+      </if>
+      <if test="checkInDate != null" >
+        check_in_date = #{checkInDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkOutDate != null" >
+        check_out_Date = #{checkOutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cityId != null" >
+        city_id = #{cityId,jdbcType=BIGINT},
+      </if>
+      <if test="cityName != null" >
+        city_name = #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="cityEname != null" >
+        city_ename = #{cityEname,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelId != null" >
+        hotel_id = #{hotelId,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelName != null" >
+        hotel_name = #{hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelEname != null" >
+        hotel_ename = #{hotelEname,jdbcType=VARCHAR},
+      </if>
+      <if test="roomId != null" >
+        room_id = #{roomId,jdbcType=VARCHAR},
+      </if>
+      <if test="roomName != null" >
+        room_name = #{roomName,jdbcType=VARCHAR},
+      </if>
+      <if test="roomEname != null" >
+        room_ename = #{roomEname,jdbcType=VARCHAR},
+      </if>
+      <if test="roomNum != null" >
+        room_num = #{roomNum,jdbcType=INTEGER},
+      </if>
+      <if test="bedType != null" >
+        bed_type = #{bedType,jdbcType=VARCHAR},
+      </if>
+      <if test="customerName != null" >
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerDid != null" >
+        customer_did = #{customerDid,jdbcType=VARCHAR},
+      </if>
+      <if test="specialMemo != null" >
+        special_memo = #{specialMemo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderMemo != null" >
+        order_memo = #{orderMemo,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="zhOrderCode != null" >
+        m_order_code = #{zhOrderCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDetailPO" >
+    update t_dlt_order_detail
+    set dlt_order_id = #{dltOrderId,jdbcType=VARCHAR},
+      order_id = #{orderId,jdbcType=VARCHAR},
+      last_dlt_order_id = #{lastDltOrderId,jdbcType=VARCHAR},
+      next_dlt_order_id = #{nextDltOrderId,jdbcType=VARCHAR},
+      last_order_id = #{lastOrderId,jdbcType=VARCHAR},
+      next_order_id = #{nextOrderId,jdbcType=VARCHAR},
+      channel = #{channel,jdbcType=VARCHAR},
+      child_channel = #{childChannel,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      order_date = #{orderDate,jdbcType=TIMESTAMP},
+      order_currency = #{orderCurrency,jdbcType=VARCHAR},
+      order_price = #{orderPrice,jdbcType=DECIMAL},
+      form_type = #{formType,jdbcType=VARCHAR},
+      order_status = #{orderStatus,jdbcType=VARCHAR},
+      payment_type = #{paymentType,jdbcType=VARCHAR},
+      confirm_no = #{confirmNo,jdbcType=VARCHAR},
+      check_in_date = #{checkInDate,jdbcType=TIMESTAMP},
+      check_out_Date = #{checkOutDate,jdbcType=TIMESTAMP},
+      city_id = #{cityId,jdbcType=BIGINT},
+      city_name = #{cityName,jdbcType=VARCHAR},
+      city_ename = #{cityEname,jdbcType=VARCHAR},
+      hotel_id = #{hotelId,jdbcType=VARCHAR},
+      hotel_name = #{hotelName,jdbcType=VARCHAR},
+      hotel_ename = #{hotelEname,jdbcType=VARCHAR},
+      room_id = #{roomId,jdbcType=VARCHAR},
+      room_name = #{roomName,jdbcType=VARCHAR},
+      room_ename = #{roomEname,jdbcType=VARCHAR},
+      room_num = #{roomNum,jdbcType=INTEGER},
+      bed_type = #{bedType,jdbcType=VARCHAR},
+      customer_name = #{customerName,jdbcType=VARCHAR},
+      customer_did = #{customerDid,jdbcType=VARCHAR},
+      special_memo = #{specialMemo,jdbcType=VARCHAR},
+      order_memo = #{orderMemo,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      m_order_code = #{zhOrderCode,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

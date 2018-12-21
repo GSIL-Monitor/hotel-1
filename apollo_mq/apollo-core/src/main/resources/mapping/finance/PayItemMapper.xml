@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.financeorder.mapper.PayItemMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.financeorder.domain.PayItemDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="pay_item_type" jdbcType="INTEGER" property="payItemType" />
+    <result column="relation_id" jdbcType="INTEGER" property="relationId" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+    <result column="exchange_amount" jdbcType="DECIMAL" property="exchangeAmount" />
+    <result column="exchange_currency" jdbcType="VARCHAR" property="exchangeCurrency" />
+    <result column="arrival_date" jdbcType="TIMESTAMP" property="arrivalDate" />
+    <result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="org_bank_name" jdbcType="VARCHAR" property="orgBankName" />
+    <result column="org_bank_account" jdbcType="VARCHAR" property="orgBankAccount" />
+    <result column="merchant_bank_id" jdbcType="INTEGER" property="merchantBankId" />
+    <result column="merchant_bank_name" jdbcType="VARCHAR" property="merchantBankName" />
+    <result column="merchant_bank_account" jdbcType="VARCHAR" property="merchantBankAccount" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <select id="queryPayItem" parameterType="com.fangcang.finance.financeorder.request.QueryPayItemDTO"
+          resultType="com.fangcang.finance.dto.PayItemDTO">
+    SELECT
+      id,
+      pay_item_type payItemType,
+      relation_id relationId,
+      amount amount,
+      currency currency,
+      exchange_amount exchangeAmount,
+      exchange_currency exchangeCurrency,
+      DATE_FORMAT(arrival_date,"%Y-%m-%d %T") arrivalDate,
+      serial_no serialNo,
+      note note,
+      org_bank_name orgBankName,
+      org_bank_account orgBankAccount,
+      merchant_bank_id merchantBankId,
+      merchant_bank_name merchantBankName,
+      merchant_bank_account merchantBankAccount
+    FROM t_fin_pay_item p
+    WHERE p.pay_item_type=#{payItemType} and p.relation_id=#{relationId}
+  </select>
+</mapper>

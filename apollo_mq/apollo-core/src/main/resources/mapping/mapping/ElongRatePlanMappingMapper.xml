@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.mapping.mapper.ElongRatePlanMappingMapper" >
+
+    <select id="queryMappingRatePlan" resultType="com.fangcang.mapping.response.ElongRatePlanMappingResponse">
+        SELECT
+            hotelId,
+            roomTypeId,
+            ratePlanId,
+            ratePlanName,
+            elongRatePlanId,
+            elongRatePlanName,
+            mapStatus,
+            modifiedTime
+        FROM t_elong_map_rateplan r
+        WHERE r.merchantcode=#{merchantCode}
+        and r.hotelId in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

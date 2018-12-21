@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.attachment.dao.AttachmentMapper">
+
+	<!-- 保存附件 -->
+	<insert id="saveAttachment" parameterType="com.travel.common.dto.AttachmentDTO">
+		insert into t_attachment (attachment_id, business_id, attachment_type, original_attachment_name, server_attachment_name, attachment_path, upload_date,creator) 
+		values (#{attachmentId,jdbcType=VARCHAR}, #{businessId,jdbcType=BIGINT},#{attachmentType,jdbcType=VARCHAR},#{originalAttachmentName,jdbcType=VARCHAR},#{serverAttachmentName,jdbcType=VARCHAR},#{attachmentPath,jdbcType=VARCHAR},now(),#{creator,jdbcType=VARCHAR})
+	</insert>
+	
+	<!-- 删除附件 -->
+	<delete id="deleteAttachmentById" parameterType="java.lang.String">
+		delete t from t_attachment t where t.attachment_id = #{attachmentId}
+	</delete>
+	
+	<!-- 查询附件 -->
+	<select id="queryAttachmentById" parameterType="java.lang.String" resultType="com.travel.common.dto.AttachmentDTO">
+		select
+		  t.attachment_id            attachmentId,
+		  t.business_id              businessId,
+		  t.attachment_type          attachmentType,
+		  t.original_attachment_name originalAttachmentName,
+		  t.server_attachment_name   serverAttachmentName,
+		  t.attachment_path          attachmentPath,
+		  t.upload_date              uploadDate
+		from t_attachment t
+		where t.attachment_id = #{attachmentId}
+	</select>
+	
+	<!-- 查询附件 -->
+	<select id="queryAttachmentList" parameterType="java.lang.Long" resultType="com.travel.common.dto.AttachmentDTO">
+		select
+		  t.attachment_id            attachmentId,
+		  t.business_id              businessId,
+		  t.attachment_type          attachmentType,
+		  t.original_attachment_name originalAttachmentName,
+		  t.server_attachment_name   serverAttachmentName,
+		  t.attachment_path          attachmentPath,
+		  t.upload_date              uploadDate
+		from t_attachment t
+		where t.business_id = #{businessId}
+	</select>
+	
+</mapper>

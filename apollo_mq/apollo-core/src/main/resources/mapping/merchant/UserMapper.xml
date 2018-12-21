@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.merchant.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.fangcang.merchant.domain.UserDO">
+        <id column="id" property="userId" jdbcType="INTEGER"/>
+        <result column="merchant_id" property="merchantId" jdbcType="INTEGER"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="department" property="department" jdbcType="INTEGER"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="is_active" property="isActive" jdbcType="INTEGER"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="merchant_code" property="merchantCode" jdbcType="VARCHAR"/>
+        <result column="merchant_name" property="merchantName" jdbcType="VARCHAR"/>
+        <result column="second_domain" property="secondDomain" jdbcType="VARCHAR"/>
+        <result column="system_name" property="systemName" jdbcType="VARCHAR"/>
+        <result column="qq" property="qq" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="landline_telephone" property="landlineTelephone" jdbcType="VARCHAR"/>
+        
+        <collection property="roleList" column="id"
+            javaType="java.util.ArrayList" ofType="com.fangcang.merchant.domain.RoleDO"
+            select="com.fangcang.merchant.mapper.RoleMapper.getRoleListByUser"/>
+            
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, merchant_id, username, password, real_name, department, description, phone, is_active,
+        creator, create_time, modifier, modify_time,qq,email,landline_telephone
+      </sql>
+
+    <select id="queryUserForPage" parameterType="com.fangcang.merchant.dto.QueryUserConditionDTO"
+            resultMap="BaseResultMap">
+        SELECT
+        id, u.merchant_id, username, password, real_name, u.department, u.description, u.phone, u.is_active, u.qq, u.email, u.landline_telephone,
+        u.creator, u.create_time, u.modifier, u.modify_time,m.merchant_code,m.merchant_name,m.system_name
+        FROM t_user u,t_merchant m
+        WHERE u.merchant_id = m.merchant_id
+        <if test="userId != null and userId !=''">
+            AND u.id=#{userId}
+        </if>
+        <if test="userName != null and userName !=''">
+            AND u.userName=#{userName}
+        </if>
+        <if test="realName != null and realName !=''">
+            AND u.realName LIKE concat(concat('%',#{realName}),'%')
+        </if>
+        <if test="department != null and department !=''">
+            AND u.department=#{department}
+        </if>
+        <if test="isActive != null and isActive !=''">
+            AND u.is_Active=#{isActive}
+        </if>
+        <if test="domain != null">
+            AND  (m.domain = #{domain} or m.second_domain = #{domain} )
+        </if>
+    </select>
+
+    <select id="selectUserById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_user WHERE id = #{merchant_bm}
+    </select>
+    
+    <!-- 查询员工信息  -->
+    <select id="queryUserInfoById" resultMap="BaseResultMap" parameterType="com.fangcang.merchant.request.GetUserByIdRequestDTO">
+    	SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_user
+        where 1=1
+        <if test="userId != null">
+            AND id=#{userId}
+        </if>
+    </select>
+    
+    <!--设置是否停用 -->
+    <update id="setActive" parameterType="com.fangcang.merchant.domain.UserDO">
+        UPDATE t_user
+        <set>
+            <if test="isActive != null">
+                is_active = #{isActive,jdbcType=INTEGER},
+            </if>
+            <if test="modifier != null and modifier !=''">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+            </if>
+        </set>
+        WHERE id = #{userId,jdbcType=INTEGER}
+    </update>
+    
+    <!--修改密码 -->
+    <update id="changePassword" parameterType="com.fangcang.merchant.domain.UserDO">
+        UPDATE t_user
+        <set>
+            <if test="password != null">
+                password = #{password,jdbcType=INTEGER},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+            </if>
+        </set>
+        WHERE id = #{userId,jdbcType=INTEGER}
+    </update>
+    
+    <!-- 新增用户-->
+    <insert id="saveStaff" parameterType="com.fangcang.merchant.domain.UserDO" useGeneratedKeys="true"
+            keyProperty="userId">
+
+        INSERT INTO t_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            username,
+            <if test="password != null">
+                password,
+            </if>
+            <if test="realName != null">
+                real_name,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="isActive != null">
+                is_active,
+            </if>
+            <if test="merchantId != null">
+                merchant_id,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="qq != null">
+                qq,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="landlineTelephone != null">
+                landline_telephone
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{username,jdbcType=VARCHAR},
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="realName != null">
+                #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isActive != null">
+                #{isActive,jdbcType=INTEGER},
+            </if>
+            <if test="merchantId != null">
+                #{merchantId,jdbcType=INTEGER},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="qq != null">
+                #{qq,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="landlineTelephone != null">
+                #{landlineTelephone,jdbcType=VARCHAR}
+            </if>
+        </trim>
+    </insert>
+    
+    <select id="getUserListByUserId" resultMap="BaseResultMap" parameterType="com.fangcang.merchant.request.StaffListQueryDTO" >
+        select 
+    	<include refid="Base_Column_List" />
+	    from t_user
+	    where 1 = 1
+	    <if test="merchantId != null">
+            AND merchant_id = #{merchantId,jdbcType=INTEGER}
+        </if>
+	    <if test="userName != null and userName!=''">
+            AND username LIKE CONCAT('%',#{userName},'%')
+        </if>
+        <if test="isActive != null">
+            AND is_active = #{isActive,jdbcType=INTEGER}
+        </if>
+        <if test="realName != null and realName!=''">
+            AND real_name LIKE CONCAT('%',#{realName},'%')
+        </if>
+        <if test="null != userIds and userIds.size > 0">
+            AND id in
+            <foreach collection="userIds" open="(" close=")" separator="," item="userId">
+                #{userId,jdbcType=INTEGER}
+            </foreach>
+        </if>
+  	</select>
+  
+  	<!-- 根据Id 和userName查询员工信息  -->
+    <select id="getUserInfo" resultMap="BaseResultMap" parameterType="com.fangcang.merchant.domain.UserDO">
+    	SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_user
+        where 1=1
+        <if test="userId != null">
+            AND <![CDATA[ id <> #{userId} ]]>
+        </if>
+        <if test="username != null and username!=''">
+            AND username=#{username,jdbcType=VARCHAR}
+        </if>
+        <if test="merchantId != null">
+            AND merchant_id=#{merchantId,jdbcType=INTEGER}
+        </if>
+    </select>
+</mapper>

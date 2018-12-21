@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.bill.mapper.AgentBillImportMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.bill.domain.AgentBillImportDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="import_no" jdbcType="INTEGER" property="importNo" />
+    <result column="bill_id" jdbcType="INTEGER" property="billId" />
+    <result column="channel_code" jdbcType="VARCHAR" property="channelCode" />
+    <result column="customer_order_code" jdbcType="VARCHAR" property="customerOrderCode" />
+    <result column="order_sum" jdbcType="DECIMAL" property="orderSum" />
+    <result column="order_code" jdbcType="VARCHAR" property="orderCode" />
+    <result column="is_match" jdbcType="INTEGER" property="isMatch" />
+    <result column="fail_reason" jdbcType="VARCHAR" property="failReason" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <select id="queryImportNo" resultType="java.lang.Integer">
+    SELECT IFNULL(MAX(i.import_no),0)+1 FROM t_fin_agent_bill_import i
+  </select>
+
+  <update id="updateAutoMatchResult" parameterType="java.lang.Integer">
+    UPDATE
+        t_fin_agent_bill_import i
+    LEFT JOIN o_order o ON i.customer_order_code = o.customer_order_code
+    LEFT JOIN o_order_finance f ON o.id=f.order_id
+    SET i.is_match=
+		(CASE WHEN o.id IS NULL THEN
+            2
+          WHEN i.order_sum-o.receivable_amount != 0 THEN
+            2
+          WHEN f.account_status =2 THEN
+            2
+          ELSE
+            1
+          END),
+		i.fail_reason=
+		(CASE WHEN o.id IS NULL THEN
+            '未找到订单'
+          WHEN i.order_sum-o.receivable_amount != 0 THEN
+            '价格不符'
+          WHEN f.account_status =2 THEN
+            '已纳入其他账单'
+          ELSE
+            NULL
+          END),
+        i.order_code=o.order_code
+    WHERE i.import_no=#{importNo}
+  </update>
+
+    <select id="queryAutoMatchResult" parameterType="java.lang.Integer"
+            resultType="com.fangcang.finance.bill.response.BillAutoMatchResultDTO">
+        SELECT
+            COUNT(id) totalCount,
+            sum(IF(is_match = 1, 1, 0)) AS matchCount,
+            sum(IF(is_match = 2, 1, 0)) AS unMatchCount,
+            COUNT(bill_id) importCount
+        FROM
+            t_fin_agent_bill_import i
+        WHERE i.import_no=#{importNo}
+    </select>
+
+    <select id="queryAgentBillImport" parameterType="com.fangcang.finance.bill.request.QueryBillImportDTO"
+            resultType="com.fangcang.finance.bill.response.BillImportDTO">
+        SELECT
+            i.bill_id billId,
+            o.channel_code channelCode,
+            i.customer_order_code customerOrderCode,
+            i.order_sum orderSum,
+            i.is_match isMatch,
+            i.fail_reason failReason,
+            o.sale_currency currency,
+            o.id orderId,
+            o.order_code orderCode,
+            o.hotel_name hotelName,
+            o.room_type_names roomTypeName,
+            o.rateplan_name ratePlanName,
+            o.guest_names guest,
+            DATE_FORMAT(o.checkin_date,"%Y-%m-%d") checkInDate,
+            DATE_FORMAT(o.checkout_date,"%Y-%m-%d") checkOutDate,
+            DATEDIFF(o.checkout_date,o.checkin_date) nightNum,
+            o.room_num roomNum,
+            o.receivable_amount receivableAmount,
+            f.settlement_amount paidinAmount,
+            o.receivable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0) currPaidinAmount,
+            o.balance_method balanceMethod
+        FROM
+            t_fin_agent_bill_import i
+        LEFT JOIN o_order o ON i.order_code = o.order_code LEFT JOIN o_order_finance f ON o.id = f.order_id
+        LEFT JOIN
+            (SELECT
+            foi.order_code,
+            SUM(foi.amount)noticeAmount
+            FROM
+            t_fin_agent_finance_order fo,
+            t_fin_agent_finance_order_item foi
+            WHERE
+            fo.id = foi.finance_order_id
+            AND fo.finance_status=0
+            GROUP BY foi.order_code)tmp ON o.order_code=tmp.order_code
+        WHERE 1=1 AND i.import_no=#{importNo}
+        <if test="customerOrderCode != null and customerOrderCode != ''">
+            AND i.customer_order_code=#{customerOrderCode}
+        </if>
+        <choose>
+            <when test="matchStatus==1">
+                AND i.is_match=1
+            </when>
+            <when test="matchStatus==2">
+                AND i.is_match=2
+            </when>
+        </choose>
+    </select>
+
+    <insert id="addMatchedOrderToBill" parameterType="com.fangcang.finance.bill.request.AddMatchedOrderDTO">
+        INSERT INTO t_fin_agent_bill_order (
+        bill_id,
+        order_id,
+        order_code,
+        hotel_name,
+        room_type_name,
+        rate_plan_name,
+        guest,
+        check_in_date,
+        check_out_date,
+        room_night,
+        currency,
+        customer_order_code,
+        receivable_amount,
+        paidin_amount,
+        curr_paidin_amount,
+        order_create_date,
+        balance_method,
+        order_item_count,
+        creator,
+        create_time
+        ) SELECT
+        #{billId},
+        o.id,
+        o.order_code,
+        o.hotel_name,
+        o.room_type_names,
+        o.rateplan_name,
+        o.guest_names,
+        o.checkin_date,
+        o.checkout_date,
+        DATEDIFF(o.checkout_date,o.checkin_date) * o.room_num,
+        o.sale_currency,
+        o.customer_order_code,
+        o.receivable_amount,
+        f.settlement_amount,
+        o.receivable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0),
+        o.create_time orderCreateDate,
+        o.balance_method,
+        0,
+        #{operator},
+        SYSDATE()
+        FROM t_fin_agent_bill_import i INNER JOIN o_order o ON i.order_code=o.order_code INNER JOIN o_order_finance f ON o.id = f.order_id
+            LEFT JOIN
+            (SELECT
+                foi.order_code,
+                SUM(foi.amount)noticeAmount
+            FROM
+                t_fin_agent_finance_order fo,
+                t_fin_agent_finance_order_item foi
+            WHERE
+                fo.id = foi.finance_order_id
+            AND fo.finance_status=0
+            GROUP BY foi.order_code)tmp ON o.order_code=tmp.order_code
+        WHERE o.order_status IN (3,4)
+        AND f.account_status IN (0,1)
+        AND i.is_match=1
+        AND i.bill_id IS NULL
+        AND i.import_no=#{importNo}
+    </insert>
+
+    <delete id="deleteAgentBillImport" parameterType="java.lang.Integer">
+        DELETE FROM t_fin_agent_bill_import WHERE import_no=#{importNo}
+    </delete>
+</mapper>

@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.order.dao.OrderDayPricePOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.order.entity.po.OrderDayPricePO" >
+    <id column="day_price_id" property="dayPriceId" jdbcType="BIGINT" />
+    <result column="op_id" property="opId" jdbcType="BIGINT" />
+    <result column="order_code" property="orderCode" jdbcType="VARCHAR" />
+    <result column="priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+    <result column="PRICEPLAN_NAME" property="priceplanName" jdbcType="VARCHAR" />
+    <result column="SALE_DATE" property="saleDate" jdbcType="DATE" />
+    <result column="BASE_CURRENCY" property="baseCurrency" jdbcType="VARCHAR" />
+    <result column="BASE_PRICE" property="basePrice" jdbcType="DECIMAL" />
+    <result column="sale_b_currency" property="saleBCurrency" jdbcType="VARCHAR" />
+    <result column="sale_b_price" property="saleBPrice" jdbcType="DECIMAL" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+    <result column="order_bill_status" property="orderBillStatus" jdbcType="INTEGER" />
+    <result column="order_bill_user" property="orderBillUser" jdbcType="VARCHAR" />
+    <result column="sale_c_currency" property="saleCCurrency" jdbcType="VARCHAR" />
+    <result column="sale_c_price" property="saleCPrice" jdbcType="DECIMAL" />
+    <result column="base_rate" property="baseRate" jdbcType="DECIMAL" />
+    <result column="sale_channel_rate" property="saleChannelRate" jdbcType="DECIMAL" />
+    <result column="sale_c_rate" property="saleCRate" jdbcType="DECIMAL" />
+    <result column="voucher_code" property="voucherCode" jdbcType="VARCHAR" />
+    <result column="rooms" property="rooms" jdbcType="INTEGER" />
+    <result column="supply_bill_status" property="supplyBillStatus" jdbcType="INTEGER" />
+    <result column="supply_bill_user" property="supplyBillUser" jdbcType="VARCHAR" />
+    <result column="breakfast_num" property="breakfastNum" jdbcType="VARCHAR" />
+    <result column="actual_received" property="actualReceived" jdbcType="DECIMAL" />
+    <result column="actual_paied" property="actualPaied" jdbcType="DECIMAL" />
+    <result column="agent_commission" property="agentCommission" jdbcType="DECIMAL" />
+    <result column="supply_commission" property="supplyCommission" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    day_price_id, op_id, order_code, priceplan_id, PRICEPLAN_NAME, SALE_DATE, BASE_CURRENCY, 
+    BASE_PRICE, sale_b_currency, sale_b_price, creator, create_date, modifier, modify_date, 
+    order_bill_status, order_bill_user, sale_c_currency, sale_c_price, base_rate, sale_channel_rate, 
+    sale_c_rate, voucher_code, rooms, supply_bill_status, supply_bill_user, breakfast_num, 
+    actual_received, actual_paied, agent_commission, supply_commission
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.order.entity.po.OrderDayPricePOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_order_day_price
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_order_day_price
+    where day_price_id = #{dayPriceId,jdbcType=BIGINT}
+  </select>
+  
+  <select id="selectByPrimaryKeyList" resultMap="BaseResultMap" parameterType="java.util.List" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_order_day_price
+    where day_price_id in <foreach collection="list" index="index" item="item" open="(" separator="," close=")">#{item}</foreach>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_order_day_price
+    where day_price_id = #{dayPriceId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.hotel.order.entity.po.OrderDayPricePOExample" >
+    delete from t_order_day_price
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.order.entity.po.OrderDayPricePO" >
+    insert into t_order_day_price (day_price_id, op_id, order_code, 
+      priceplan_id, PRICEPLAN_NAME, SALE_DATE, 
+      BASE_CURRENCY, BASE_PRICE, sale_b_currency, 
+      sale_b_price, creator, create_date, 
+      modifier, modify_date, order_bill_status, 
+      order_bill_user, sale_c_currency, sale_c_price, 
+      base_rate, sale_channel_rate, sale_c_rate, 
+      voucher_code, rooms, supply_bill_status, 
+      supply_bill_user, breakfast_num, actual_received, 
+      actual_paied, agent_commission, supply_commission
+      )
+    values (#{dayPriceId,jdbcType=BIGINT}, #{opId,jdbcType=BIGINT}, #{orderCode,jdbcType=VARCHAR}, 
+      #{priceplanId,jdbcType=BIGINT}, #{priceplanName,jdbcType=VARCHAR}, #{saleDate,jdbcType=DATE}, 
+      #{baseCurrency,jdbcType=VARCHAR}, #{basePrice,jdbcType=DECIMAL}, #{saleBCurrency,jdbcType=VARCHAR}, 
+      #{saleBPrice,jdbcType=DECIMAL}, #{creator,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{modifyDate,jdbcType=TIMESTAMP}, #{orderBillStatus,jdbcType=INTEGER}, 
+      #{orderBillUser,jdbcType=VARCHAR}, #{saleCCurrency,jdbcType=VARCHAR}, #{saleCPrice,jdbcType=DECIMAL}, 
+      #{baseRate,jdbcType=DECIMAL}, #{saleChannelRate,jdbcType=DECIMAL}, #{saleCRate,jdbcType=DECIMAL}, 
+      #{voucherCode,jdbcType=VARCHAR}, #{rooms,jdbcType=INTEGER}, #{supplyBillStatus,jdbcType=INTEGER}, 
+      #{supplyBillUser,jdbcType=VARCHAR}, #{breakfastNum,jdbcType=VARCHAR}, #{actualReceived,jdbcType=DECIMAL}, 
+      #{actualPaied,jdbcType=DECIMAL}, #{agentCommission,jdbcType=DECIMAL}, #{supplyCommission,jdbcType=DECIMAL}
+      )
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List" >
+    insert into t_order_day_price (day_price_id, op_id, order_code,
+    priceplan_id, PRICEPLAN_NAME, SALE_DATE,
+    BASE_CURRENCY, BASE_PRICE, sale_b_currency,
+    sale_b_price, creator, create_date,
+    modifier, modify_date, order_bill_status,
+    order_bill_user, supply_bill_status,
+    supply_bill_user, sale_c_currency, sale_c_price,
+    base_rate, sale_channel_rate, sale_c_rate,actual_received,
+    actual_paied,voucher_code, rooms, breakfast_num,agent_commission,supply_commission)
+    values
+    <foreach collection="list" item="dayPrice" separator=",">
+      (#{dayPrice.dayPriceId,jdbcType=BIGINT}, #{dayPrice.opId,jdbcType=BIGINT}, #{dayPrice.orderCode,jdbcType=VARCHAR},
+      #{dayPrice.priceplanId,jdbcType=BIGINT}, #{dayPrice.priceplanName,jdbcType=VARCHAR}, #{dayPrice.saleDate,jdbcType=DATE},
+      #{dayPrice.baseCurrency,jdbcType=VARCHAR}, #{dayPrice.basePrice,jdbcType=DECIMAL}, #{dayPrice.saleBCurrency,jdbcType=VARCHAR},
+      #{dayPrice.saleBPrice,jdbcType=DECIMAL}, #{dayPrice.creator,jdbcType=VARCHAR}, #{dayPrice.createDate,jdbcType=TIMESTAMP},
+      #{dayPrice.modifier,jdbcType=VARCHAR}, #{dayPrice.modifyDate,jdbcType=TIMESTAMP}, #{dayPrice.orderBillStatus,jdbcType=INTEGER},
+      #{dayPrice.orderBillUser,jdbcType=VARCHAR}, #{dayPrice.supplyBillStatus,jdbcType=INTEGER},
+      #{dayPrice.supplyBillUser,jdbcType=VARCHAR}, #{dayPrice.saleCCurrency,jdbcType=VARCHAR}, #{dayPrice.saleCPrice,jdbcType=DECIMAL},
+      #{dayPrice.baseRate,jdbcType=DECIMAL}, #{dayPrice.saleChannelRate,jdbcType=DECIMAL}, #{dayPrice.saleCRate,jdbcType=DECIMAL},#{dayPrice.actualReceived,jdbcType=DECIMAL},
+      #{dayPrice.actualPaied,jdbcType=DECIMAL},#{dayPrice.voucherCode,jdbcType=VARCHAR}, #{dayPrice.rooms,jdbcType=INTEGER}, #{dayPrice.breakfastNum,jdbcType=VARCHAR},
+      #{dayPrice.agentCommission,jdbcType=DECIMAL},#{dayPrice.supplyCommission,jdbcType=DECIMAL})
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.order.entity.po.OrderDayPricePO" >
+    insert into t_order_day_price
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="dayPriceId != null" >
+        day_price_id,
+      </if>
+      <if test="opId != null" >
+        op_id,
+      </if>
+      <if test="orderCode != null" >
+        order_code,
+      </if>
+      <if test="priceplanId != null" >
+        priceplan_id,
+      </if>
+      <if test="priceplanName != null" >
+        PRICEPLAN_NAME,
+      </if>
+      <if test="saleDate != null" >
+        SALE_DATE,
+      </if>
+      <if test="baseCurrency != null" >
+        BASE_CURRENCY,
+      </if>
+      <if test="basePrice != null" >
+        BASE_PRICE,
+      </if>
+      <if test="saleBCurrency != null" >
+        sale_b_currency,
+      </if>
+      <if test="saleBPrice != null" >
+        sale_b_price,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifyDate != null" >
+        modify_date,
+      </if>
+      <if test="orderBillStatus != null" >
+        order_bill_status,
+      </if>
+      <if test="orderBillUser != null" >
+        order_bill_user,
+      </if>
+      <if test="saleCCurrency != null" >
+        sale_c_currency,
+      </if>
+      <if test="saleCPrice != null" >
+        sale_c_price,
+      </if>
+      <if test="baseRate != null" >
+        base_rate,
+      </if>
+      <if test="saleChannelRate != null" >
+        sale_channel_rate,
+      </if>
+      <if test="saleCRate != null" >
+        sale_c_rate,
+      </if>
+      <if test="voucherCode != null" >
+        voucher_code,
+      </if>
+      <if test="rooms != null" >
+        rooms,
+      </if>
+      <if test="supplyBillStatus != null" >
+        supply_bill_status,
+      </if>
+      <if test="supplyBillUser != null" >
+        supply_bill_user,
+      </if>
+      <if test="breakfastNum != null" >
+        breakfast_num,
+      </if>
+      <if test="actualReceived != null" >
+        actual_received,
+      </if>
+      <if test="actualPaied != null" >
+        actual_paied,
+      </if>
+      <if test="agentCommission != null" >
+        agent_commission,
+      </if>
+      <if test="supplyCommission != null" >
+        supply_commission,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="dayPriceId != null" >
+        #{dayPriceId,jdbcType=BIGINT},
+      </if>
+      <if test="opId != null" >
+        #{opId,jdbcType=BIGINT},
+      </if>
+      <if test="orderCode != null" >
+        #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="priceplanId != null" >
+        #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="priceplanName != null" >
+        #{priceplanName,jdbcType=VARCHAR},
+      </if>
+      <if test="saleDate != null" >
+        #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="baseCurrency != null" >
+        #{baseCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="basePrice != null" >
+        #{basePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="saleBCurrency != null" >
+        #{saleBCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="saleBPrice != null" >
+        #{saleBPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderBillStatus != null" >
+        #{orderBillStatus,jdbcType=INTEGER},
+      </if>
+      <if test="orderBillUser != null" >
+        #{orderBillUser,jdbcType=VARCHAR},
+      </if>
+      <if test="saleCCurrency != null" >
+        #{saleCCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="saleCPrice != null" >
+        #{saleCPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="baseRate != null" >
+        #{baseRate,jdbcType=DECIMAL},
+      </if>
+      <if test="saleChannelRate != null" >
+        #{saleChannelRate,jdbcType=DECIMAL},
+      </if>
+      <if test="saleCRate != null" >
+        #{saleCRate,jdbcType=DECIMAL},
+      </if>
+      <if test="voucherCode != null" >
+        #{voucherCode,jdbcType=VARCHAR},
+      </if>
+      <if test="rooms != null" >
+        #{rooms,jdbcType=INTEGER},
+      </if>
+      <if test="supplyBillStatus != null" >
+        #{supplyBillStatus,jdbcType=INTEGER},
+      </if>
+      <if test="supplyBillUser != null" >
+        #{supplyBillUser,jdbcType=VARCHAR},
+      </if>
+      <if test="breakfastNum != null" >
+        #{breakfastNum,jdbcType=VARCHAR},
+      </if>
+      <if test="actualReceived != null" >
+        #{actualReceived,jdbcType=DECIMAL},
+      </if>
+      <if test="actualPaied != null" >
+        #{actualPaied,jdbcType=DECIMAL},
+      </if>
+      <if test="agentCommission != null" >
+        #{agentCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="supplyCommission != null" >
+        #{supplyCommission,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.hotel.order.entity.po.OrderDayPricePOExample" resultType="java.lang.Integer" >
+    select count(*) from t_order_day_price
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_order_day_price
+    <set >
+      <if test="record.dayPriceId != null" >
+        day_price_id = #{record.dayPriceId,jdbcType=BIGINT},
+      </if>
+      <if test="record.opId != null" >
+        op_id = #{record.opId,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderCode != null" >
+        order_code = #{record.orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.priceplanId != null" >
+        priceplan_id = #{record.priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="record.priceplanName != null" >
+        PRICEPLAN_NAME = #{record.priceplanName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.saleDate != null" >
+        SALE_DATE = #{record.saleDate,jdbcType=DATE},
+      </if>
+      <if test="record.baseCurrency != null" >
+        BASE_CURRENCY = #{record.baseCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.basePrice != null" >
+        BASE_PRICE = #{record.basePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.saleBCurrency != null" >
+        sale_b_currency = #{record.saleBCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.saleBPrice != null" >
+        sale_b_price = #{record.saleBPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.creator != null" >
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createDate != null" >
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.modifier != null" >
+        modifier = #{record.modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifyDate != null" >
+        modify_date = #{record.modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.orderBillStatus != null" >
+        order_bill_status = #{record.orderBillStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderBillUser != null" >
+        order_bill_user = #{record.orderBillUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.saleCCurrency != null" >
+        sale_c_currency = #{record.saleCCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.saleCPrice != null" >
+        sale_c_price = #{record.saleCPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.baseRate != null" >
+        base_rate = #{record.baseRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.saleChannelRate != null" >
+        sale_channel_rate = #{record.saleChannelRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.saleCRate != null" >
+        sale_c_rate = #{record.saleCRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.voucherCode != null" >
+        voucher_code = #{record.voucherCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rooms != null" >
+        rooms = #{record.rooms,jdbcType=INTEGER},
+      </if>
+      <if test="record.supplyBillStatus != null" >
+        supply_bill_status = #{record.supplyBillStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.supplyBillUser != null" >
+        supply_bill_user = #{record.supplyBillUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.breakfastNum != null" >
+        breakfast_num = #{record.breakfastNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.actualReceived != null" >
+        actual_received = #{record.actualReceived,jdbcType=DECIMAL},
+      </if>
+      <if test="record.actualPaied != null" >
+        actual_paied = #{record.actualPaied,jdbcType=DECIMAL},
+      </if>
+      <if test="record.agentCommission != null" >
+        agent_commission = #{record.agentCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="record.supplyCommission != null" >
+        supply_commission = #{record.supplyCommission,jdbcType=DECIMAL},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_order_day_price
+    set day_price_id = #{record.dayPriceId,jdbcType=BIGINT},
+      op_id = #{record.opId,jdbcType=BIGINT},
+      order_code = #{record.orderCode,jdbcType=VARCHAR},
+      priceplan_id = #{record.priceplanId,jdbcType=BIGINT},
+      PRICEPLAN_NAME = #{record.priceplanName,jdbcType=VARCHAR},
+      SALE_DATE = #{record.saleDate,jdbcType=DATE},
+      BASE_CURRENCY = #{record.baseCurrency,jdbcType=VARCHAR},
+      BASE_PRICE = #{record.basePrice,jdbcType=DECIMAL},
+      sale_b_currency = #{record.saleBCurrency,jdbcType=VARCHAR},
+      sale_b_price = #{record.saleBPrice,jdbcType=DECIMAL},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      modifier = #{record.modifier,jdbcType=VARCHAR},
+      modify_date = #{record.modifyDate,jdbcType=TIMESTAMP},
+      order_bill_status = #{record.orderBillStatus,jdbcType=INTEGER},
+      order_bill_user = #{record.orderBillUser,jdbcType=VARCHAR},
+      sale_c_currency = #{record.saleCCurrency,jdbcType=VARCHAR},
+      sale_c_price = #{record.saleCPrice,jdbcType=DECIMAL},
+      base_rate = #{record.baseRate,jdbcType=DECIMAL},
+      sale_channel_rate = #{record.saleChannelRate,jdbcType=DECIMAL},
+      sale_c_rate = #{record.saleCRate,jdbcType=DECIMAL},
+      voucher_code = #{record.voucherCode,jdbcType=VARCHAR},
+      rooms = #{record.rooms,jdbcType=INTEGER},
+      supply_bill_status = #{record.supplyBillStatus,jdbcType=INTEGER},
+      supply_bill_user = #{record.supplyBillUser,jdbcType=VARCHAR},
+      breakfast_num = #{record.breakfastNum,jdbcType=VARCHAR},
+      actual_received = #{record.actualReceived,jdbcType=DECIMAL},
+      actual_paied = #{record.actualPaied,jdbcType=DECIMAL},
+      agent_commission = #{record.agentCommission,jdbcType=DECIMAL},
+      supply_commission = #{record.supplyCommission,jdbcType=DECIMAL}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.order.entity.po.OrderDayPricePO" >
+    update t_order_day_price
+    <set >
+      <if test="opId != null" >
+        op_id = #{opId,jdbcType=BIGINT},
+      </if>
+      <if test="orderCode != null" >
+        order_code = #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="priceplanId != null" >
+        priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="priceplanName != null" >
+        PRICEPLAN_NAME = #{priceplanName,jdbcType=VARCHAR},
+      </if>
+      <if test="saleDate != null" >
+        SALE_DATE = #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="baseCurrency != null" >
+        BASE_CURRENCY = #{baseCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="basePrice != null" >
+        BASE_PRICE = #{basePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="saleBCurrency != null" >
+        sale_b_currency = #{saleBCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="saleBPrice != null" >
+        sale_b_price = #{saleBPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderBillStatus != null" >
+        order_bill_status = #{orderBillStatus,jdbcType=INTEGER},
+      </if>
+      <if test="orderBillUser != null" >
+        order_bill_user = #{orderBillUser,jdbcType=VARCHAR},
+      </if>
+      <if test="saleCCurrency != null" >
+        sale_c_currency = #{saleCCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="saleCPrice != null" >
+        sale_c_price = #{saleCPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="baseRate != null" >
+        base_rate = #{baseRate,jdbcType=DECIMAL},
+      </if>
+      <if test="saleChannelRate != null" >
+        sale_channel_rate = #{saleChannelRate,jdbcType=DECIMAL},
+      </if>
+      <if test="saleCRate != null" >
+        sale_c_rate = #{saleCRate,jdbcType=DECIMAL},
+      </if>
+      <if test="voucherCode != null" >
+        voucher_code = #{voucherCode,jdbcType=VARCHAR},
+      </if>
+      <if test="rooms != null" >
+        rooms = #{rooms,jdbcType=INTEGER},
+      </if>
+      <if test="supplyBillStatus != null" >
+        supply_bill_status = #{supplyBillStatus,jdbcType=INTEGER},
+      </if>
+      <if test="supplyBillUser != null" >
+        supply_bill_user = #{supplyBillUser,jdbcType=VARCHAR},
+      </if>
+      <if test="breakfastNum != null" >
+        breakfast_num = #{breakfastNum,jdbcType=VARCHAR},
+      </if>
+      <if test="actualReceived != null" >
+        actual_received = #{actualReceived,jdbcType=DECIMAL},
+      </if>
+      <if test="actualPaied != null" >
+        actual_paied = #{actualPaied,jdbcType=DECIMAL},
+      </if>
+      <if test="agentCommission != null" >
+        agent_commission = #{agentCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="supplyCommission != null" >
+        supply_commission = #{supplyCommission,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where day_price_id = #{dayPriceId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.order.entity.po.OrderDayPricePO" >
+    update t_order_day_price
+    set op_id = #{opId,jdbcType=BIGINT},
+      order_code = #{orderCode,jdbcType=VARCHAR},
+      priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      PRICEPLAN_NAME = #{priceplanName,jdbcType=VARCHAR},
+      SALE_DATE = #{saleDate,jdbcType=DATE},
+      BASE_CURRENCY = #{baseCurrency,jdbcType=VARCHAR},
+      BASE_PRICE = #{basePrice,jdbcType=DECIMAL},
+      sale_b_currency = #{saleBCurrency,jdbcType=VARCHAR},
+      sale_b_price = #{saleBPrice,jdbcType=DECIMAL},
+      creator = #{creator,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      order_bill_status = #{orderBillStatus,jdbcType=INTEGER},
+      order_bill_user = #{orderBillUser,jdbcType=VARCHAR},
+      sale_c_currency = #{saleCCurrency,jdbcType=VARCHAR},
+      sale_c_price = #{saleCPrice,jdbcType=DECIMAL},
+      base_rate = #{baseRate,jdbcType=DECIMAL},
+      sale_channel_rate = #{saleChannelRate,jdbcType=DECIMAL},
+      sale_c_rate = #{saleCRate,jdbcType=DECIMAL},
+      voucher_code = #{voucherCode,jdbcType=VARCHAR},
+      rooms = #{rooms,jdbcType=INTEGER},
+      supply_bill_status = #{supplyBillStatus,jdbcType=INTEGER},
+      supply_bill_user = #{supplyBillUser,jdbcType=VARCHAR},
+      breakfast_num = #{breakfastNum,jdbcType=VARCHAR},
+      actual_received = #{actualReceived,jdbcType=DECIMAL},
+      actual_paied = #{actualPaied,jdbcType=DECIMAL},
+      agent_commission = #{agentCommission,jdbcType=DECIMAL},
+      supply_commission = #{supplyCommission,jdbcType=DECIMAL}
+    where day_price_id = #{dayPriceId,jdbcType=BIGINT}
+  </update>
+</mapper>

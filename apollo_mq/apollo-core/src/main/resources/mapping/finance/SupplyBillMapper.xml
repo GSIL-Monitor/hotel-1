@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.bill.mapper.SupplyBillMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.bill.domain.SupplyBillDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="bill_code" jdbcType="VARCHAR" property="billCode" />
+    <result column="bill_name" jdbcType="VARCHAR" property="billName" />
+    <result column="bill_status" jdbcType="INTEGER" property="billStatus" />
+    <result column="org_code" jdbcType="VARCHAR" property="orgCode" />
+    <result column="org_name" jdbcType="VARCHAR" property="orgName" />
+    <result column="begin_date" jdbcType="DATE" property="beginDate" />
+    <result column="end_date" jdbcType="DATE" property="endDate" />
+    <result column="is_auto" jdbcType="INTEGER" property="isAuto" />
+    <result column="merchant_code" jdbcType="VARCHAR" property="merchantCode" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <select id="querySupplyBill" parameterType="com.fangcang.finance.bill.request.QueryBillDTO"
+          resultType="com.fangcang.finance.bill.response.BillDTO">
+    SELECT
+    id billId,
+    bill_code billCode,
+    bill_name billName,
+    bill_status billStatus,
+    org_code orgCode,
+    org_name orgName,
+    DATE_FORMAT(begin_date,"%Y-%m-%d") beginDate,
+    DATE_FORMAT(end_date,"%Y-%m-%d") endDate,
+    is_auto isAuto,
+    creator,
+    DATE_FORMAT(create_time,"%Y-%m-%d %T") createTime
+    FROM t_fin_supply_bill b
+    WHERE b.merchant_code=#{merchantCode}
+    <choose>
+      <when test="orgCode!=null and orgCode!=''">
+        AND b.org_code=#{orgCode}
+      </when>
+      <otherwise>
+        <if test="orgName != null and orgName != ''">
+          AND b.org_name LIKE concat(concat('%',#{orgName}),'%')
+        </if>
+      </otherwise>
+    </choose>
+    <if test="billStatus != null">
+      AND b.bill_status=#{billStatus}
+    </if>
+    <if test="billCode != null and billCode != ''">
+      AND b.bill_code=#{billCode}
+    </if>
+    <if test="billId != null">
+      AND b.id=#{billId}
+    </if>
+    <if test="keyWord != null and keyWord != ''">
+      AND (b.bill_code=#{keyWord} OR b.bill_name LIKE concat(concat('%',#{keyWord}),'%'))
+    </if>
+    <choose>
+      <when test="tagType == 1">
+        AND b.bill_status=1
+      </when>
+      <when test="tagType == 2">
+        AND b.bill_status in (2,3)
+      </when>
+      <when test="tagType == 3">
+        AND b.bill_status=3 AND EXISTS (SELECT 1 FROM t_fin_supply_finance_order f WHERE f.order_code=b.bill_code AND f.finance_status=0)
+      </when>
+      <when test="tagType == 4">
+        AND b.bill_status=4
+      </when>
+    </choose>
+    <if test="orderCode != null and orderCode != ''">
+      AND EXISTS (SELECT 1 FROM t_fin_supply_bill_order o WHERE o.bill_id=b.id AND o.order_code=#{orderCode})
+    </if>
+    ORDER BY b.create_time DESC
+  </select>
+</mapper>

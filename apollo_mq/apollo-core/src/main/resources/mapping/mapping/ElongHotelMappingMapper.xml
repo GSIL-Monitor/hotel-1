@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.mapping.mapper.ElongHotelMappingMapper" >
+
+    <select id="queryMappingHotel" parameterType="com.fangcang.mapping.request.MappingQueryRequest"
+            resultType="com.fangcang.mapping.response.ElongHotelMappingResponse">
+        SELECT
+            hotelId,
+            hotelName,
+            elongHotelId,
+            elongHotelName,
+            cityCode,
+            cityName,
+            modifiedTime
+        FROM t_elong_map_hotel h
+        WHERE h.merchantcode=#{merchantCode}
+        <if test="null != hotelId">
+            and h.hotelId = #{hotelId,jdbcType=INTEGER}
+        </if>
+        <if test="null != cityCode">
+            and h.cityCode = #{cityCode,jdbcType=INTEGER}
+        </if>
+        <if test="1 == mappingStatus">
+            and h.elongHotelId is not null AND c.elongHotelId &lt;> ''
+        </if>
+        <if test="0 == mappingStatus">
+            and h.elongHotelId is null OR c.elongHotelId = ''
+        </if>
+        AND h.hotelId in (
+        select distinct hotel_id from t_htlpro_priceplan a where a.merchant_code = #{merchantCode,jdbcType=VARCHAR} and a.is_active=1)
+    </select>
+</mapper>

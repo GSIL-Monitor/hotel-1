@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.product.dao.HotelPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.product.entity.po.HotelPO" >
+    <id column="hotel_id" property="hotelId" jdbcType="BIGINT" />
+    <result column="hotel_name" property="hotelName" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="tel" property="tel" jdbcType="VARCHAR" />
+    <result column="city_code" property="cityCode" jdbcType="VARCHAR" />
+    <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+    <result column="isactive" property="isactive" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+    <result column="country" property="country" jdbcType="VARCHAR" />
+    <result column="province" property="province" jdbcType="VARCHAR" />
+    <result column="star" property="star" jdbcType="VARCHAR" />
+    <result column="supply_code" property="supplyCode" jdbcType="VARCHAR" />
+    <result column="supply_name" property="supplyName" jdbcType="VARCHAR" />
+    <result column="pre_Hold_Quota" property="preHoldQuota" jdbcType="INTEGER" />
+    <result column="rebate_tax" property="rebateTax" javaType="DECIMAL"/>
+    <result column="customer_rebate_tax" property="customerRebateTax" javaType="DECIMAL"/>
+    <result column="relation_id" property="relationId" jdbcType="BIGINT" />
+
+    <result column="settlement" property="settlement" jdbcType="VARCHAR" />
+    <result column="fax" property="fax" jdbcType="VARCHAR" />
+    <result column="contacts" property="contacts" jdbcType="VARCHAR" />
+
+  </resultMap>
+  <sql id="Base_Column_List" >
+    hotel_id, hotel_name, address, tel, city_code, city_name, email, introduction, isactive, 
+    creator, createdate, modifier, modifydate, country, province, star, pre_Hold_Quota,rebate_tax,customer_rebate_tax
+    ,supply_code,supply_name,relation_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    h.hotel_id, h.hotel_name, h.address, h.tel, h.city_code, h.city_name, h.email, h.introduction, h.isactive,
+    h.creator, h.createdate, h.modifier, h.modifydate, h.country, h.province,h.star,h.pre_Hold_Quota,rebate_tax,customer_rebate_tax
+    ,r.supply_code,s.supply_name,r.relation_id
+    from t_htlpro_hotel h,t_supply_hotel_relation r ,t_supply s
+    where h.hotel_id=r.hotel_id AND r.supply_code = s.supply_code AND hotel_id = #{hotelId,jdbcType=BIGINT} and isactive = 1 order by modifydate desc
+  </select>
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.travel.hotel.product.entity.po.HotelPO" >
+    select
+    h.hotel_id, h.hotel_name, h.address, h.tel, h.city_code, h.city_name, h.email, h.introduction, h.isactive,
+    h.creator, h.createdate, h.modifier, h.modifydate, h.country, h.province,h.star,h.pre_Hold_Quota,rebate_tax,customer_rebate_tax
+    ,r.supply_code,s.supply_name,r.relation_id,s.settlement,s.fax,s.contacts
+    from t_htlpro_hotel h,t_supply_hotel_relation r ,t_supply s
+    where h.hotel_id=r.hotel_id AND r.supply_code = s.supply_code
+    AND h.isactive = 1
+    <if test="null != hotelId">
+      and h.hotel_id= #{hotelId}
+    </if>
+    <if test="null != supplyCode">
+      and h.supply_code= #{supplyCode}
+    </if>
+    <if test="null != hotelName">
+      and h.hotel_name like concat('%',#{hotelName},'%')
+    </if>
+    <if test="null != cityCode">
+      and h.CITY_CODE= #{cityCode}
+    </if>
+    order by modifydate desc
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="com.travel.hotel.product.entity.po.HotelPO" >
+    update t_htlpro_hotel
+      set isactive = 0,
+          modifier = #{modifier,jdbcType=VARCHAR},
+          modifydate = now()
+    where hotel_id = #{hotelId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.product.entity.po.HotelPO" >
+    insert into t_htlpro_hotel (hotel_id, hotel_name, address, 
+      tel, city_code, city_name, 
+      email, introduction, isactive, 
+      creator, createdate, modifier, 
+      modifydate, country, province, 
+      star,pre_Hold_Quota,rebate_tax,customer_rebate_tax)
+    values (#{hotelId,jdbcType=BIGINT}, #{hotelName,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+      #{tel,jdbcType=VARCHAR}, #{cityCode,jdbcType=VARCHAR}, #{cityName,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{introduction,jdbcType=VARCHAR}, #{isactive,jdbcType=INTEGER}, 
+      #{creator,jdbcType=VARCHAR}, now(), #{modifier,jdbcType=VARCHAR},
+      now(), #{country,jdbcType=VARCHAR}, #{province,jdbcType=VARCHAR},
+      #{star,jdbcType=VARCHAR}, #{preHoldQuota,jdbcType=INTEGER},#{rebateTax,jdbcType=DECIMAL},#{customerRebateTax,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.product.entity.po.HotelPO" useGeneratedKeys="true" keyProperty="hotelId">
+    insert into t_htlpro_hotel
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      modifydate,
+      createdate,
+      <if test="hotelId != null" >
+        hotel_id,
+      </if>
+      <if test="hotelName != null" >
+        hotel_name,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="tel != null" >
+        tel,
+      </if>
+      <if test="cityCode != null" >
+        city_code,
+      </if>
+      <if test="cityName != null" >
+        city_name,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="introduction != null" >
+        introduction,
+      </if>
+      <if test="isactive != null" >
+        isactive,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="rebateTax != null" >
+        rebate_tax,
+      </if>
+      <if test="customerRebateTax != null" >
+        customer_rebate_tax,
+      </if>
+
+      <if test="preHoldQuota != null" >
+        pre_Hold_Quota,
+      </if>
+      <if test="country != null" >
+        country,
+      </if>
+      <if test="province != null" >
+        province,
+      </if>
+      <if test="star != null" >
+        star,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      now(),
+      now(),
+      <if test="hotelId != null" >
+        #{hotelId,jdbcType=BIGINT},
+      </if>
+      <if test="hotelName != null" >
+        #{hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null" >
+        #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null" >
+        #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityName != null" >
+        #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null" >
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="isactive != null" >
+        #{isactive,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="rebateTax != null" >
+        #{rebateTax,jdbcType=DECIMAL},
+      </if>
+      <if test="customerRebateTax != null" >
+        #{customerRebateTax,jdbcType=DECIMAL},
+      </if>
+      <if test="preHoldQuota != null" >
+        #{preHoldQuota,jdbcType=VARCHAR},
+      </if>
+
+      <if test="country != null" >
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="star != null" >
+        #{star,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.product.entity.po.HotelPO" >
+    update t_htlpro_hotel
+    <set >
+      modifydate = now(),
+      <if test="hotelName != null" >
+        hotel_name = #{hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null" >
+        tel = #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null" >
+        city_code = #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityName != null" >
+        city_name = #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null" >
+        introduction = #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="isactive != null" >
+        isactive = #{isactive,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        createdate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null" >
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        province = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="star != null" >
+        star = #{star,jdbcType=VARCHAR},
+      </if>
+      <if test="preHoldQuota != null" >
+        pre_Hold_Quota = #{preHoldQuota,jdbcType=VARCHAR},
+      </if>
+      <if test="rebateTax != null" >
+        rebate_tax = #{rebateTax,jdbcType=DECIMAL},
+      </if>
+      <if test="customerRebateTax != null" >
+        customer_rebate_tax = #{customerRebateTax,jdbcType=DECIMAL},
+      </if>
+
+    </set>
+    where hotel_id = #{hotelId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.product.entity.po.HotelPO" >
+    update t_htlpro_hotel
+    set hotel_name = #{hotelName,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      tel = #{tel,jdbcType=VARCHAR},
+      city_code = #{cityCode,jdbcType=VARCHAR},
+      city_name = #{cityName,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      introduction = #{introduction,jdbcType=VARCHAR},
+      isactive = #{isactive,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      createdate = #{createdate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modifydate = #{modifydate,jdbcType=TIMESTAMP},
+      country = #{country,jdbcType=VARCHAR},
+      province = #{province,jdbcType=VARCHAR},
+      star = #{star,jdbcType=VARCHAR},
+      pre_Hold_Quota = #{preHoldQuota,jdbcType=VARCHAR},
+      rebate_tax = #{rebateTax,jdbcType=DECIMAL},
+      customer_rebate_tax = #{customerRebateTax,jdbcType=DECIMAL}
+    where hotel_id = #{hotelId,jdbcType=BIGINT}
+  </update>
+</mapper>

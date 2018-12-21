@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.product.dao.ChannelConfigMapper" >
+  <select id="queryAllConfig" resultType="com.travel.hotel.product.entity.po.DltChannelConfig" >
+    select
+        channel_code     channelCode,
+        channel_name     channelName,
+        merchant_code    merchantCode,
+        merchant_name    merchantName,
+        field_name       fieldName,
+        field_value      fieldValue,
+        remark           remark,
+        create_date      createDate,
+        creator          creator
+    FROM
+        t_channel_config
+    where channel_code = 'dlt'
+  </select>
+</mapper>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.hotelinfo.mapper.ImageMapper">
+	<resultMap id="BaseResultMap" type="com.fangcang.hotelinfo.domain.ImageDO">
+		<id column="image_id" property="imageId" jdbcType="INTEGER" />
+		<result column="hotel_id" property="hotelId" jdbcType="INTEGER" />
+		<result column="image_type" property="imageType" jdbcType="TINYINT" />
+		<result column="extid" property="extId" jdbcType="INTEGER" />
+		<result column="is_main_image" property="isMainImage" jdbcType="TINYINT" />
+		<result column="image_url" property="imageUrl" jdbcType="VARCHAR" />
+		<result column="image_large_url" property="imageLargeUrl"
+			jdbcType="VARCHAR" />
+		<result column="image_middle_url" property="imageMiddleUrl"
+			jdbcType="VARCHAR" />
+		<result column="image_small_url" property="imageSmallUrl"
+			jdbcType="VARCHAR" />
+		<result column="real_path" property="realPath" jdbcType="VARCHAR" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="creator" jdbcType="VARCHAR" property="creator" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+		<result column="modifier" jdbcType="VARCHAR" property="modifier" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		image_id, hotel_id, image_type, extid, is_main_image,
+		image_url,
+		image_large_url,
+		image_middle_url, image_small_url,
+		real_path,create_time,creator,modify_time,modifier
+	</sql>
+
+	<insert id="insertHotelImage" parameterType="com.fangcang.hotelinfo.domain.ImageDO"
+		useGeneratedKeys="true" keyProperty="imageId">
+		insert into t_image (hotel_id,
+		image_type,
+		extid,
+		is_main_image,
+		image_url,
+		image_large_url,
+		image_middle_url,
+		image_small_url,
+		real_path,
+		create_time,
+		creator)
+		values
+		(#{hotelId,jdbcType=INTEGER},
+		#{imageType,jdbcType=TINYINT},
+		#{extId,jdbcType=INTEGER},
+		#{isMainImage,jdbcType=TINYINT},
+		#{imageUrl,jdbcType=VARCHAR},
+		#{imageLargeUrl,jdbcType=VARCHAR},
+		#{imageMiddleUrl,jdbcType=VARCHAR},
+		#{imageSmallUrl,jdbcType=VARCHAR},
+		#{realPath,jdbcType=VARCHAR},
+		NOW(),
+		#{creator,jdbcType=VARCHAR})
+	</insert>
+
+	<insert id="batchSaveHotelImage" parameterType="java.util.List"
+			useGeneratedKeys="true" keyProperty="imageId">
+		insert into t_image (hotel_id,
+		image_type,
+		extid,
+		is_main_image,
+		image_url,
+		image_large_url,
+		image_middle_url,
+		image_small_url,
+		real_path,
+		create_time,
+		creator)
+		values
+		<foreach collection="list" item="i" separator=",">
+			(#{i.hotelId,jdbcType=INTEGER},
+			#{i.imageType,jdbcType=TINYINT},
+			#{i.extId,jdbcType=INTEGER},
+			#{i.isMainImage,jdbcType=TINYINT},
+			#{i.imageUrl,jdbcType=VARCHAR},
+			#{i.imageLargeUrl,jdbcType=VARCHAR},
+			#{i.imageMiddleUrl,jdbcType=VARCHAR},
+			#{i.imageSmallUrl,jdbcType=VARCHAR},
+			#{i.realPath,jdbcType=VARCHAR},
+			NOW(),
+			#{i.creator,jdbcType=VARCHAR})
+		</foreach>
+	</insert>
+
+	<update id="updateHotelImage" parameterType="com.fangcang.hotelinfo.domain.ImageDO">
+		update t_image
+		<set>
+			<if test="imageType != null">
+				image_type = #{imageType,jdbcType=TINYINT},
+			</if>
+			<if test="extId != null">
+				extid = #{extId,jdbcType=INTEGER},
+			</if>
+			<if test="isMainImage != null">
+				is_main_image = #{isMainImage,jdbcType=TINYINT},
+			</if>
+			<if test="imageUrl != null and '' != imageUrl">
+				image_url = #{imageUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="imageLargeUrl != null and '' != imageLargeUrl">
+				image_large_url = #{imageLargeUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="imageMiddleUrl != null and '' != imageMiddleUrl">
+				image_middle_url = #{imageMiddleUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="imageSmallUrl != null and '' != imageSmallUrl">
+				image_small_url = #{imageSmallUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="realPath != null and '' != realPath">
+				real_path = #{realPath,jdbcType=VARCHAR},
+			</if>
+			modify_time = NOW(),
+			<if test="modifier != null and '' != modifier">
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where image_id = #{imageId,jdbcType=INTEGER}
+	</update>
+
+	<delete id="deleteImageById" parameterType="java.lang.Long">
+		delete from t_image
+		where image_id = #{imageId,jdbcType=INTEGER}
+	</delete>
+
+	<update id="batchMoveImages" parameterType="java.util.List">
+		<foreach collection="list" item="item" separator=";">
+			UPDATE t_image
+			<set>
+				<if test="item.imageType != null">
+					image_type = #{item.imageType},
+				</if>
+				<if test="item.extId != null">
+					extid = #{item.extId},
+				</if>
+				<if test="item.modifier != null and '' != item.modifier">
+					modifier = #{item.modifier},
+				</if>
+				modify_time = NOW()
+			</set>
+			where image_id=#{item.imageId}
+		</foreach>
+	</update>
+
+	<select id="dynamicQueryImage" parameterType="com.fangcang.hotelinfo.request.ImageQueryDTO"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_image
+		<where>
+			<if test="null != imageId">
+				and image_id = #{imageId,jdbcType=INTEGER}
+			</if>
+			<if test="null != imageType">
+				and image_type = #{imageType,jdbcType=INTEGER}
+			</if>
+			<if test="null != hotelId">
+				and hotel_id = #{hotelId,jdbcType=INTEGER}
+			</if>
+			<if test="null != extId">
+				and extid = #{extId,jdbcType=INTEGER}
+			</if>
+			<if test="null != isMainImage">
+				and is_main_image = #{isMainImage,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryHotelMainImageByHotelId" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from t_image
+		where hotel_id = #{hotel_id,jdbcType=INTEGER}
+		and
+		is_main_image = 1
+		and extid = #{hotel_id,jdbcType=INTEGER}
+		and
+		image_type=1
+		limit 1
+	</select>
+
+	<select id="queryMainImageByRoomTypeId" resultMap="BaseResultMap"
+		parameterType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_image
+		where hotel_id = #{hotelId,jdbcType=INTEGER}
+		and
+		is_main_image = 1
+		and image_type = 2
+		and extid =
+		#{roomTypeId,jdbcType=INTEGER}
+		limit 1
+	</select>
+
+	<select id="queryMeetingRoomMainImage" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_image
+		where hotel_id = #{hotelId,jdbcType=INTEGER}
+		and
+		is_main_image = 1
+		and image_type = 6
+		and extid =
+		#{meetingId,jdbcType=INTEGER}
+		limit 1
+	</select>
+
+	<select id="getHotelImageList" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_image
+		where hotel_id=#{hotelId}
+	</select>
+
+	<update id="updateHotelImages" parameterType="java.util.List">
+		<foreach collection="list" item="item" separator=";">
+			UPDATE t_image
+		<set>
+			<if test="item.imageType != null">
+					image_type = #{item.imageType},
+			</if>
+			<if test="item.extId != null">
+					extid = #{item.extId},
+			</if>
+			<if test="item.modifier != null and '' != item.modifier">
+					modifier = #{item.modifier},
+			</if>
+				modify_time = NOW(),
+			<if test="item.isMainImage !=null">
+				is_main_image =#{item.isMainImage}
+			</if>
+			</set>
+			where image_id=#{item.imageId}
+        </foreach>
+	</update>
+
+
+</mapper>
+  

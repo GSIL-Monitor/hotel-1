@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.hotelinfo.mapper.HotelFacilityMapper" >
+  <resultMap id="BaseResultMap" type="com.fangcang.hotelinfo.domain.HotelFacilityDO" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="hotelid" property="hotelId" jdbcType="INTEGER" />
+    <result column="facility_type" property="facilityType" jdbcType="TINYINT" />
+    <result column="facility_name" property="facilityName" jdbcType="VARCHAR" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+  </resultMap>
+ 
+ <sql id="Base_Column_List" >
+    id, hotelid, facility_type, facility_name
+  </sql>
+  
+   <insert id="inserHotelFacility" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+    insert into t_hotelfacility (hotelid,
+    							 facility_type, 
+      							 facility_name,
+      							 create_time,
+                                 creator)
+                        values        
+                       <foreach collection="list" item="item" separator=",">
+    					        (#{item.hotelId,jdbcType=INTEGER},
+    					 		 #{item.facilityType,jdbcType=TINYINT}, 
+      							 #{item.facilityName,jdbcType=VARCHAR},
+      							 NOW(),
+                                 #{item.creator,jdbcType=VARCHAR})
+    				</foreach> 		 
+  </insert>
+
+    <delete id="deleteHotelFacByHotelId" parameterType="java.lang.Long" >
+        delete from t_hotelfacility
+               where hotelid = #{hotelId,jdbcType=INTEGER}
+    </delete>
+
+
+   <select id="queryHotelFacilityByHotelId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_hotelfacility
+    where hotelid = #{hotel_id,jdbcType=INTEGER}
+  </select>
+  
+
+</mapper>

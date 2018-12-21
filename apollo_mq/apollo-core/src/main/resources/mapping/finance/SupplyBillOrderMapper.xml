@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.bill.mapper.SupplyBillOrderMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.bill.domain.SupplyBillOrderDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="bill_id" jdbcType="INTEGER" property="billId" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="order_code" jdbcType="VARCHAR" property="orderCode" />
+    <result column="hotel_name" jdbcType="VARCHAR" property="hotelName" />
+    <result column="room_type_name" jdbcType="VARCHAR" property="roomTypeName" />
+    <result column="rate_plan_name" jdbcType="VARCHAR" property="ratePlanName" />
+    <result column="guest" jdbcType="VARCHAR" property="guest" />
+    <result column="check_in_date" jdbcType="DATE" property="checkInDate" />
+    <result column="check_out_date" jdbcType="DATE" property="checkOutDate" />
+    <result column="room_night" jdbcType="INTEGER" property="roomNight" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+    <result column="customer_order_code" jdbcType="VARCHAR" property="customerOrderCode" />
+    <result column="receivable_amount" jdbcType="DECIMAL" property="receivableAmount" />
+    <result column="paidin_amount" jdbcType="DECIMAL" property="paidinAmount" />
+    <result column="curr_paidin_amount" jdbcType="VARCHAR" property="currPaidinAmount" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="order_create_date" jdbcType="TIMESTAMP" property="orderCreateDate" />
+    <result column="order_item_count" jdbcType="INTEGER" property="orderItemCount" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <insert id="saveBatchBillOrder" parameterType="com.fangcang.finance.bill.request.InsertBillOrderDTO">
+    INSERT INTO t_fin_supply_bill_order (
+    bill_id,
+    order_id,
+    order_code,
+    hotel_name,
+    room_type_name,
+    rate_plan_name,
+    guest,
+    check_in_date,
+    check_out_date,
+    room_night,
+    currency,
+    customer_order_code,
+    receivable_amount,
+    paidin_amount,
+    curr_paidin_amount,
+    order_create_date,
+    balance_method,
+    order_item_count,
+    creator,
+    create_time
+    ) SELECT
+      #{billId},
+      so.id,
+      so.supply_order_code,
+      so.hotel_name,
+      so.room_type_name,
+      so.rateplan_name,
+      o.guest_names,
+      so.checkin_date,
+      so.checkout_date,
+      DATEDIFF(so.checkout_date,so.checkin_date) * so.room_num,
+      so.base_currency,
+      NULL,
+      so.payable_amount,
+      f.settlement_amount,
+      so.payable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0),
+      o.create_time orderCreateDate,
+      so.balance_method,
+      0,
+      #{operator},
+      SYSDATE()
+    FROM o_order o INNER JOIN o_supply_order so ON o.id=so.order_id INNER JOIN o_supply_finance f ON so.id = f.supply_order_id
+      LEFT JOIN
+      (SELECT
+      foi.order_code,
+      SUM(foi.amount)noticeAmount
+      FROM
+      t_fin_supply_finance_order fo,
+      t_fin_supply_finance_order_item foi
+      WHERE
+      fo.id = foi.finance_order_id
+      AND fo.finance_status=0
+      GROUP BY foi.order_code)tmp ON o.order_code=tmp.order_code
+    WHERE so.supply_status IN (3,4)
+    AND f.account_status IN (0,1)
+    AND o.merchant_code=#{merchantCode}
+    <choose>
+      <when test="dateType==1">
+        <if test="beginDate!=null and beginDate!=''">
+          AND o.create_time >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+        </if>
+      </when>
+      <when test="dateType==2">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkin_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkin_date &lt;= #{endDate}
+        </if>
+      </when>
+      <when test="dateType==3">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkout_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkout_date &lt;= #{endDate}
+        </if>
+      </when>
+    </choose>
+    <choose>
+      <when test="orgCode!=null and orgCode!=''">
+        AND so.supply_code=#{orgCode}
+      </when>
+      <otherwise>
+        <if test="orgName != null and orgName != ''">
+          AND so.supply_name LIKE concat(concat('%',#{orgName}),'%')
+        </if>
+      </otherwise>
+    </choose>
+    <if test="orderIdList != null and orderIdList.size > 0">
+      AND so.id IN
+      <foreach collection="orderIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+    ORDER BY o.create_time
+  </insert>
+
+  <insert id="saveBatchBillOrderProduct" parameterType="com.fangcang.finance.bill.request.InsertBillOrderItemDTO">
+    INSERT INTO t_fin_supply_bill_order_item (
+    bill_order_id,
+    bill_id,
+    item_type,
+    item_name,
+    room_type_name,
+    rate_plan_name,
+    guest,
+    check_in_date,
+    check_out_date,
+    night_num,
+    room_num,
+    currency,
+    price,
+    creator,
+    create_time)
+    SELECT
+      bo.id bill_order_id,
+      bo.bill_id,
+      1,
+      '客房',
+      sp.room_type_name,
+      sp.rateplan_name,
+      o.guest_names,
+      sp.checkin_date,
+      sp.checkout_date,
+      DATEDIFF(sp.checkout_date,sp.checkin_date),
+      sp.room_num,
+      so.base_currency,
+      sp.base_price_sum,
+      #{operator},
+      SYSDATE()
+    FROM
+    t_fin_supply_bill_order bo,
+    o_order o,
+    o_supply_order so,
+    o_supply_product sp
+    WHERE bo.order_code=so.supply_order_code
+    AND	o.id = so.order_id
+    AND so.id = sp.supply_order_id
+    AND bo.order_item_count=0
+    AND bo.bill_id=#{billId}
+    <if test="orderIdList != null and orderIdList.size > 0">
+      AND bo.order_id IN
+      <foreach collection="orderIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+  </insert>
+
+  <insert id="saveBatchBillOrderAddition" parameterType="com.fangcang.finance.bill.request.InsertBillOrderItemDTO">
+    INSERT INTO t_fin_supply_bill_order_item (
+    bill_order_id,
+    bill_id,
+    item_type,
+    item_name,
+    room_type_name,
+    rate_plan_name,
+    guest,
+    check_in_date,
+    check_out_date,
+    night_num,
+    room_num,
+    currency,
+    price,
+    creator,
+    create_time)
+    SELECT
+      bo.id bill_order_id,
+      bo.bill_id,
+      2,
+      sac.name,
+      NULL,
+      NULL,
+      o.guest_names,
+      NULL,
+      NULL,
+      sac.days,
+      sac.num,
+      so.base_currency,
+      sac.base_price_sum,
+      #{operator},
+      SYSDATE()
+    FROM
+      t_fin_supply_bill_order bo,
+      o_order o,
+      o_supply_order so,
+      o_supply_addition_charge sac
+    WHERE bo.order_code=so.supply_order_code
+    AND	o.id = so.order_id
+    AND so.id = sac.supply_order_id
+    AND bo.order_item_count=0
+    AND bo.bill_id=#{billId}
+    <if test="orderIdList != null and orderIdList.size > 0">
+      AND bo.order_id IN
+      <foreach collection="orderIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+  </insert>
+
+  <insert id="saveBatchBillOrderDeratePolicy" parameterType="com.fangcang.finance.bill.request.InsertBillOrderItemDTO">
+    INSERT INTO t_fin_supply_bill_order_item (
+    bill_order_id,
+    bill_id,
+    item_type,
+    item_name,
+    room_type_name,
+    rate_plan_name,
+    guest,
+    check_in_date,
+    check_out_date,
+    night_num,
+    room_num,
+    currency,
+    price,
+    creator,
+    create_time)
+    SELECT
+      bo.id bill_order_id,
+      bo.bill_id,
+      3,
+      dp.name,
+      NULL,
+      NULL,
+      o.guest_names,
+      NULL,
+      NULL,
+      dp.room_num_sum,
+      1,
+      so.base_currency,
+      dp.base_price_sum,
+      #{operator},
+      SYSDATE()
+    FROM
+      t_fin_supply_bill_order bo,
+      o_order o,
+      o_supply_order so,
+      o_derate_policy dp
+    WHERE bo.order_code=so.supply_order_code
+    AND	o.id = so.order_id
+    AND so.id = dp.supply_order_id
+    AND bo.order_item_count=0
+    AND bo.bill_id=#{billId}
+    <if test="orderIdList != null and orderIdList.size > 0">
+      AND bo.order_id IN
+      <foreach collection="orderIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+  </insert>
+
+  <update id="updateBillOrderItemCount" parameterType="com.fangcang.finance.bill.request.InsertBillOrderItemDTO">
+    UPDATE
+    t_fin_supply_bill_order bo,
+    (SELECT
+    boi.bill_order_id,
+    COUNT(boi.id) orderItemCount
+    FROM
+    t_fin_supply_bill_order_item boi
+    GROUP BY
+    boi.bill_order_id)tmp
+    SET bo.order_item_count=tmp.orderItemCount
+    WHERE bo.id=tmp.bill_order_id
+    <if test="billId != null">
+      AND bo.bill_id=#{billId}
+    </if>
+    <if test="orderIdList != null and orderIdList.size > 0">
+      AND bo.order_id IN
+      <foreach collection="orderIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+  </update>
+
+  <insert id="saveBillCurrency" parameterType="com.fangcang.finance.bill.request.BillIdDTO">
+    INSERT INTO t_fin_supply_bill_currency (
+    bill_id,
+    receivable_amount,
+    currency,
+    creator,
+    create_time
+    ) SELECT
+    bo.bill_id,
+    SUM(bo.curr_paidin_amount),
+    bo.currency,
+    #{operator},
+    SYSDATE()
+    FROM
+    t_fin_supply_bill_order bo
+    WHERE bo.bill_id=#{billId}
+    GROUP BY bo.bill_id,bo.currency
+  </insert>
+
+  <select id="queryBillNewCurrency" parameterType="com.fangcang.finance.bill.request.BillIdDTO"
+          resultType="com.fangcang.finance.dto.MultipleCurrencyAmountDTO">
+    SELECT
+    so.base_currency currency,
+    sum(so.payable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0)) receivableAmount
+    FROM t_fin_supply_bill_order bo INNER JOIN o_supply_order so ON bo.order_code = so.supply_order_code
+		INNER JOIN o_supply_finance f ON so.id = f.supply_order_id
+		LEFT JOIN
+		(SELECT
+            foi.order_code,
+            SUM(foi.amount)noticeAmount
+        FROM
+            t_fin_supply_finance_order fo,
+            t_fin_supply_finance_order_item foi
+        WHERE
+            fo.id = foi.finance_order_id
+        AND fo.finance_status=0
+        GROUP BY foi.order_code)tmp ON so.supply_order_code=tmp.order_code
+    WHERE bo.bill_id = #{billId}
+    GROUP BY so.base_currency
+  </select>
+
+  <update id="updateBillOrderFinance" parameterType="com.fangcang.finance.bill.request.UpdateBillOrderFinanceDTO">
+    UPDATE t_fin_supply_bill_order bo INNER JOIN o_supply_order so ON bo.order_code = so.supply_order_code
+      INNER JOIN o_supply_finance f ON so.id = f.supply_order_id
+      LEFT JOIN
+      (SELECT
+      foi.order_code,
+      SUM(foi.amount)noticeAmount
+      FROM
+      t_fin_supply_finance_order fo,
+      t_fin_supply_finance_order_item foi
+      WHERE
+      fo.id = foi.finance_order_id
+      AND fo.finance_status=0
+      GROUP BY foi.order_code)tmp ON so.supply_order_code=tmp.order_code
+    <trim prefix="set" suffixOverrides=",">
+      <if test="accountStatus != null">
+        f.account_status = #{accountStatus},
+      </if>
+      <if test="settlementStatus != null">
+        f.settlement_status =
+        (CASE WHEN (f.settlement_amount+bo.receivable_amount+IFNULL(tmp.noticeAmount,0))!=so.payable_amount THEN
+          0
+        ELSE
+          1
+        END),
+        f.settlement_date =
+        (CASE WHEN (f.settlement_amount+bo.receivable_amount+IFNULL(tmp.noticeAmount,0))!=so.payable_amount THEN
+        f.settlement_date
+        ELSE
+        SYSDATE()
+        END),
+        f.account_status =
+        (CASE WHEN (f.settlement_amount+bo.receivable_amount+IFNULL(tmp.noticeAmount,0))!=so.payable_amount THEN
+          1
+        ELSE
+          f.account_status
+        END),
+      </if>
+      <if test="updateSettlementAmount != null and updateSettlementAmount == 1">
+        f.settlement_amount=f.settlement_amount+bo.receivable_amount,
+      </if>
+    </trim>
+    WHERE
+    bo.order_code = so.supply_order_code
+    AND so.id = f.supply_order_id
+    AND bo.bill_id=#{billId}
+    <if test="orderIdList != null and orderIdList.size > 0">
+      AND so.id IN
+      <foreach collection="orderIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+    <if test="billOrderIdList != null and billOrderIdList.size > 0">
+      AND bo.id IN
+      <foreach collection="billOrderIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+  </update>
+
+  <update id="updateSupplyBillOrder" parameterType="com.fangcang.finance.bill.request.BillIdDTO">
+    UPDATE  t_fin_supply_bill_order bo INNER JOIN o_supply_order so ON bo.order_code=so.supply_order_code
+      INNER JOIN o_order o ON o.id = so.order_id INNER JOIN o_supply_finance f ON so.id=f.supply_order_id
+      LEFT JOIN
+      (SELECT
+      foi.order_code,
+      SUM(foi.amount)noticeAmount
+      FROM
+      t_fin_supply_finance_order fo,
+      t_fin_supply_finance_order_item foi
+      WHERE
+      fo.id = foi.finance_order_id
+      AND fo.finance_status=0
+      GROUP BY foi.order_code)tmp ON so.supply_order_code=tmp.order_code
+    SET
+      bo.hotel_name=so.hotel_name,
+      bo.room_type_name=so.room_type_name,
+      bo.rate_plan_name=so.rateplan_name,
+      bo.guest=o.guest_names,
+      bo.check_in_date=so.checkin_date,
+      bo.check_out_date=so.checkout_date,
+      bo.room_night=DATEDIFF(so.checkout_date,so.checkin_date) * so.room_num,
+      bo.currency=so.base_currency,
+      bo.receivable_amount=so.payable_amount,
+      bo.paidin_amount=f.settlement_amount,
+      bo.curr_paidin_amount=so.payable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0),
+      bo.order_item_count=0,
+      bo.modifier=#{operator},
+      bo.modify_time=SYSDATE()
+    WHERE  bo.bill_id=#{billId}
+  </update>
+
+  <select id="querySupplyBillOrder" parameterType="com.fangcang.finance.bill.request.QueryBillOrderDTO"
+          resultType="com.fangcang.finance.bill.response.BillOrderDTO">
+    SELECT
+    id billOrderId,
+    order_id orderId,
+    order_code orderCode,
+    hotel_name hotelName,
+    room_type_name roomTypeName,
+    rate_plan_name ratePlanName,
+    guest,
+    DATE_FORMAT(check_in_date,"%Y-%m-%d") checkInDate,
+    DATE_FORMAT(check_out_date,"%Y-%m-%d") checkOutDate,
+    room_night roomNight,
+    currency,
+    customer_order_code customerOrderCode,
+    receivable_amount receivableAmount,
+    paidin_amount paidinAmount,
+    curr_paidin_amount currPaidinAmount,
+    DATE_FORMAT(order_create_date,"%Y-%m-%d %T") orderCreateDate,
+    balance_method balanceMethod,
+    order_item_count orderItemCount
+    FROM
+    t_fin_supply_bill_order bo
+    WHERE bo.bill_id=#{billId}
+    <if test="orderCode != null and orderCode != ''">
+      AND bo.order_code=#{orderCode}
+    </if>
+    <if test="balanceMethodType == 1">
+      AND bo.balance_method=4
+    </if>
+    <if test="balanceMethodType == 2">
+      AND bo.balance_method != 4
+    </if>
+    ORDER BY bo.create_time DESC
+  </select>
+
+  <select id="querySupplyBillOrderId" parameterType="com.fangcang.finance.bill.request.QueryBillOrderDTO"
+          resultType="java.lang.Integer">
+    SELECT
+        so.order_id
+    FROM
+        t_fin_supply_bill_order bo,
+        o_supply_order so
+    WHERE
+        bo.order_id = so.id
+    AND bo.bill_id=#{billId}
+    <if test="orderCode != null and orderCode != ''">
+      AND bo.order_code=#{orderCode}
+    </if>
+  </select>
+
+  <select id="querySupplyBillCurrency" parameterType="com.fangcang.finance.bill.request.QueryBillCurrencyDTO"
+          resultType="com.fangcang.finance.dto.MultipleCurrencyAmountDTO">
+    SELECT
+    SUM(bo.curr_paidin_amount) receivableAmount,
+    bo.currency
+    FROM
+    t_fin_supply_bill_order bo
+    WHERE bo.bill_id=#{billId}
+    <if test="balanceMethodType == 1">
+      AND bo.balance_method = 4
+    </if>
+    <if test="balanceMethodType == 2">
+      AND bo.balance_method != 4
+    </if>
+    GROUP BY bo.bill_id,bo.currency
+  </select>
+</mapper>

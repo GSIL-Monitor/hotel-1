@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.product.mapper.SystemDebitedQuotaMapper">
+
+    <resultMap id="BaseResultMap" type="com.fangcang.product.domain.SystemDebitedQuotaDO">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="supply_order_id" jdbcType="INTEGER" property="supplyOrderId" />
+        <result column="supply_order_code" jdbcType="VARCHAR" property="supplyOrderCode" />
+        <result column="priceplan_id" jdbcType="INTEGER" property="pricePlanId" />
+        <result column="sale_date" jdbcType="DATE" property="saleDate" />
+        <result column="quota_num" jdbcType="INTEGER" property="quotaNum" />
+        <result column="quota_type" jdbcType="TINYINT" property="quotaType" />
+        <result column="quotaaccount_id" jdbcType="INTEGER" property="quotaAccountId" />
+        <result column="order_code" jdbcType="VARCHAR" property="orderCode" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, supply_order_id, supply_order_code, priceplan_id, sale_date, quota_num, quota_type,
+        quotaaccount_id, order_code, create_time, creator, modify_time, modifier
+    </sql>
+
+    <select id="dynamicQuerySystemDebitedQuota" parameterType="com.fangcang.product.domain.SystemDebitedQuotaDO" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_htlpro_systemdebitedquota
+        <where>
+            <if test="supplyOrderId != null">
+                and supply_order_id = #{supplyOrderId,jdbcType=INTEGER}
+            </if>
+            <if test="supplyOrderCode != null and '' != supplyOrderCode">
+                and supply_order_code = #{supplyOrderCode,jdbcType=VARCHAR}
+            </if>
+            <if test="pricePlanId != null">
+                and priceplan_id = #{pricePlanId,jdbcType=INTEGER}
+            </if>
+            <if test="startDate != null">
+                and <![CDATA[sale_date >= DATE_FORMAT(#{startDate,jdbcType=DATE}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="endDate != null">
+                and <![CDATA[sale_date <= DATE_FORMAT(#{endDate,jdbcType=DATE}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="quotaType != null">
+                and quota_type = #{quotaType,jdbcType=INTEGER}
+            </if>
+            <if test="quotaAccountId != null">
+                and quotaaccount_id = #{quotaAccountId,jdbcType=INTEGER}
+            </if>
+            <if test="orderCode != null and '' != orderCode">
+                and order_code = #{orderCode,jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by sale_date
+    </select>
+
+    <insert id="batchSaveSystemDebitedQuota" parameterType="java.util.List">
+        insert into t_htlpro_systemdebitedquota (
+                                                  supply_order_id,
+                                                  supply_order_code,
+                                                  priceplan_id,
+                                                  sale_date,
+                                                  quota_num,
+                                                  quota_type,
+                                                  quotaaccount_id,
+                                                  order_code,
+                                                  create_time,
+                                                  creator)
+                                          values
+                                          <foreach collection="list" item="item" separator=",">
+                                              (
+                                              #{item.supplyOrderId,jdbcType=INTEGER},
+                                              #{item.supplyOrderCode,jdbcType=VARCHAR},
+                                              #{item.pricePlanId,jdbcType=INTEGER},
+                                              #{item.saleDate,jdbcType=DATE},
+                                              #{item.quotaNum,jdbcType=INTEGER},
+                                              #{item.quotaType,jdbcType=TINYINT},
+                                              #{item.quotaAccountId,jdbcType=INTEGER},
+                                              #{item.orderCode,jdbcType=VARCHAR},
+                                              NOW(),
+                                              #{item.creator,jdbcType=VARCHAR}
+                                              )
+                                          </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.product.mapper.QuotaLogMapper">
+
+    <insert id="batchSaveQuotaLog" parameterType="java.util.List">
+        insert into t_htlpro_quota_log (
+                                      priceplan_id,
+                                      quotaaccount_id,
+                                      start_date,
+                                      end_date,
+                                      weeks,
+                                      merchant_code,
+                                      create_time,
+                                      creator,
+                                      operate_type,
+                                      quota_num,
+                                      over_draft,
+                                      quota_state)
+                              values
+                              <foreach collection="list" item="item" separator=",">
+                                  (#{item.pricePlanId,jdbcType=INTEGER},
+                                  #{item.quotaAccountId,jdbcType=INTEGER},
+                                  #{item.startDate,jdbcType=DATE},
+                                  #{item.endDate,jdbcType=DATE},
+                                  #{item.weeks,jdbcType=VARCHAR},
+                                  #{item.merchantCode,jdbcType=VARCHAR},
+                                  NOW(),
+                                  #{item.creator,jdbcType=VARCHAR},
+                                  #{item.operateType,jdbcType=INTEGER},
+                                  #{item.quotaNum,jdbcType=INTEGER},
+                                  #{item.overDraft,jdbcType=INTEGER},
+                                  #{item.quotaState,jdbcType=INTEGER})
+                              </foreach>
+
+    </insert>
+
+</mapper>

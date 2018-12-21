@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.bill.mapper.SupplyBillOrderItemMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.bill.domain.SupplyBillOrderItemDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="bill_order_id" jdbcType="INTEGER" property="billOrderId" />
+    <result column="bill_id" jdbcType="INTEGER" property="billId" />
+    <result column="item_type" jdbcType="INTEGER" property="itemType" />
+    <result column="item_name" jdbcType="VARCHAR" property="itemName" />
+    <result column="room_type_name" jdbcType="VARCHAR" property="roomTypeName" />
+    <result column="rate_plan_name" jdbcType="VARCHAR" property="ratePlanName" />
+    <result column="guest" jdbcType="VARCHAR" property="guest" />
+    <result column="check_in_date" jdbcType="DATE" property="checkInDate" />
+    <result column="check_out_date" jdbcType="DATE" property="checkOutDate" />
+    <result column="night_num" jdbcType="INTEGER" property="nightNum" />
+    <result column="room_num" jdbcType="DECIMAL" property="roomNum" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <select id="querySupplyBillOrderItem" parameterType="com.fangcang.finance.bill.request.BillOrderIdDTO"
+          resultType="com.fangcang.finance.bill.response.BillOrderItemDTO">
+    SELECT
+        item_type itemType,
+        item_name itemName,
+        room_type_name roomTypeName,
+        rate_plan_name ratePlanName,
+        guest,
+        DATE_FORMAT(check_in_date,"%Y-%m-%d") checkInDate,
+        DATE_FORMAT(check_out_date,"%Y-%m-%d") checkOutDate,
+        night_num nightNum,
+        room_num roomNum,
+        night_num*room_num roomNight,
+        currency,
+        (price/night_num)/room_num price,
+        price sum
+    FROM t_fin_supply_bill_order_item i
+    WHERE 1=1
+    <if test="billOrderId != null">
+      AND i.bill_order_id=#{billOrderId}
+    </if>
+    <if test="billId != null">
+      AND i.bill_id=#{billId}
+    </if>
+  </select>
+
+  <select id="exportBillOrderItem" parameterType="com.fangcang.finance.bill.request.BillIdDTO"
+          resultType="com.fangcang.finance.bill.response.BillOrderItemExportDTO">
+    SELECT
+        @row_num:=@row_num+1 as rowNum,
+        @group_row:=CASE when @group_code=tmp.billOrderId then @group_row+1 else 1 end as groupRow,
+        @group_code:=tmp.billOrderId as groupCode,
+        tmp.*,
+        CASE WHEN @group_row=1 THEN tmp.receivable_amount ELSE NULL END receivableAmount,
+        CASE WHEN @group_row=1 THEN tmp.paidin_amount ELSE NULL END paidinAmount,
+        CASE WHEN @group_row=1 THEN tmp.curr_paidin_amount ELSE NULL END currPaidinAmount
+    FROM
+    (SELECT
+        o.id billOrderId,
+        o.order_code orderCode,
+        o.hotel_name hotelName,
+        CASE WHEN i.item_type=1 THEN concat(concat(concat(i.room_type_name,'('),i.rate_plan_name),')') ELSE i.item_name END productName,
+        o.customer_order_code customerOrderCode,
+        o.receivable_amount,
+        o.paidin_amount,
+        o.curr_paidin_amount,
+        o.balance_method balanceMethod,
+        DATE_FORMAT(o.order_create_date,"%Y-%m-%d") orderCreateDate,
+        i.item_type itemType,
+        i.item_name itemName,
+        i.room_type_name roomTypeName,
+        i.rate_plan_name ratePlanName,
+        i.guest,
+        DATE_FORMAT(i.check_in_date,"%Y-%m-%d") checkInDate,
+        DATE_FORMAT(i.check_out_date,"%Y-%m-%d") checkOutDate,
+        i.night_num nightNum,
+        i.room_num roomNum,
+        i.night_num*i.room_num roomNight,
+        i.currency,
+        (i.price/i.night_num)/i.room_num price,
+        i.price sum
+    FROM
+        t_fin_supply_bill_order o,t_fin_supply_bill_order_item i
+    WHERE o.id=i.bill_order_id AND o.bill_id=#{billId}
+    ORDER BY i.bill_order_id,i.create_time)tmp,
+    (SELECT @row_num:=0, @group_row:=1, @group_code:='') AS gr
+  </select>
+</mapper>

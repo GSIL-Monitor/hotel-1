@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.order.dao.OrderAppealPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.order.entity.po.OrderAppealPO" >
+    <id column="Appeal_id" property="appealId" jdbcType="BIGINT" />
+    <result column="apply_reason" property="applyReason" jdbcType="VARCHAR" />
+    <result column="complainant" property="complainant" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="handler" property="handler" jdbcType="VARCHAR" />
+    <result column="handle_time" property="handleTime" jdbcType="TIMESTAMP" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="order_code" property="orderCode" jdbcType="VARCHAR" />
+    <result column="mark" property="mark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    Appeal_id, apply_reason, complainant, create_date, status, handler, handle_time, 
+    modify_date, modifier, order_code, mark
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.order.entity.po.OrderAppealPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_order_appeal
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_order_appeal
+    where Appeal_id = #{appealId,jdbcType=BIGINT}
+  </select>
+  
+  <!-- 根据订单编号查询订单申诉信息 -->
+  <select id="queryOrderAppealByOrderCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_order_appeal
+    where order_code = #{orderCode,jdbcType=VARCHAR}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_order_appeal
+    where Appeal_id = #{appealId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.order.entity.po.OrderAppealPO" useGeneratedKeys="true" keyProperty="appealId">
+    insert into t_order_appeal (Appeal_id, apply_reason, complainant, 
+      create_date, status, handler, 
+      handle_time,
+      order_code, mark)
+    values (#{appealId,jdbcType=BIGINT}, #{applyReason,jdbcType=VARCHAR}, #{complainant,jdbcType=VARCHAR}, 
+      now(), #{status,jdbcType=VARCHAR}, #{handler,jdbcType=VARCHAR}, 
+      #{handleTime,jdbcType=TIMESTAMP}, #{orderCode,jdbcType=VARCHAR}, #{mark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.order.entity.po.OrderAppealPO" >
+    insert into t_order_appeal
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="appealId != null" >
+        Appeal_id,
+      </if>
+      <if test="applyReason != null" >
+        apply_reason,
+      </if>
+      <if test="complainant != null" >
+        complainant,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="handler != null" >
+        handler,
+      </if>
+      <if test="handleTime != null" >
+        handle_time,
+      </if>
+      <if test="modifyDate != null" >
+        modify_date,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="orderCode != null" >
+        order_code,
+      </if>
+      <if test="mark != null" >
+        mark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="appealId != null" >
+        #{appealId,jdbcType=BIGINT},
+      </if>
+      <if test="applyReason != null" >
+        #{applyReason,jdbcType=VARCHAR},
+      </if>
+      <if test="complainant != null" >
+        #{complainant,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="handler != null" >
+        #{handler,jdbcType=VARCHAR},
+      </if>
+      <if test="handleTime != null" >
+        #{handleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="orderCode != null" >
+        #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="mark != null" >
+        #{mark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.order.entity.po.OrderAppealPO" >
+    update t_order_appeal
+    <set >
+      <if test="applyReason != null" >
+        apply_reason = #{applyReason,jdbcType=VARCHAR},
+      </if>
+      <if test="complainant != null" >
+        complainant = #{complainant,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="handler != null" >
+        handler = #{handler,jdbcType=VARCHAR},
+      </if>
+      <if test="handleTime != null" >
+        handle_time = #{handleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="orderCode != null" >
+        order_code = #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="mark != null" >
+        mark = #{mark,jdbcType=VARCHAR},
+      </if>
+        modify_date = now(),
+    </set>
+    where Appeal_id = #{appealId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.order.entity.po.OrderAppealPO" >
+    update t_order_appeal
+    set apply_reason = #{applyReason,jdbcType=VARCHAR},
+      complainant = #{complainant,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=VARCHAR},
+      handler = #{handler,jdbcType=VARCHAR},
+      handle_time = #{handleTime,jdbcType=TIMESTAMP},
+      modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      order_code = #{orderCode,jdbcType=VARCHAR},
+      mark = #{mark,jdbcType=VARCHAR}
+    where Appeal_id = #{appealId,jdbcType=BIGINT}
+  </update>
+  
+  <!-- 查询订单申诉信息集合 -->
+	<select id="listOrderAppeal" parameterType="com.travel.common.dto.finance.query.OrderAppealQuery" resultMap="BaseResultMap">
+		select
+		  <include refid="Base_Column_List" />
+		from t_order_appeal t
+		<where>
+			<if test="orderCode != null and orderCode != ''">
+				and t.order_code like concat('%',#{orderCode},'%')
+			</if>
+			<if test="handleTime != null">
+				<![CDATA[and cast(t.handle_time as date) >= cast(#{handleTime} as date)]]>
+				<![CDATA[and cast(t.handle_time as date) <= cast(#{handleTime} as date)]]>
+			</if>
+			<if test="handler != null and handler != ''">
+				and t.handler like concat('%',#{handler},'%')
+			</if>
+			<if test="status != null and status != ''">
+				and t.status = #{status}
+			</if>
+		</where>
+	</select>
+</mapper>

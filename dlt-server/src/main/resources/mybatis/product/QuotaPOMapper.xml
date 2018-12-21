@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.product.dao.QuotaPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.product.entity.po.QuotaPO" >
+    <id column="quota_id" property="quotaId" jdbcType="BIGINT" />
+    <result column="sale_date" property="saleDate" jdbcType="DATE" />
+    <result column="quota_state" property="quotaState" jdbcType="INTEGER" />
+    <result column="quota_num" property="quotaNum" jdbcType="INTEGER" />
+    <result column="det_quota_num" property="detQuotaNum" jdbcType="INTEGER" />
+    <result column="all_quota_num" property="allQuotaNum" jdbcType="INTEGER" />
+    <result column="used_quota_num" property="usedQuotaNum" jdbcType="INTEGER" />
+    <result column="reserve_quota_num" property="reserveQuotaNum" jdbcType="INTEGER" />
+    <result column="overdraft" property="overdraft" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+    <result column="account_id" property="accountId" jdbcType="BIGINT" />
+
+  </resultMap>
+  <sql id="Base_Column_List" >
+    quota_id, sale_date, quota_state, quota_num, det_quota_num, all_quota_num, used_quota_num, 
+    overdraft, creator, createdate, modifier, modifydate, account_id,reserve_quota_num
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_htlpro_quota
+    where quota_id = #{quotaId,jdbcType=BIGINT}
+  </select>
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select
+    <include refid="Base_Column_List" />
+    from t_htlpro_quota t
+    where 1=1
+    <if test="accountId != null" >
+      and t.account_id = #{accountId,jdbcType=BIGINT}
+    </if>
+    <if test="InAccountId != null" >
+      and t.account_id in <foreach collection="InAccountId" index="idx" item="it" open="(" separator="," close=")">#{it}</foreach>
+    </if>
+    <if test="saleDate != null" >
+      and t.sale_date = #{saleDate,jdbcType=DATE}
+    </if>
+    <if test="checkInDate != null">
+      <![CDATA[and cast(SALE_DATE as date) >= cast(#{checkInDate} as date)]]>
+    </if>
+    <if test="checkOutDate != null">
+      <![CDATA[and cast(SALE_DATE as date) < cast(#{checkOutDate} as date)]]>
+    </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_htlpro_quota
+    where quota_id = #{quotaId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deleteByAccountIdAndSaleDate" parameterType="com.travel.hotel.product.entity.po.QuotaPO" >
+    delete from t_htlpro_quota
+    where account_id = #{accountId,jdbcType=BIGINT}
+    and sale_date = #{saleDate,jdbcType=DATE}
+  </delete>
+
+  <insert id="insert" parameterType="com.travel.hotel.product.entity.po.QuotaPO" >
+    insert into t_htlpro_quota (quota_id, sale_date, quota_state, 
+      quota_num, det_quota_num, all_quota_num, 
+      used_quota_num, overdraft, creator, 
+      createdate, modifier, modifydate, reserve_quota_num
+      account_id)
+    values (#{quotaId,jdbcType=BIGINT}, #{saleDate,jdbcType=DATE}, #{quotaState,jdbcType=INTEGER}, 
+      #{quotaNum,jdbcType=INTEGER}, #{detQuotaNum,jdbcType=INTEGER}, #{allQuotaNum,jdbcType=INTEGER}, 
+      #{usedQuotaNum,jdbcType=INTEGER}, #{overdraft,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, 
+      #{createdate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{modifydate,jdbcType=TIMESTAMP}, 
+      #{accountId,jdbcType=BIGINT},#{reserveQuotaNum,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.product.entity.po.QuotaPO" >
+    insert into t_htlpro_quota
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="quotaId != null" >
+        quota_id,
+      </if>
+      <if test="saleDate != null" >
+        sale_date,
+      </if>
+      <if test="quotaState != null" >
+        quota_state,
+      </if>
+      <if test="quotaNum != null" >
+        quota_num ,
+        all_quota_num,
+      </if>
+      <if test="detQuotaNum != null" >
+        det_quota_num,
+      </if>
+      <if test="allQuotaNum != null" >
+        all_quota_num,
+      </if>
+      <if test="usedQuotaNum != null" >
+        used_quota_num,
+      </if>
+      <if test="overdraft != null" >
+        overdraft,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createdate != null" >
+        createdate,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifydate != null" >
+        modifydate,
+      </if>
+      <if test="accountId != null" >
+        account_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="quotaId != null" >
+        #{quotaId,jdbcType=BIGINT},
+      </if>
+      <if test="saleDate != null" >
+        #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="quotaState != null" >
+        #{quotaState,jdbcType=INTEGER},
+      </if>
+      <if test="quotaNum != null" >
+        #{quotaNum,jdbcType=INTEGER},
+        #{quotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="detQuotaNum != null" >
+        #{detQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="allQuotaNum != null" >
+        #{allQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="usedQuotaNum != null" >
+        #{usedQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="overdraft != null" >
+        #{overdraft,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        now(),
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        now(),
+      </if>
+      <if test="accountId != null" >
+        #{accountId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.product.entity.po.QuotaPO" >
+    update t_htlpro_quota
+    <set >
+      <if test="saleDate != null" >
+        sale_date = #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="quotaState != null" >
+        quota_state = #{quotaState,jdbcType=INTEGER},
+      </if>
+      <if test="quotaNum != null" >
+        quota_num = #{quotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="detQuotaNum != null" >
+        det_quota_num = #{detQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="reserveQuotaNum != null" >
+        reserve_quota_num = #{reserveQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="allQuotaNum != null" >
+        all_quota_num = #{allQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="usedQuotaNum != null" >
+        used_quota_num = #{usedQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="overdraft != null" >
+        overdraft = #{overdraft,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        createdate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        modifydate = #{modifydate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="accountId != null" >
+        account_id = #{accountId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where quota_id = #{quotaId,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateByQuotaIdSelective" parameterType="com.travel.hotel.product.entity.po.QuotaPO" >
+    update t_htlpro_quota
+    <set >
+      <if test="quotaState != null" >
+        quota_state = #{quotaState,jdbcType=INTEGER},
+      </if>
+      <if test="quotaNum != null" >
+        all_quota_num = all_quota_num + (#{quotaNum,jdbcType=INTEGER}-quota_num),
+        quota_num = #{quotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        modifydate = #{modifydate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where quota_id = #{quotaId,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateByAccountIdSelective" parameterType="com.travel.hotel.product.entity.po.QuotaPO" >
+    update t_htlpro_quota
+    <set >
+      <if test="saleDate != null" >
+        sale_date = #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="quotaState != null" >
+        quota_state = #{quotaState,jdbcType=INTEGER},
+      </if>
+      <if test="quotaNum != null" >
+        quota_num = #{quotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="detQuotaNum != null" >
+        det_quota_num = #{detQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="allQuotaNum != null" >
+        all_quota_num = #{allQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="usedQuotaNum != null" >
+        used_quota_num = #{usedQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="overdraft != null" >
+        overdraft = #{overdraft,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        createdate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        modifydate = #{modifydate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reserveQuotaNum != null" >
+        reserve_quota_num = #{reserveQuotaNum,jdbcType=INTEGER},
+      </if>
+    </set>
+    where account_id = #{accountId,jdbcType=BIGINT}
+    <if test="saleDate != null" >
+       and sale_date = #{saleDate,jdbcType=DATE}
+    </if>
+  </update>
+
+
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.product.entity.po.QuotaPO" >
+    update t_htlpro_quota
+    set sale_date = #{saleDate,jdbcType=DATE},
+      quota_state = #{quotaState,jdbcType=INTEGER},
+      quota_num = #{quotaNum,jdbcType=INTEGER},
+      det_quota_num = #{detQuotaNum,jdbcType=INTEGER},
+      all_quota_num = #{allQuotaNum,jdbcType=INTEGER},
+      used_quota_num = #{usedQuotaNum,jdbcType=INTEGER},
+      overdraft = #{overdraft,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      createdate = #{createdate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modifydate = #{modifydate,jdbcType=TIMESTAMP},
+      account_id = #{accountId,jdbcType=BIGINT}
+    where quota_id = #{quotaId,jdbcType=BIGINT}
+  </update>
+  <select id="updateUsedQuota" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    update t_htlpro_quota
+       set used_quota_num = #{usedQuotaNum,jdbcType=INTEGER}
+     where account_id = (select account_id from t_htlpro_priceplan where priceplan_id = #{pricePlanId,jdbcType=BIGINT} )
+       and sale_date = #{saleDate,jdbcType=DATE}
+  </select>
+  <update id="batchDeductQuota" parameterType="java.util.List">
+    <foreach collection="list" separator=";" item="q">
+      update t_htlpro_quota
+         <![CDATA[
+         set used_quota_num = if(used_quota_num, used_quota_num, 0) + #{q.quotaNum}, quota_num = if(quota_num, quota_num, 0)  -  #{q.quotaNum}
+         ]]>
+       where sale_date = #{q.saleDate,jdbcType=DATE}
+         and account_id =  (select account_id from t_htlpro_priceplan where priceplan_id = #{q.pricePlanId} )
+    </foreach>
+  </update>
+  <update id="batchRefundQuota" parameterType="java.util.List">
+    <foreach collection="list" separator=";" item="q">
+      update t_htlpro_quota
+      set used_quota_num = if(used_quota_num, used_quota_num, 0) - #{q.quotaNum}, quota_num = if(quota_num, quota_num, 0) +  #{q.quotaNum}
+      where sale_date = #{q.saleDate,jdbcType=DATE}
+      and account_id =  (select account_id from t_htlpro_priceplan where priceplan_id = #{q.pricePlanId} )
+    </foreach>
+  </update>
+
+  <update id="addReserveQuota" parameterType="com.travel.hotel.product.entity.po.QuotaPO">
+
+      update t_htlpro_quota
+      set reserve_quota_num = IFNULL(reserve_quota_num,0) + #{reserveQuotaNum,jdbcType=INTEGER},
+      quota_num = quota_num -  #{reserveQuotaNum,jdbcType=INTEGER},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modifydate = #{modifydate,jdbcType=TIMESTAMP}
+      where sale_date = #{saleDate,jdbcType=DATE}
+      and account_id =  #{accountId,jdbcType=BIGINT}
+
+  </update>
+
+
+
+  <select id="queryQuotaReport" parameterType="com.travel.common.dto.product.query.QuotaDailyReportQueryDTO"
+  resultType="com.travel.hotel.product.entity.po.QuotaReportPO">
+    <![CDATA[
+      select a.date_date saleDate,a.account_id accountId,a.hotelName, a.hotelId,a.roomTypeId,a.roomName,q.all_quota_num allQuotaNum, IFNULL(q.quota_num,0)+IFNULL(q.det_quota_num,0)+IFNULL(q.reserve_quota_num,0) onsaleQuotaNum, IFNULL(q.used_quota_num,0) usedQuotaNum
+        from (
+          select d.date_date ,h.hotel_id hotelId,h.hotel_name hotelName, r.room_type_id roomTypeId, r.ROOM_NAME roomName,qa.account_id
+            FROM t_date d, t_htlpro_quota_account qa, t_htlpro_hotel h, t_htlpro_room r
+           where qa.room_type_id = r.room_type_id and r.hotel_id = h.hotel_id
+             and h.hotel_id = #{hotelId,jdbcType=BIGINT}
+             and d.date_date >= str_to_date(#{beginDate,jdbcType=DATE},"%Y-%m-%d")
+             and d.date_date<=str_to_date(#{endDate,jdbcType=DATE},"%Y-%m-%d")) a
+         left join t_htlpro_quota q on a.date_date = q.sale_date and a.account_id=q.account_id
+         order by a.roomTypeId ,a.date_date
+     ]]>
+
+  </select>
+
+
+</mapper>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.b2b.mapper.B2BHistoryMapper">
+    <resultMap id="BaseResultMap" type="com.fangcang.b2b.domain.B2BHistoryDO">
+        <id column="history_id" property="historyId" jdbcType="INTEGER"/>
+        <result column="agent_user_id" property="agentUserId" jdbcType="INTEGER"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="keyword" property="keyword" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+      history_id,agent_user_id,username,keyword,create_time
+    </sql>
+
+    <insert id="saveHistory" parameterType="com.fangcang.b2b.domain.B2BHistoryDO" useGeneratedKeys="true"
+            keyProperty="historyId">
+        INSERT INTO t_b2b_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            agent_user_id,username,keyword,create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{agentUserId,jdbcType=INTEGER},#{username,jdbcType=VARCHAR},#{keyword,jdbcType=VARCHAR},NOW()
+        </trim>
+    </insert>
+
+    <select id="queryHistory" parameterType="com.fangcang.b2b.domain.B2BHistoryDO"
+            resultType="com.fangcang.b2b.dto.KeyWordDTO">
+        SELECT
+        history_id AS historyId,keyword
+        FROM t_b2b_history
+        WHERE agent_user_id=#{agentUserId,jdbcType=INTEGER} AND username=#{username,jdbcType=VARCHAR}
+        ORDER BY create_time DESC
+    </select>
+
+
+    <!--查询产品经理姓名和联系方式-->
+    <select id="getMerchantBMInfo" resultType="com.fangcang.merchant.dto.UserDTO">
+        SELECT
+            u.real_name realName,
+            u.username,
+            u.landline_telephone landlineTelephone
+        FROM
+            t_agent a
+        LEFT JOIN t_user u ON a.merchant_id = u.merchant_id
+        AND a.merchant_bm = u.id
+        WHERE
+        a.merchant_id = #{merchantId,jdbcType=INTEGER} AND a.agent_code = #{agentCode,jdbcType=VARCHAR}
+    </select>
+
+    <!--查询业务经理姓名和联系方式-->
+  <!--  <select id="getMerchantOPInfo" resultType="com.fangcang.merchant.dto.UserDTO">
+        SELECT
+            u.real_name realName,
+            u.username
+        FROM
+            t_agent a
+        LEFT JOIN t_user u ON a.merchant_id = u.merchant_id
+        AND a.merchant_op = u.id
+        WHERE
+        a.merchant_id = #{merchantId,jdbcType=INTEGER} AND a.agent_code = #{agentCode,jdbcType=VARCHAR}
+    </select>-->
+
+    <delete id="deleteSearchHistory" parameterType="com.fangcang.b2b.domain.B2BHistoryDO">
+        delete from t_b2b_history where agent_user_id=#{agentUserId,jdbcType=INTEGER} AND username=#{username,jdbcType=VARCHAR}
+    </delete>
+</mapper>

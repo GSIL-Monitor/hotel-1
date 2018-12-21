@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.order.dao.OrderRestrictPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.order.entity.po.OrderRestrictPO" >
+    <id column="restrict_id" property="restrictId" jdbcType="BIGINT" />
+    <result column="priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+    <result column="sale_date" property="saleDate" jdbcType="DATE" />
+    <result column="book_days" property="bookDays" jdbcType="INTEGER" />
+    <result column="OCCUPANCY_TYPE" property="occupancyType" jdbcType="INTEGER" />
+    <result column="OCCUPANCY_DAYS" property="occupancyDays" jdbcType="INTEGER" />
+    <result column="CANCEL_TYPE" property="cancelType" jdbcType="INTEGER" />
+    <result column="CANCEL_DAYS" property="cancelDays" jdbcType="INTEGER" />
+    <result column="CANCEL_TIME" property="cancelTime" jdbcType="VARCHAR" />
+    <result column="CANCEL_REMARK" property="cancelRemark" jdbcType="VARCHAR" />
+    <result column="BOOK_ROOMS" property="bookRooms" jdbcType="INTEGER" />
+    <result column="CREATOR" property="creator" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+    <result column="book_time" property="bookTime" jdbcType="VARCHAR" />
+    <result column="order_code" property="orderCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    restrict_id, priceplan_id, sale_date, book_days, OCCUPANCY_TYPE, OCCUPANCY_DAYS, 
+    CANCEL_TYPE, CANCEL_DAYS, CANCEL_TIME, CANCEL_REMARK, BOOK_ROOMS, CREATOR, create_date, 
+    modifier, modify_date, book_time, order_code
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.order.entity.po.OrderRestrictPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_order_restrict
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_order_restrict
+    where restrict_id = #{restrictId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_order_restrict
+    where restrict_id = #{restrictId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.order.entity.po.OrderRestrictPO" >
+    insert into t_order_restrict (restrict_id, priceplan_id, sale_date, 
+      book_days, OCCUPANCY_TYPE, OCCUPANCY_DAYS, 
+      CANCEL_TYPE, CANCEL_DAYS, CANCEL_TIME, 
+      CANCEL_REMARK, BOOK_ROOMS, CREATOR, 
+      create_date, modifier, modify_date, 
+      book_time, order_code)
+    values (#{restrictId,jdbcType=BIGINT}, #{priceplanId,jdbcType=BIGINT}, #{saleDate,jdbcType=DATE}, 
+      #{bookDays,jdbcType=INTEGER}, #{occupancyType,jdbcType=INTEGER}, #{occupancyDays,jdbcType=INTEGER}, 
+      #{cancelType,jdbcType=INTEGER}, #{cancelDays,jdbcType=INTEGER}, #{cancelTime,jdbcType=VARCHAR}, 
+      #{cancelRemark,jdbcType=VARCHAR}, #{bookRooms,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{modifyDate,jdbcType=TIMESTAMP}, 
+      #{bookTime,jdbcType=VARCHAR}, #{orderCode,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List" >
+    insert into t_order_restrict (restrict_id, priceplan_id, sale_date,
+    book_days, OCCUPANCY_TYPE, OCCUPANCY_DAYS,
+    CANCEL_TYPE, CANCEL_DAYS, CANCEL_TIME,
+    CANCEL_REMARK, BOOK_ROOMS, CREATOR,
+    create_date, modifier, modify_date,
+    book_time, order_code)
+    values
+    <foreach collection="list" item="restrict" separator=",">
+      (#{restrict.restrictId,jdbcType=BIGINT}, #{restrict.priceplanId,jdbcType=BIGINT}, #{restrict.saleDate,jdbcType=DATE},
+      #{restrict.bookDays,jdbcType=INTEGER}, #{restrict.occupancyType,jdbcType=INTEGER}, #{restrict.occupancyDays,jdbcType=INTEGER},
+      #{restrict.cancelType,jdbcType=INTEGER}, #{restrict.cancelDays,jdbcType=INTEGER}, #{restrict.cancelTime,jdbcType=VARCHAR},
+      #{restrict.cancelRemark,jdbcType=VARCHAR}, #{restrict.bookRooms,jdbcType=INTEGER}, #{restrict.creator,jdbcType=VARCHAR},
+      #{restrict.createDate,jdbcType=TIMESTAMP}, #{restrict.modifier,jdbcType=VARCHAR}, #{restrict.modifyDate,jdbcType=TIMESTAMP},
+      #{restrict.bookTime,jdbcType=VARCHAR}, #{restrict.orderCode,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.order.entity.po.OrderRestrictPO" >
+    insert into t_order_restrict
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="restrictId != null" >
+        restrict_id,
+      </if>
+      <if test="priceplanId != null" >
+        priceplan_id,
+      </if>
+      <if test="saleDate != null" >
+        sale_date,
+      </if>
+      <if test="bookDays != null" >
+        book_days,
+      </if>
+      <if test="occupancyType != null" >
+        OCCUPANCY_TYPE,
+      </if>
+      <if test="occupancyDays != null" >
+        OCCUPANCY_DAYS,
+      </if>
+      <if test="cancelType != null" >
+        CANCEL_TYPE,
+      </if>
+      <if test="cancelDays != null" >
+        CANCEL_DAYS,
+      </if>
+      <if test="cancelTime != null" >
+        CANCEL_TIME,
+      </if>
+      <if test="cancelRemark != null" >
+        CANCEL_REMARK,
+      </if>
+      <if test="bookRooms != null" >
+        BOOK_ROOMS,
+      </if>
+      <if test="creator != null" >
+        CREATOR,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifyDate != null" >
+        modify_date,
+      </if>
+      <if test="bookTime != null" >
+        book_time,
+      </if>
+      <if test="orderCode != null" >
+        order_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="restrictId != null" >
+        #{restrictId,jdbcType=BIGINT},
+      </if>
+      <if test="priceplanId != null" >
+        #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="saleDate != null" >
+        #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="bookDays != null" >
+        #{bookDays,jdbcType=INTEGER},
+      </if>
+      <if test="occupancyType != null" >
+        #{occupancyType,jdbcType=INTEGER},
+      </if>
+      <if test="occupancyDays != null" >
+        #{occupancyDays,jdbcType=INTEGER},
+      </if>
+      <if test="cancelType != null" >
+        #{cancelType,jdbcType=INTEGER},
+      </if>
+      <if test="cancelDays != null" >
+        #{cancelDays,jdbcType=INTEGER},
+      </if>
+      <if test="cancelTime != null" >
+        #{cancelTime,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelRemark != null" >
+        #{cancelRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="bookRooms != null" >
+        #{bookRooms,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bookTime != null" >
+        #{bookTime,jdbcType=VARCHAR},
+      </if>
+      <if test="orderCode != null" >
+        #{orderCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.order.entity.po.OrderRestrictPO" >
+    update t_order_restrict
+    <set >
+      <if test="priceplanId != null" >
+        priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="saleDate != null" >
+        sale_date = #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="bookDays != null" >
+        book_days = #{bookDays,jdbcType=INTEGER},
+      </if>
+      <if test="occupancyType != null" >
+        OCCUPANCY_TYPE = #{occupancyType,jdbcType=INTEGER},
+      </if>
+      <if test="occupancyDays != null" >
+        OCCUPANCY_DAYS = #{occupancyDays,jdbcType=INTEGER},
+      </if>
+      <if test="cancelType != null" >
+        CANCEL_TYPE = #{cancelType,jdbcType=INTEGER},
+      </if>
+      <if test="cancelDays != null" >
+        CANCEL_DAYS = #{cancelDays,jdbcType=INTEGER},
+      </if>
+      <if test="cancelTime != null" >
+        CANCEL_TIME = #{cancelTime,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelRemark != null" >
+        CANCEL_REMARK = #{cancelRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="bookRooms != null" >
+        BOOK_ROOMS = #{bookRooms,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        CREATOR = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bookTime != null" >
+        book_time = #{bookTime,jdbcType=VARCHAR},
+      </if>
+      <if test="orderCode != null" >
+        order_code = #{orderCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where restrict_id = #{restrictId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.order.entity.po.OrderRestrictPO" >
+    update t_order_restrict
+    set priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      sale_date = #{saleDate,jdbcType=DATE},
+      book_days = #{bookDays,jdbcType=INTEGER},
+      OCCUPANCY_TYPE = #{occupancyType,jdbcType=INTEGER},
+      OCCUPANCY_DAYS = #{occupancyDays,jdbcType=INTEGER},
+      CANCEL_TYPE = #{cancelType,jdbcType=INTEGER},
+      CANCEL_DAYS = #{cancelDays,jdbcType=INTEGER},
+      CANCEL_TIME = #{cancelTime,jdbcType=VARCHAR},
+      CANCEL_REMARK = #{cancelRemark,jdbcType=VARCHAR},
+      BOOK_ROOMS = #{bookRooms,jdbcType=INTEGER},
+      CREATOR = #{creator,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      book_time = #{bookTime,jdbcType=VARCHAR},
+      order_code = #{orderCode,jdbcType=VARCHAR}
+    where restrict_id = #{restrictId,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.invoice.mapper.SupplyInvoiceItemMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.invoice.domain.SupplyInvoiceItemDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="invoice_id" jdbcType="INTEGER" property="invoiceId" />
+    <result column="business_code" jdbcType="VARCHAR" property="orderCode" />
+    <result column="hotel_name" jdbcType="VARCHAR" property="hotelName" />
+    <result column="room_type_name" jdbcType="VARCHAR" property="roomTypeName" />
+    <result column="rate_plan_name" jdbcType="VARCHAR" property="ratePlanName" />
+    <result column="guest" jdbcType="VARCHAR" property="guest" />
+    <result column="check_in_date" jdbcType="DATE" property="checkInDate" />
+    <result column="check_out_date" jdbcType="DATE" property="checkOutDate" />
+    <result column="room_night" jdbcType="INTEGER" property="roomNight" />
+    <result column="order_create_date" jdbcType="TIMESTAMP" property="orderCreateDate" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+    <result column="receivable_amount" jdbcType="DECIMAL" property="receivableAmount" />
+    <result column="invoice_amount" jdbcType="DECIMAL" property="invoiceAmount" />
+    <result column="bill_name" jdbcType="VARCHAR" property="billName" />
+    <result column="begin_date" jdbcType="DATE" property="beginDate" />
+    <result column="end_date" jdbcType="DATE" property="endDate" />
+    <result column="bill_create_date" jdbcType="TIMESTAMP" property="billCreateDate" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <insert id="saveBatchOrderToInvoice" parameterType="com.fangcang.finance.invoice.request.AddInvoiceItemDTO">
+    INSERT INTO t_fin_supply_invoice_item(
+    invoice_id,
+    business_code,
+    hotel_name,
+    room_type_name,
+    rate_plan_name,
+    guest,
+    check_in_date,
+    check_out_date,
+    room_night,
+    order_create_date,
+    currency,
+    receivable_amount,
+    invoice_amount,
+    bill_name,
+    begin_date,
+    end_date,
+    bill_create_date,
+    creator,
+    create_time)
+    SELECT
+    #{invoiceId},
+    so.supply_order_code,
+    so.hotel_name,
+    so.room_type_name,
+    so.rateplan_name,
+    o.guest_names,
+    so.checkin_date,
+    so.checkout_date,
+    DATEDIFF(so.checkout_date,so.checkin_date) * so.room_num,
+    o.create_time,
+    so.base_currency,
+    so.payable_amount,
+    so.payable_amount-IFNULL(sof.invoice_amount,0),
+    NULL,NULL,NULL,NULL,
+    #{operator},
+    SYSDATE()
+    FROM o_order o,o_supply_order so,o_supply_finance sof
+    WHERE o.id=so.order_id and so.id = sof.supply_order_id
+    AND so.supply_order_code IN
+    <foreach collection="orderCodeList" item="item" open="(" separator="," close=")">#{item}</foreach>
+  </insert>
+
+  <insert id="saveBatchBillToInvoice" parameterType="com.fangcang.finance.invoice.request.AddInvoiceItemDTO">
+    INSERT INTO t_fin_supply_invoice_item(
+    invoice_id,
+    business_code,
+    hotel_name,
+    room_type_name,
+    rate_plan_name,
+    guest,
+    check_in_date,
+    check_out_date,
+    room_night,
+    order_create_date,
+    currency,
+    receivable_amount,
+    invoice_amount,
+    bill_name,
+    begin_date,
+    end_date,
+    bill_create_date,
+    creator,
+    create_time)
+    SELECT
+    #{invoiceId},
+    b.bill_code,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+    bc.currency,
+    bc.receivable_amount,
+    bc.receivable_amount-IFNULL(b.invoice_amount,0),
+    b.bill_name,
+    b.begin_date,
+    b.end_date,
+    b.create_time,
+    #{operator},
+    SYSDATE()
+    FROM t_fin_supply_bill b,t_fin_supply_bill_currency bc
+    WHERE b.id=bc.bill_id AND bc.currency='CNY'
+    AND b.bill_code IN
+    <foreach collection="orderCodeList" item="item" open="(" separator="," close=")">#{item}</foreach>
+  </insert>
+
+  <update id="updateOrderInvoiceAmount" parameterType="com.fangcang.finance.invoice.request.UpdateInvoiceAmountDTO">
+    UPDATE t_fin_supply_invoice_item i,o_supply_finance sof
+    <choose>
+      <when test="type==1">
+        SET sof.invoice_amount = IFNULL(sof.invoice_amount,0) + i.invoice_amount
+      </when>
+      <otherwise>
+        SET sof.invoice_amount = IFNULL(sof.invoice_amount,0) - i.invoice_amount
+      </otherwise>
+    </choose>
+    WHERE i.business_code = sof.supply_order_code
+    AND i.invoice_id=#{invoiceId}
+    <if test="orderCodeList != null and orderCodeList.size > 0">
+      AND i.business_code IN
+      <foreach collection="orderCodeList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+    <if test="invoiceItemIdList != null and invoiceItemIdList.size > 0">
+      AND i.id IN
+      <foreach collection="invoiceItemIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+  </update>
+
+  <update id="updateBillInvoiceAmount" parameterType="com.fangcang.finance.invoice.request.UpdateInvoiceAmountDTO">
+    UPDATE t_fin_supply_invoice_item i,t_fin_supply_bill b
+    <choose>
+      <when test="type==1">
+        SET b.invoice_amount = IFNULL(b.invoice_amount,0) + i.invoice_amount
+      </when>
+      <otherwise>
+        SET b.invoice_amount = IFNULL(b.invoice_amount,0) - i.invoice_amount
+      </otherwise>
+    </choose>
+    WHERE i.business_code = b.bill_code
+    AND i.invoice_id=#{invoiceId}
+    <if test="orderCodeList != null and orderCodeList.size > 0">
+      AND i.business_code IN
+      <foreach collection="orderCodeList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+    <if test="invoiceItemIdList != null and invoiceItemIdList.size > 0">
+      AND i.id IN
+      <foreach collection="invoiceItemIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+  </update>
+
+  <update id="updateBillOrderInvoiceAmount" parameterType="com.fangcang.finance.invoice.request.UpdateInvoiceAmountDTO">
+    UPDATE t_fin_supply_invoice_item i,t_fin_supply_bill b,t_fin_supply_bill_order bo,o_supply_finance sof
+    <choose>
+      <when test="type==1">
+        SET sof.invoice_amount = IFNULL(sof.invoice_amount,0) + bo.receivable_amount
+      </when>
+      <otherwise>
+        SET sof.invoice_amount = IFNULL(sof.invoice_amount,0) - bo.receivable_amount
+      </otherwise>
+    </choose>
+    WHERE i.business_code = b.bill_code AND b.id=bo.bill_id AND bo.order_code=sof.supply_order_code
+    AND i.invoice_id=#{invoiceId}
+    <if test="orderCodeList != null and orderCodeList.size > 0">
+      AND i.business_code IN
+      <foreach collection="orderCodeList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+    <if test="invoiceItemIdList != null and invoiceItemIdList.size > 0">
+      AND i.id IN
+      <foreach collection="invoiceItemIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+  </update>
+
+  <delete id="deleteSupplyInvoiceItem" parameterType="com.fangcang.finance.invoice.request.DeleteInvoiceItemDTO">
+    DELETE FROM t_fin_supply_invoice_item
+    WHERE invoice_id=#{invoiceId}
+    <if test="invoiceItemIdList != null and invoiceItemIdList.size > 0">
+      AND id IN
+      <foreach collection="invoiceItemIdList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+  </delete>
+
+  <select id="querySupplyInvoiceItem" parameterType="com.fangcang.finance.invoice.request.QueryInvoiceItemDTO"
+          resultType="com.fangcang.finance.invoice.response.InvoiceItemDTO">
+    SELECT
+    id,
+    invoice_id invoiceId,
+    business_code businessCode,
+    hotel_name hotelName,
+    room_type_name roomTypeName,
+    rate_plan_name ratePlanName,
+    guest,
+    DATE_FORMAT(check_in_date,"%Y-%m-%d") checkInDate,
+    DATE_FORMAT(check_out_date,"%Y-%m-%d") checkOutDate,
+    room_night roomNight,
+    DATE_FORMAT(order_create_date,"%Y-%m-%d %T") orderCreateDate,
+    currency,
+    receivable_amount receivableAmount,
+    invoice_amount invoiceAmount,
+    bill_name billName,
+    DATE_FORMAT(begin_date,"%Y-%m-%d") beginDate,
+    DATE_FORMAT(end_date,"%Y-%m-%d") endDate,
+    DATE_FORMAT(bill_create_date,"%Y-%m-%d %T") billCreateDate,
+    creator,
+    DATE_FORMAT(create_time,"%Y-%m-%d %T") createTime
+    FROM t_fin_supply_invoice_item ii
+    WHERE ii.invoice_id=#{invoiceId}
+    ORDER BY ii.create_time DESC
+  </select>
+
+  <select id="queryUnInvoiceSupplyOrder" parameterType="com.fangcang.finance.invoice.request.QueryUnInvoiceOrderDTO"
+          resultType="com.fangcang.finance.invoice.response.UnInvoiceSupplyOrderDTO">
+    SELECT
+    so.supply_order_code orderCode,
+    so.hotel_name hotelName,
+    so.room_type_name roomTypeName,
+    so.rateplan_name ratePlanName,
+    o.guest_names guest,
+    DATE_FORMAT(so.checkin_date,"%Y-%m-%d") checkInDate,
+    DATE_FORMAT(so.checkout_date,"%Y-%m-%d") checkOutDate,
+    DATEDIFF(so.checkout_date,so.checkin_date) * so.room_num roomNight,
+    DATE_FORMAT(o.create_time,"%Y-%m-%d %T") orderCreateDate,
+    so.base_currency currency,
+    so.payable_amount receivableAmount,
+    so.payable_amount-IFNULL(sof.invoice_amount,0)invoiceAmount,
+    so.confirm_no confirmNo
+    FROM o_order o,o_supply_order so,o_supply_finance sof
+    WHERE o.id=so.order_id and so.id = sof.supply_order_id AND so.base_currency='CNY' AND o.merchant_code=#{merchantCode}
+    <choose>
+      <when test="dateType==1">
+        <if test="beginDate!=null and beginDate!=''">
+          AND o.create_time >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+        </if>
+      </when>
+      <when test="dateType==2">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkin_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkin_date &lt;= #{endDate}
+        </if>
+      </when>
+      <when test="dateType==3">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkout_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkout_date &lt;= #{endDate}
+        </if>
+      </when>
+      <when test="dateType==4">
+        <if test="beginDate!=null and beginDate!=''">
+          AND sof.settlement_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND sof.settlement_date &lt;= #{endDate}
+        </if>
+      </when>
+    </choose>
+    <if test="orgCode != null">
+      AND so.supply_code=#{orgCode}
+    </if>
+    <if test="orderCode != null and orderCode != ''">
+      AND so.supply_order_code LIKE concat(concat('%',#{orderCode}),'%')
+    </if>
+    <choose>
+      <when test="invoiceStatus==1">
+        AND (sof.invoice_amount IS NULL OR sof.invoice_amount=0)
+      </when>
+      <when test="invoiceStatus==2">
+        AND sof.invoice_amount > 0
+      </when>
+    </choose>
+    ORDER BY o.create_time
+  </select>
+
+  <select id="queryUnInvoiceSupplyBill" parameterType="com.fangcang.finance.invoice.request.QueryUnInvoiceBillDTO"
+          resultType="com.fangcang.finance.invoice.response.UnInvoiceBillDTO">
+    SELECT
+    b.bill_code billCode,
+    b.bill_name billName,
+    DATE_FORMAT(b.begin_date,"%Y-%m-%d") beginDate,
+    DATE_FORMAT(b.end_date,"%Y-%m-%d") endDate,
+    DATE_FORMAT(b.create_time,"%Y-%m-%d %T") billCreateDate,
+    bc.currency,
+    bc.receivable_amount receivableAmount,
+    bc.receivable_amount-IFNULL(b.invoice_amount,0) invoiceAmount
+    FROM t_fin_supply_bill b,t_fin_supply_bill_currency bc
+    WHERE b.id=bc.bill_id AND bc.currency='CNY' AND b.merchant_code=#{merchantCode}
+    <choose>
+      <when test="dateType==1">
+        <if test="beginDate!=null and beginDate!=''">
+          AND b.create_time >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND b.create_time &lt; date_add(#{endDate},interval 1 day)
+        </if>
+      </when>
+      <when test="dateType==2">
+        <if test="beginDate!=null and beginDate!=''">
+          AND b.begin_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND b.end_date &lt;= #{endDate}
+        </if>
+      </when>
+    </choose>
+    <if test="orgCode != null">
+      AND b.org_code=#{orgCode}
+    </if>
+    <if test="billCode != null and billCode != ''">
+      AND b.bill_code LIKE concat(concat('%',#{billCode}),'%')
+    </if>
+    <choose>
+      <when test="invoiceStatus==1">
+        AND (b.invoice_amount IS NULL OR b.invoice_amount=0)
+      </when>
+      <when test="invoiceStatus==2">
+        AND b.invoice_amount > 0
+      </when>
+    </choose>
+    ORDER BY b.create_time
+  </select>
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                            http://www.springframework.org/schema/jee
+                            http://www.springframework.org/schema/jee/spring-jee.xsd">
+
+    <jee:jndi-lookup jndi-name="jdbc/hmmp" id="dataSource_mysql_hmmp"
+                     lookup-on-startup="true">
+    </jee:jndi-lookup>
+
+    <bean id="sqlSessionFactory_mysql_saas" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource_mysql_hmmp"/>
+        <property name="mapperLocations" value="classpath:mybatis/product/*.xml"/>
+        <property name="plugins" ref="pageInterceptor" />
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.travel.hotel.product.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory_mysql_saas"/>
+    </bean>
+    <!--mysql saas end-->
+    
+    <!-- mysql order-->
+    <bean id="sqlSessionFactory_mysql_order" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource_mysql_hmmp"/>
+        <property name="mapperLocations" value="classpath:mybatis/order/*.xml"/>
+        <property name="plugins" ref="pageInterceptor" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.travel.hotel.order.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory_mysql_order"/>
+    </bean>
+    <!--mysql order end-->
+    
+    <!-- mysql channel-->
+    <bean id="sqlSessionFactory_mysql_channel" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource_mysql_hmmp"/>
+        <property name="mapperLocations" value="classpath:mybatis/channel/*.xml"/>
+        <property name="plugins" ref="pageInterceptor" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.travel.channel.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory_mysql_channel"/>
+    </bean>
+    <!--mysql channel end-->
+    
+    <!-- mysql finance-->
+    <bean id="sqlSessionFactory_mysql_finance" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource_mysql_hmmp"/>
+        <property name="mapperLocations" value="classpath:mybatis/finance/*.xml"/>
+        <property name="plugins" ref="pageInterceptor" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.travel.finance.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory_mysql_finance"/>
+    </bean>
+    <!--mysql finance end-->
+
+    <!-- mysql member-->
+    <bean id="sqlSessionFactory_mysql_member" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource_mysql_hmmp"/>
+        <property name="mapperLocations" value="classpath:mybatis/member/*.xml"/>
+        <property name="plugins" ref="pageInterceptor" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.travel.member.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory_mysql_member"/>
+    </bean>
+    <!--mysql member end-->
+    
+    <!-- mysql attachment-->
+    <bean id="sqlSessionFactory_mysql_attachment" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource_mysql_hmmp"/>
+        <property name="mapperLocations" value="classpath:mybatis/attachment/*.xml"/>
+        <property name="plugins" ref="pageInterceptor" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.travel.attachment.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory_mysql_attachment"/>
+    </bean>
+    <!--mysql member end-->
+
+    <bean id="pageInterceptor" class="com.github.pagehelper.PageInterceptor">
+        <property name="properties">
+            <value>
+                helperDialect=mysql
+                reasonable=true
+                supportMethodsArguments=true
+                params=count=countSql
+                autoRuntimeDialect=true
+            </value>
+        </property>
+    </bean>
+
+    <bean id="interfaceLogTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="5" />
+        <property name="maxPoolSize" value="50" />
+        <property name="queueCapacity" value="100" />
+    </bean>
+
+    <bean id="hotelOrderQuotaTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1" />
+        <property name="maxPoolSize" value="20" />
+        <property name="queueCapacity" value="50" />
+    </bean>
+
+</beans>

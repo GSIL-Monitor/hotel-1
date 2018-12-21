@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.hotelinfo.mapper.MeetingRoomMapper">
+
+    <insert id="insertMeetingRoom" parameterType="com.fangcang.hotelinfo.domain.MeetingRoomDO" useGeneratedKeys="true" keyProperty="meetingId">
+        insert into t_meeting_room (hotel_id,
+                                     meeting_name,
+                                     pillar,
+                                     capacity,
+                                     area,
+                                     floor,
+                                     meeting_room_long,
+                                     meeting_room_width,
+                                     meeting_room_high,
+                                     morning_start_time,
+                                     morning_end_time,
+                                     afternoon_start_time,
+                                     afternoon_end_time,
+                                     night_start_time,
+                                     night_end_time,
+                                     allday_start_time,
+                                     allday_end_time,
+                                     remark,
+                                     is_active,
+                                     creator,
+                                     create_time
+                                    )
+                            values (#{hotelId,jdbcType=INTEGER},
+                                    #{meetingName,jdbcType=VARCHAR},
+                                    #{pillar,jdbcType=TINYINT},
+                                    #{capacity,jdbcType=VARCHAR},
+                                    #{area,jdbcType=VARCHAR},
+                                    #{floor,jdbcType=VARCHAR},
+                                    #{meetingRoomLong,jdbcType=VARCHAR},
+                                    #{meetingRoomWidth,jdbcType=VARCHAR},
+                                    #{meetingRoomHigh,jdbcType=VARCHAR},
+                                    #{morningStartTime,jdbcType=VARCHAR},
+                                    #{morningEndTime,jdbcType=VARCHAR},
+                                    #{afternoonStartTime,jdbcType=VARCHAR},
+                                    #{afternoonEndTime,jdbcType=VARCHAR},
+                                    #{nightStartTime,jdbcType=VARCHAR},
+                                    #{nightEndTime,jdbcType=VARCHAR},
+                                    #{allDayStartTime,jdbcType=VARCHAR},
+                                    #{allDayEndTime,jdbcType=VARCHAR},
+                                    #{remark,jdbcType=VARCHAR},
+                                    #{isActive,jdbcType=TINYINT},
+                                    #{creator,jdbcType=VARCHAR},
+                                    NOW()
+                                  )
+    </insert>
+
+    <update id="updateMeetingRoom" parameterType="com.fangcang.hotelinfo.domain.MeetingRoomDO">
+        update t_meeting_room
+        <set>
+            <if test="meetingName != null and '' != meetingName">
+                meeting_name = #{meetingName,jdbcType=VARCHAR},
+            </if>
+            <if test="pillar != null">
+                pillar = #{pillar,jdbcType=TINYINT},
+            </if>
+            <if test="capacity != null and '' != capacity">
+                capacity = #{capacity,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null and '' != area">
+                area = #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="floor != null">
+                floor = #{floor,jdbcType=VARCHAR},
+            </if>
+            <if test="meetingRoomLong != null and '' != meetingRoomLong">
+                meeting_room_long = #{meetingRoomLong,jdbcType=VARCHAR},
+            </if>
+            <if test="meetingRoomWidth != null and '' != meetingRoomWidth">
+                meeting_room_width = #{meetingRoomWidth,jdbcType=VARCHAR},
+            </if>
+            <if test="meetingRoomHigh != null and '' != meetingRoomHigh">
+                meeting_room_high = #{meetingRoomHigh,jdbcType=VARCHAR},
+            </if>
+            <if test="morningStartTime != null and '' != morningStartTime">
+                morning_start_time = #{morningStartTime,jdbcType=VARCHAR},
+            </if>
+            <if test="morningEndTime != null and '' != morningEndTime">
+                morning_end_time = #{morningEndTime,jdbcType=VARCHAR},
+            </if>
+            <if test="afternoonStartTime != null and '' != afternoonStartTime">
+                afternoon_start_time = #{afternoonStartTime,jdbcType=VARCHAR},
+            </if>
+            <if test="afternoonEndTime != null and '' != afternoonEndTime">
+                afternoon_end_time = #{afternoonEndTime,jdbcType=VARCHAR},
+            </if>
+            <if test="nightStartTime != null and '' != nightStartTime">
+                night_start_time = #{nightStartTime,jdbcType=VARCHAR},
+            </if>
+            <if test="nightEndTime != null and '' != nightEndTime">
+                night_end_time = #{nightEndTime,jdbcType=VARCHAR},
+            </if>
+            <if test="allDayStartTime != null and '' != allDayStartTime">
+                allday_start_time = #{allDayStartTime,jdbcType=VARCHAR},
+            </if>
+            <if test="allDayEndTime != null and '' != allDayEndTime">
+                allday_end_time = #{allDayEndTime,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="isActive != null">
+                is_active = #{isActive,jdbcType=TINYINT},
+            </if>
+            <if test="modifier != null and '' != modifier">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            modify_time = NOW()
+        </set>
+        where meeting_id = #{meetingId,jdbcType=INTEGER}
+    </update>
+
+    <resultMap id="BaseResultMap" type="com.fangcang.hotelinfo.domain.MeetingRoomDO">
+        <id column="meeting_id" jdbcType="INTEGER" property="meetingId" />
+        <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+        <result column="meeting_name" jdbcType="VARCHAR" property="meetingName" />
+        <result column="pillar" jdbcType="TINYINT" property="pillar" />
+        <result column="capacity" jdbcType="VARCHAR" property="capacity" />
+        <result column="area" jdbcType="VARCHAR" property="area" />
+        <result column="floor" jdbcType="VARCHAR" property="floor" />
+        <result column="meeting_room_long" jdbcType="VARCHAR" property="meetingRoomLong" />
+        <result column="meeting_room_width" jdbcType="VARCHAR" property="meetingRoomWidth" />
+        <result column="meeting_room_high" jdbcType="VARCHAR" property="meetingRoomHigh" />
+        <result column="morning_start_time" jdbcType="VARCHAR" property="morningStartTime" />
+        <result column="morning_end_time" jdbcType="VARCHAR" property="morningEndTime" />
+        <result column="afternoon_start_time" jdbcType="VARCHAR" property="afternoonStartTime" />
+        <result column="afternoon_end_time" jdbcType="VARCHAR" property="afternoonEndTime" />
+        <result column="night_start_time" jdbcType="VARCHAR" property="nightStartTime" />
+        <result column="night_end_time" jdbcType="VARCHAR" property="nightEndTime" />
+        <result column="allday_start_time" jdbcType="VARCHAR" property="allDayStartTime" />
+        <result column="allday_end_time" jdbcType="VARCHAR" property="allDayEndTime" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="is_active" jdbcType="TINYINT" property="isActive" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+
+        <association property="imageDO" javaType="com.fangcang.hotelinfo.domain.ImageDO"
+            column="{hotelId=hotel_id,meetingId=meeting_id}" select="com.fangcang.hotelinfo.mapper.ImageMapper.queryMeetingRoomMainImage"/>
+
+        <collection property="putTypeDOList" javaType="java.util.List"
+                    ofType="com.fangcang.hotelinfo.domain.PutTypeDO" column="{meetingId=meeting_id}"
+                    select="com.fangcang.hotelinfo.mapper.PutTypeMapper.queryPutTypeByMeetingId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        meeting_id, hotel_id, meeting_name, pillar, capacity, area, floor, meeting_room_long,
+        meeting_room_width, meeting_room_high, morning_start_time, morning_end_time, afternoon_start_time,
+        afternoon_end_time, night_start_time, night_end_time, allday_start_time, allday_end_time,
+        remark, is_active, creator, create_time, modifier, modify_time
+    </sql>
+
+    <select id="queryMeetingRoomList" parameterType="com.fangcang.hotelinfo.request.MeetingRoomListQueryDTO" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_meeting_room
+        <where>
+            is_active = 1
+            <if test="null != meetingId">
+                and meeting_id = #{meetingId,jdbcType=INTEGER}
+            </if>
+            <if test="null != hotelId">
+                and hotel_id = #{hotelId,jdbcType=INTEGER}
+            </if>
+        </where>
+    </select>
+
+    <insert id="batchInsertMeetingRoom" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="meetingId">
+        insert into t_meeting_room (hotel_id,
+                                     meeting_name,
+                                     pillar,
+                                     capacity,
+                                     area,
+                                     floor,
+                                     meeting_room_long,
+                                     meeting_room_width,
+                                     meeting_room_high,
+                                     morning_start_time,
+                                     morning_end_time,
+                                     afternoon_start_time,
+                                     afternoon_end_time,
+                                     night_start_time,
+                                     night_end_time,
+                                     allday_start_time,
+                                     allday_end_time,
+                                     remark,
+                                     is_active,
+                                     creator,
+                                     create_time
+                                     )
+                            values
+                            <foreach collection="list" item="m" separator=",">
+                                (#{m.hotelId,jdbcType=INTEGER},
+                                #{m.meetingName,jdbcType=VARCHAR},
+                                #{m.pillar,jdbcType=TINYINT},
+                                #{m.capacity,jdbcType=VARCHAR},
+                                #{m.area,jdbcType=VARCHAR},
+                                #{m.floor,jdbcType=VARCHAR},
+                                #{m.meetingRoomLong,jdbcType=VARCHAR},
+                                #{m.meetingRoomWidth,jdbcType=VARCHAR},
+                                #{m.meetingRoomHigh,jdbcType=VARCHAR},
+                                #{m.morningStartTime,jdbcType=VARCHAR},
+                                #{m.morningEndTime,jdbcType=VARCHAR},
+                                #{m.afternoonStartTime,jdbcType=VARCHAR},
+                                #{m.afternoonEndTime,jdbcType=VARCHAR},
+                                #{m.nightStartTime,jdbcType=VARCHAR},
+                                #{m.nightEndTime,jdbcType=VARCHAR},
+                                #{m.allDayStartTime,jdbcType=VARCHAR},
+                                #{m.allDayEndTime,jdbcType=VARCHAR},
+                                #{m.remark,jdbcType=VARCHAR},
+                                #{m.isActive,jdbcType=TINYINT},
+                                #{m.creator,jdbcType=VARCHAR},
+                                NOW()
+                                )
+                            </foreach>
+    </insert>
+</mapper>

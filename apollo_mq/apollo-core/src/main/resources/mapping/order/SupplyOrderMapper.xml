@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.SupplyOrderMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.SupplyOrderDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="supply_order_code" jdbcType="VARCHAR" property="supplyOrderCode" />
+    <result column="supply_sum" jdbcType="DECIMAL" property="supplySum" />
+    <result column="base_currency" jdbcType="VARCHAR" property="baseCurrency" />
+    <result column="supply_code" jdbcType="VARCHAR" property="supplyCode" />
+    <result column="supply_name" jdbcType="VARCHAR" property="supplyName" />
+    <result column="balance_method" jdbcType="TINYINT" property="balanceMethod" />
+    <result column="supply_status" jdbcType="TINYINT" property="supplyStatus" />
+    <result column="pay_status" jdbcType="TINYINT" property="payStatus" />
+    <result column="supply_way" jdbcType="TINYINT" property="supplyWay" />
+    <result column="payable_amount" jdbcType="DECIMAL" property="payableAmount" />
+    <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+    <result column="hotel_name" jdbcType="VARCHAR" property="hotelName" />
+    <result column="confirm_no" jdbcType="VARCHAR" property="confirmNo" />
+    <result column="confirm_name" jdbcType="VARCHAR" property="confirmName" />
+    <result column="refuse_reason" jdbcType="VARCHAR" property="refuseReason" />
+    <result column="merchant_bm" jdbcType="VARCHAR" property="merchantBm" />
+    <result column="merchant_pm" jdbcType="VARCHAR" property="merchantPm" />
+    <result column="sale_price_sum" jdbcType="DECIMAL" property="salePriceSum" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="rate" jdbcType="DECIMAL" property="rate" />
+    <result column="checkin_date" jdbcType="DATE" property="checkinDate" />
+    <result column="checkout_date" jdbcType="DATE" property="checkoutDate" />
+    <result column="room_num" jdbcType="INTEGER" property="roomNum" />
+    <result column="room_type_name" jdbcType="VARCHAR" property="roomTypeName" />
+    <result column="rateplan_name" jdbcType="VARCHAR" property="rateplanName" />
+  </resultMap>
+  
+  <select id="queryOrderSupplier" parameterType="java.lang.Integer"
+          resultType="com.fangcang.order.response.OrderSupplierDTO">
+    SELECT DISTINCT o.supply_code supplyCode,o.supply_name,o.base_currency currency
+     FROM o_supply_order o WHERE o.order_id=#{orderId}
+  </select>
+</mapper>

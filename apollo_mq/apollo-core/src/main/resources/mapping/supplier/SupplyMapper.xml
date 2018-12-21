@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.supplier.mapper.SupplyMapper">
+    <resultMap id="BaseResultMap" type="com.fangcang.supplier.domain.SupplyDO">
+        <id column="supply_id" property="supplyId" jdbcType="INTEGER"/>
+        <result column="merchant_id" property="merchantId" jdbcType="INTEGER"/>
+        <result column="supply_code" property="supplyCode" jdbcType="VARCHAR"/>
+        <result column="supply_name" property="supplyName" jdbcType="VARCHAR"/>
+        <result column="city_code" property="cityCode" jdbcType="VARCHAR"/>
+        <result column="city_name" property="cityName" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="merchant_pm" property="merchantPM" jdbcType="INTEGER"/>
+        <result column="merchant_bm" property="merchantBM" jdbcType="INTEGER"/>
+        <result column="merchant_financer" property="merchantFinancer" jdbcType="INTEGER"/>
+        <result column="merchant_op" property="merchantOPStr" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="is_active" property="isActive" jdbcType="TINYINT"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="base_currency" property="baseCurrency" jdbcType="VARCHAR"/>
+        <result column="frequently_use" property="frequentlyUse" jdbcType="TINYINT"/>
+        <result column="finance_phone" property="financePhone" jdbcType="VARCHAR"/>
+        <result column="front_phone" property="frontPhone" jdbcType="VARCHAR"/>
+        <result column="main_phone" property="mainPhone" jdbcType="VARCHAR"/>
+        <result column="deputy_phone" property="deputyPhone" jdbcType="VARCHAR"/>
+        <result column="joint_phone" property="jointPhone" jdbcType="VARCHAR"/>
+        <result column="billing_method" property="billingMethod" jdbcType="INTEGER"/>
+        <result column="customer_level" property="customerLevel" jdbcType="INTEGER"/>
+        <result column="deposit_amount" property="depositAmount" jdbcType="DECIMAL"/>
+        <result column="prepay_balance" property="prepayBalance" jdbcType="DECIMAL"/>
+        <result column="cash_amount" property="cashAmount" jdbcType="DECIMAL"/>
+
+        <result column="can_use_prepay" property="canUsePrepay" jdbcType="INTEGER"/>
+        <result column="finance_date" property="financeDate" jdbcType="VARCHAR"/>
+        <result column="can_manage_product" property="canManageProduct" jdbcType="INTEGER"/>
+        <result column="cooperation_status" property="cooperationStatus" jdbcType="INTEGER"/>
+        <result column="note" property="note" jdbcType="VARCHAR"/>
+
+        <association property="supplyUserDO" javaType="com.fangcang.supplier.domain.SupplyUserDO">
+            <id property="supplyId" column="supply_id" jdbcType="INTEGER"/>
+            <result column="username" property="userName" jdbcType="VARCHAR"/>
+            <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+            <result column="supply_user_id" property="supplyUserId" jdbcType="INTEGER"/>
+        </association>
+
+        <association property="userDO" javaType="com.fangcang.merchant.domain.UserDO">
+            <id column="merchant_bm" property="userId" jdbcType="INTEGER"/>
+            <result column="merchant_id" property="merchantId" jdbcType="INTEGER"/>
+            <result column="real_name2" property="realName" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+    <sql id="Base_Column_List">
+    supply_id, merchant_id, supply_code, supply_name, city_code, city_name, phone, email,
+    merchant_pm, merchant_bm, merchant_financer, merchant_op, create_time, creator, modify_time, 
+    modifier, is_active, address, base_currency, frequently_use, finance_phone, front_phone,
+    main_phone, deputy_phone,joint_phone,customer_level,billing_method, deposit_amount, prepay_balance,cash_amount,
+    can_use_prepay,finance_date,can_manage_product,cooperation_status,note
+  </sql>
+    <!-- 新增供应商-->
+    <insert id="insertSupply" parameterType="com.fangcang.supplier.domain.SupplyDO" useGeneratedKeys="true"
+            keyProperty="supplyId">
+
+        INSERT INTO t_supply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            supply_name,
+            <if test="baseCurrency != null">
+                base_currency,
+            </if>
+            <if test="cityCode != null">
+                city_code,
+            </if>
+            <if test="address != null">
+                address,
+            </if>
+            <if test="merchantPM != null">
+                merchant_pm,
+            </if>
+            <if test="merchantBM != null">
+                merchant_bm,
+            </if>
+            <if test="merchantFinancer != null">
+                merchant_financer,
+            </if>
+            <if test="merchantOPStr != null">
+                merchant_op,
+            </if>
+            <if test="financePhone != null">
+                finance_phone,
+            </if>
+            <if test="frontPhone != null">
+                front_phone,
+            </if>
+            <if test="mainPhone != null">
+                main_phone,
+            </if>
+            <if test="deputyPhone != null">
+                deputy_phone,
+            </if>
+            <if test="jointPhone != null">
+                joint_phone,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="merchantId != null">
+                merchant_id,
+            </if>
+            <if test="billingMethod != null">
+                billing_method,
+            </if>
+            <if test="customerLevel != null">
+                customer_level,
+            </if>
+            <if test="cityName != null">
+                city_name,
+            </if>
+
+            <if test="canUsePrepay != null">
+                can_use_prePay,
+            </if>
+            <if test="financeDate != null">
+                finance_date,
+            </if>
+            <if test="canManageProduct != null">
+                can_manage_product,
+            </if>
+            <if test="cooperationStatus != null">
+                cooperation_status,
+            </if>
+            <if test="note != null">
+                note
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{supplyName,jdbcType=VARCHAR},
+            <if test="baseCurrency != null">
+                #{baseCurrency,jdbcType=VARCHAR},
+            </if>
+            <if test="cityCode != null">
+                #{cityCode,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="merchantPM != null">
+                #{merchantPM,jdbcType=VARCHAR},
+            </if>
+            <if test="merchantBM != null">
+                #{merchantBM,jdbcType=VARCHAR},
+            </if>
+            <if test="merchantFinancer != null">
+                #{merchantFinancer,jdbcType=VARCHAR},
+            </if>
+            <if test="merchantOPStr != null">
+                #{merchantOPStr,jdbcType=VARCHAR},
+            </if>
+            <if test="financePhone != null">
+                #{financePhone,jdbcType=VARCHAR},
+            </if>
+            <if test="frontPhone != null">
+                #{frontPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="mainPhone != null">
+                #{mainPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="deputyPhone != null">
+                #{deputyPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="jointPhone != null">
+                #{jointPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="merchantId != null">
+                #{merchantId,jdbcType=INTEGER},
+            </if>
+            <if test="billingMethod != null">
+                #{billingMethod,jdbcType=VARCHAR},
+            </if>
+            <if test="customerLevel != null">
+                #{customerLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="cityName != null">
+                #{cityName,jdbcType=VARCHAR},
+            </if>
+
+            <if test="canUsePrepay != null">
+                #{canUsePrepay,jdbcType=INTEGER},
+            </if>
+            <if test="financeDate != null">
+                #{financeDate,jdbcType=VARCHAR},
+            </if>
+            <if test="canManageProduct != null">
+                #{canManageProduct,jdbcType=INTEGER},
+            </if>
+            <if test="cooperationStatus != null">
+                #{cooperationStatus,jdbcType=INTEGER},
+            </if>
+            <if test="note != null">
+                #{note,jdbcType=VARCHAR}
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 保存供应商信息 -->
+    <update id="updateSupply" parameterType="com.fangcang.supplier.domain.SupplyDO">
+        update t_supply
+        <set>
+            <if test="supplyName != null">
+                supply_name = #{supplyName,jdbcType=VARCHAR},
+            </if>
+            <if test="baseCurrency != null">
+                base_currency = #{baseCurrency,jdbcType=VARCHAR},
+            </if>
+            <if test="cityCode != null">
+                city_code = #{cityCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cityName != null">
+                city_name = #{cityName,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="merchantPM != null">
+                <choose>
+                    <when test="merchantPM==-1">
+                        merchant_pm = NULL,
+                    </when>
+                    <otherwise>
+                        merchant_pm = #{merchantPM,jdbcType=INTEGER},
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="merchantBM != null">
+                <choose>
+                    <when test="merchantBM==-1">
+                        merchant_bm = NULL,
+                    </when>
+                    <otherwise>
+                        merchant_bm = #{merchantBM,jdbcType=INTEGER},
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="merchantFinancer != null">
+                <choose>
+                    <when test="merchantFinancer==-1">
+                        merchant_financer = NULL,
+                    </when>
+                    <otherwise>
+                        merchant_financer = #{merchantFinancer,jdbcType=INTEGER},
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="merchantOPStr != null">
+                merchant_op = #{merchantOPStr,jdbcType=VARCHAR},
+            </if>
+            <if test="financePhone != null">
+                finance_phone = #{financePhone,jdbcType=VARCHAR},
+            </if>
+            <if test="frontPhone != null">
+                front_phone = #{frontPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="mainPhone != null">
+                main_phone = #{mainPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="deputyPhone != null">
+                deputy_phone = #{deputyPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="jointPhone != null">
+                joint_phone = #{jointPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="billingMethod != null">
+                billing_method = #{billingMethod,jdbcType=VARCHAR},
+            </if>
+            <if test="customerLevel != null">
+                customer_level = #{customerLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="depositAmount != null">
+                deposit_amount = #{depositAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="prepayBalance != null">
+                prepay_balance = #{prepayBalance,jdbcType=DECIMAL},
+            </if>
+            <if test="cashAmount != null">
+                cash_amount = #{cashAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="canUsePrepay != null">
+                can_use_prePay = #{canUsePrepay,jdbcType=INTEGER},
+            </if>
+            <if test="financeDate != null">
+                finance_date = #{financeDate,jdbcType=VARCHAR},
+            </if>
+            <if test="canManageProduct != null">
+                can_manage_product = #{canManageProduct,jdbcType=INTEGER},
+            </if>
+            <if test="cooperationStatus != null">
+                cooperation_status = #{cooperationStatus,jdbcType=INTEGER},
+            </if>
+            <if test="note != null">
+                note = #{note,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where supply_id = #{supplyId,jdbcType=INTEGER}
+    </update>
+
+    <!-- 查询列表 -->
+    <select id="listSupply" resultMap="BaseResultMap"
+            parameterType="com.fangcang.supplier.request.SupplyListQueryRequestDTO">
+        SELECT
+        s.supply_id, s.merchant_id, s.supply_code, s.supply_name, s.city_code, s.city_name, s.phone, s.email,
+        s.merchant_pm, s.merchant_bm, s.merchant_financer, s.merchant_op, s.create_time, s.creator, s.modify_time,
+        s.modifier, s.is_active, s.address, s.base_currency, s.frequently_use, s.finance_phone, s.front_phone,
+        s.deposit_amount,s.cash_amount,
+        s.main_phone, s.deputy_phone, s.joint_phone,s.customer_level,s.billing_method,s.cooperation_status,s.note,u.real_name AS
+        real_name2,su.real_name,su.username
+        FROM t_supply s
+        LEFT JOIN t_user u ON s.merchant_bm=u.id AND u.is_active=1
+        LEFT JOIN t_supply_user su ON
+        s.supply_id = su.supply_id AND
+        su.master=1 AND su.is_active=1
+        WHERE 1=1
+        AND s.merchant_id=#{merchantId}
+        <if test="isActive != null">
+            AND s.is_active = #{isActive,jdbcType=TINYINT}
+        </if>
+        <if test="merchantBMName != null and merchantBMName!=''">
+            AND u.real_name LIKE CONCAT('%',#{merchantBMName},'%')
+        </if>
+        <if test="merchantBM != null">
+            AND s.merchant_bm = #{merchantBM,jdbcType=INTEGER}
+        </if>
+        <if test="cityCode != null and cityCode!=''">
+            AND s.city_code = #{cityCode,jdbcType=VARCHAR}
+        </if>
+        <if test="supplyCode != null and supplyCode!=''">
+            AND s.supply_code= #{supplyCode,jdbcType=VARCHAR}
+        </if>
+        <if test="supplyName != null and supplyName!='' ">
+            AND s.supply_name LIKE CONCAT('%',#{supplyName},'%')
+        </if>
+        <if test="cooperationStatus != null">
+            AND s.cooperation_status=#{cooperationStatus}
+        </if>
+        ORDER BY
+        is_active DESC,
+        frequently_use DESC,
+        supply_id DESC
+    </select>
+
+    <select id="queryAllSupplyList" parameterType="com.fangcang.supplier.request.SupplyListQueryRequestDTO"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_supply s
+        <where>
+            <if test="null != merchantId">
+                and s.merchant_id = #{merchantId,jdbcType=INTEGER}
+            </if>
+            <if test="null != isActive">
+                and s.is_active = #{isActive,jdbcType=INTEGER}
+            </if>
+        </where>
+    </select>
+
+    <!-- 获取总记录数 -->
+    <select id="getToalCount" resultType="java.lang.Long">
+        SELECT COUNT(1) FROM t_supply
+    </select>
+
+    <!--设为常用 -->
+    <update id="setFrequentlyUse" parameterType="com.fangcang.supplier.domain.SupplyDO">
+        UPDATE t_supply
+        <set>
+            <if test="frequentlyUse != null">
+                frequently_use = #{frequentlyUse,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE supply_id = #{supplyId,jdbcType=INTEGER}
+    </update>
+    <!--设置是否停用 -->
+    <update id="setActive" parameterType="com.fangcang.supplier.domain.SupplyDO">
+        UPDATE t_supply
+        <set>
+            <if test="isActive != null">
+                is_active = #{isActive,jdbcType=TINYINT},
+            </if>
+            <if test="frequentlyUse != null">
+                frequently_use = #{frequentlyUse,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE supply_id = #{supplyId,jdbcType=INTEGER}
+    </update>
+
+    <!-- 查询常用供应商列表 -->
+    <select id="queryCommonSupplyList" parameterType="com.fangcang.supplier.request.CommonSupplyListResquestDTO"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_supply WHERE
+        merchant_id = #{merchantId}
+        <if test="null!=isActive">
+            AND is_active =#{isActive,jdbcType=TINYINT}
+        </if>
+        <if test="supplyName!=null and supplyName!=''">
+            AND supply_name LIKE CONCAT('%',#{supplyName},'%')
+        </if>
+        ORDER BY
+        is_active DESC,
+        frequently_use DESC,
+        supply_id DESC
+    </select>
+
+    <!--根据supplyId查询供应商编码-->
+    <select id="getSupplyCodeById" parameterType="java.lang.Long" resultType="java.lang.String">
+        SELECT supply_code FROM t_supply WHERE supply_id = #{supplyId,jdbcType=INTEGER}
+    </select>
+
+    <resultMap id="BaseResultMap2" type="com.fangcang.supplier.domain.SupplyDO">
+        <id column="supply_id" property="supplyId" jdbcType="INTEGER"/>
+        <result column="merchant_id" property="merchantId" jdbcType="INTEGER"/>
+        <result column="supply_code" property="supplyCode" jdbcType="VARCHAR"/>
+        <result column="supply_name" property="supplyName" jdbcType="VARCHAR"/>
+        <result column="city_code" property="cityCode" jdbcType="VARCHAR"/>
+        <result column="city_name" property="cityName" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="merchant_pm" property="merchantPM" jdbcType="INTEGER"/>
+        <result column="merchant_bm" property="merchantBM" jdbcType="INTEGER"/>
+        <result column="merchant_financer" property="merchantFinancer" jdbcType="INTEGER"/>
+        <result column="merchant_op" property="merchantOPStr" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="is_active" property="isActive" jdbcType="TINYINT"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="base_currency" property="baseCurrency" jdbcType="VARCHAR"/>
+        <result column="frequently_use" property="frequentlyUse" jdbcType="TINYINT"/>
+        <result column="finance_phone" property="financePhone" jdbcType="VARCHAR"/>
+        <result column="front_phone" property="frontPhone" jdbcType="VARCHAR"/>
+        <result column="main_phone" property="mainPhone" jdbcType="VARCHAR"/>
+        <result column="deputy_phone" property="deputyPhone" jdbcType="VARCHAR"/>
+        <result column="joint_phone" property="jointPhone" jdbcType="VARCHAR"/>
+        <result column="billing_method" property="billingMethod" jdbcType="INTEGER"/>
+        <result column="customer_level" property="customerLevel" jdbcType="INTEGER"/>
+        <result property="merchantPMName" column="merchantPMName"/>
+        <result property="merchantBMName" column="merchantBMName"/>
+        <result property="merchantFinancerName" column="merchantFinancerName"/>
+        <result property="merchantOPName" column="merchantOPName"/>
+        <result property="depositAmount" column="deposit_amount"/>
+        <result property="prepayBalance" column="prepay_balance"/>
+        <result column="cash_amount" property="cashAmount" jdbcType="DECIMAL"/>
+
+        <result column="can_use_prepay" property="canUsePrepay" jdbcType="INTEGER"/>
+        <result column="finance_date" property="financeDate" jdbcType="VARCHAR"/>
+        <result column="can_manage_product" property="canManageProduct" jdbcType="INTEGER"/>
+        <result column="cooperation_status" property="cooperationStatus" jdbcType="INTEGER"/>
+        <result column="note" property="note" jdbcType="VARCHAR"/>
+
+        <association property="masterAccount" javaType="com.fangcang.supplier.dto.MasterAccountDTO"
+                     column="supply_id"
+                     select="com.fangcang.supplier.mapper.SupplyUserMapper.selectMasterUser"/>
+
+        <collection property="userList" ofType="com.fangcang.supplier.domain.SupplyUserDO"
+                    javaType="java.util.ArrayList"
+                    column="supply_id" select="com.fangcang.supplier.mapper.SupplyUserMapper.selectUserListBySupplyId"/>
+
+        <collection property="bankCardList" ofType="com.fangcang.supplier.domain.SupplyBankCardDO"
+                    javaType="java.util.ArrayList"
+                    column="supply_id"
+                    select="com.fangcang.supplier.mapper.SupplyBankCardMapper.selectBankCardListBySupplyId"/>
+
+        <collection property="visitList" ofType="com.fangcang.supplier.domain.SupplyVisitDO"
+                    javaType="java.util.ArrayList"
+                    column="supply_id"
+                    select="com.fangcang.supplier.mapper.SupplyVisitMapper.selectVisitListBySupplyId"/>
+        <collection property="contractFileList" ofType="com.fangcang.supplier.domain.SupplyContractFileDO"
+                    javaType="java.util.ArrayList"
+                    column="supply_id"
+                    select="com.fangcang.supplier.mapper.SupplyContractMapper.selectContractBySupplyId"/>
+    </resultMap>
+
+    <!--查询单个供应商详情-->
+    <select id="selectSingleSupplyInfo" resultMap="BaseResultMap2"
+            parameterType="com.fangcang.supplier.request.SingleUserRequestDTO">
+        SELECT
+        <include refid="Base_Column_List"/>,
+        (SELECT u.real_name FROM t_user u WHERE u.id=merchant_pm )AS merchantPMName ,
+        (SELECT u.real_name FROM t_user u WHERE u.id=merchant_bm )AS merchantBMName ,
+        (SELECT u.real_name FROM t_user u WHERE u.id=merchant_financer)AS merchantFinancerName
+        FROM t_supply WHERE 1=1
+        <if test="null!=supplyId">
+            AND supply_id=#{supplyId,jdbcType=INTEGER}
+        </if>
+        <if test="null!=supplyCode and ''!=supplyCode">
+            AND supply_code=#{supplyCode,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+
+    <update id="supplyCashRecharge" parameterType="com.fangcang.supplier.request.SupplyCashRechargeDTO">
+        UPDATE t_supply s set s.cash_amount=IFNULL(s.cash_amount,0)+#{amount} WHERE s.supply_id=#{supplyId}
+    </update>
+    <update id="supplyDepositRecharge" parameterType="com.fangcang.supplier.request.SupplyDepositRechargeDTO">
+        UPDATE t_supply s set s.deposit_amount=IFNULL(s.deposit_amount,0)+#{amount} WHERE s.supply_id=#{supplyId}
+    </update>
+</mapper>

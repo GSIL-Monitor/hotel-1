@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.order.dao.OrderQuotaLogPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.order.entity.po.OrderQuotaLogPO" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="sale_date" property="saleDate" jdbcType="TIMESTAMP" />
+    <result column="quota_num" property="quotaNum" jdbcType="INTEGER" />
+    <result column="order_code" property="orderCode" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+    <result column="op_type" property="opType" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.travel.hotel.order.entity.po.OrderQuotaLogPO" extends="BaseResultMap" >
+    <result column="pricePlan_id" property="priceplanId" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, sale_date, quota_num, order_code, create_date, modify_date, op_type
+  </sql>
+  <sql id="Blob_Column_List" >
+    pricePlan_id
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_order_quota_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_order_quota_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_order_quota_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_order_quota_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPOExample" >
+    delete from t_order_quota_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPO" >
+    insert into t_order_quota_log (id, sale_date, quota_num, 
+      order_code, create_date, modify_date, 
+      op_type, pricePlan_id)
+    values (#{id,jdbcType=BIGINT}, #{saleDate,jdbcType=TIMESTAMP}, #{quotaNum,jdbcType=INTEGER}, 
+      #{orderCode,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{modifyDate,jdbcType=TIMESTAMP}, 
+      #{opType,jdbcType=VARCHAR}, #{priceplanId,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPO" >
+    insert into t_order_quota_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="saleDate != null" >
+        sale_date,
+      </if>
+      <if test="quotaNum != null" >
+        quota_num,
+      </if>
+      <if test="orderCode != null" >
+        order_code,
+      </if>
+        create_date,
+        modify_date,
+      <if test="opType != null" >
+        op_type,
+      </if>
+      <if test="priceplanId != null" >
+        pricePlan_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="saleDate != null" >
+        #{saleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="quotaNum != null" >
+        #{quotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="orderCode != null" >
+        #{orderCode,jdbcType=VARCHAR},
+      </if>
+        now(),
+        now(),
+      <if test="opType != null" >
+        #{opType,jdbcType=VARCHAR},
+      </if>
+      <if test="priceplanId != null" >
+        #{priceplanId,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPOExample" resultType="java.lang.Integer" >
+    select count(*) from t_order_quota_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_order_quota_log
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.saleDate != null" >
+        sale_date = #{record.saleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.quotaNum != null" >
+        quota_num = #{record.quotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderCode != null" >
+        order_code = #{record.orderCode,jdbcType=VARCHAR},
+      </if>
+        modify_date = now(),
+      <if test="record.opType != null" >
+        op_type = #{record.opType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.priceplanId != null" >
+        pricePlan_id = #{record.priceplanId,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update t_order_quota_log
+    set id = #{record.id,jdbcType=BIGINT},
+      sale_date = #{record.saleDate,jdbcType=TIMESTAMP},
+      quota_num = #{record.quotaNum,jdbcType=INTEGER},
+      order_code = #{record.orderCode,jdbcType=VARCHAR},
+      modify_date = now(),
+      op_type = #{record.opType,jdbcType=VARCHAR},
+      pricePlan_id = #{record.priceplanId,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_order_quota_log
+    set id = #{record.id,jdbcType=BIGINT},
+      sale_date = #{record.saleDate,jdbcType=TIMESTAMP},
+      quota_num = #{record.quotaNum,jdbcType=INTEGER},
+      order_code = #{record.orderCode,jdbcType=VARCHAR},
+      modify_date = now(),
+      op_type = #{record.opType,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPO" >
+    update t_order_quota_log
+    <set >
+      <if test="saleDate != null" >
+        sale_date = #{saleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="quotaNum != null" >
+        quota_num = #{quotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="orderCode != null" >
+        order_code = #{orderCode,jdbcType=VARCHAR},
+      </if>
+        modify_date = now(),
+      <if test="opType != null" >
+        op_type = #{opType,jdbcType=VARCHAR},
+      </if>
+      <if test="priceplanId != null" >
+        pricePlan_id = #{priceplanId,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPO" >
+    update t_order_quota_log
+    set sale_date = #{saleDate,jdbcType=TIMESTAMP},
+      quota_num = #{quotaNum,jdbcType=INTEGER},
+      order_code = #{orderCode,jdbcType=VARCHAR},
+      modify_date = now(),
+      op_type = #{opType,jdbcType=VARCHAR},
+      pricePlan_id = #{priceplanId,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPO" >
+    update t_order_quota_log
+    set sale_date = #{saleDate,jdbcType=TIMESTAMP},
+      quota_num = #{quotaNum,jdbcType=INTEGER},
+      order_code = #{orderCode,jdbcType=VARCHAR},
+      modify_date = now(),
+      op_type = #{opType,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="queryUsedQuotaOrderList" parameterType="com.travel.hotel.order.entity.po.OrderQuotaLogPO"
+          resultType="com.travel.hotel.order.entity.po.UsedQuotaPO">
+
+    select a.order_code orderCode, a.pricePlan_id pricePlanId,a.sale_date saleDate,o.agent_code agentCode,o.agent_name agentName,(0-a.quota_num) rooms
+      from t_order o ,
+         (select order_code, pricePlan_id ,sale_date ,sum(quota_num) quota_num
+            FROM t_order_quota_log
+           where pricePlan_id = #{priceplanId,jdbcType=BIGINT}
+           and sale_date = #{saleDate,jdbcType=DATE}
+        group by order_code, pricePlan_id,sale_date) a
+    where o.ORDER_CODE = a.order_code
+
+  </select>
+</mapper>

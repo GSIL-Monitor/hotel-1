@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.supplier.mapper.SupplyCreditItemMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.supplier.domain.SupplyCreditItemDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="supply_id" jdbcType="INTEGER" property="supplyId" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <select id="querySupplyOrderDeductCredit" parameterType="com.fangcang.supplier.request.QuerySupplyOrderDeductCreditDTO"
+          resultType="com.fangcang.supplier.response.SupplyOrderDeductCreditDTO">
+    SELECT SUM(IF(type = 1, amount, - amount))deductAmount FROM t_supply_credit_item i WHERE i.content=#{orderCode}
+  </select>
+</mapper>

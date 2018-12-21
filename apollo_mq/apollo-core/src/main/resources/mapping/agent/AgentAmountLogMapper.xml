@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.agent.mapper.AgentAmountLogMapper">
+    <resultMap id="BaseResultMap" type="com.fangcang.agent.domain.AgentAmountLogDO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="agent_id" property="agentId" jdbcType="INTEGER"/>
+        <result column="amount" property="amount" jdbcType="DECIMAL"/>
+        <result column="amout_motified" property="amoutMotified" jdbcType="DECIMAL"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, agent_id,amount, amout_motified, creator, create_time
+  </sql>
+
+    <!--新增一条分销商额度调整日志-->
+    <insert id="insertAmountLog" parameterType="com.fangcang.agent.domain.AgentAmountLogDO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_agent_amount_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            agent_id,
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="amoutMotified != null">
+                amout_motified,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{agentId,jdbcType=INTEGER},
+            <if test="amount != null">
+                #{amount,jdbcType=DECIMAL},
+            </if>
+            <if test="amoutMotified != null">
+                #{amoutMotified,jdbcType=DECIMAL},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            NOW()
+        </trim>
+    </insert>
+
+    <!--查询分销商额度调整日志列表-->
+    <select id="queryAgentAmountLogList" parameterType="com.fangcang.agent.request.GetAgentAmountLogRequestDTO"
+            resultType="com.fangcang.agent.dto.AgentAmountLogDTO">
+        SELECT
+        id, agent_id agentId,amount, amout_motified amoutMotified, creator, create_time createTime
+        FROM t_agent_amount_log
+        WHERE agent_id=#{agentId,jdbcType=INTEGER}
+    </select>
+</mapper>

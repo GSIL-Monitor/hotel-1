@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.merchant.mapper.MerchantMapper">
+
+    <select id="queryMerchant" parameterType="com.fangcang.merchant.request.QueryMerchantDTO"
+            resultType="com.fangcang.merchant.dto.MerchantDTO">
+        SELECT
+        merchant_id merchantId,
+        merchant_code merchantCode,
+        merchant_name merchantName,
+        address,
+        phone,
+        fax,
+        domain,
+        merchant_currency merchantCurrency,
+        creator,
+        create_time createTime,
+        modifier,
+        modify_time modifyTime,
+        system_name systemName,
+        second_domain secondDomain,
+        ebk_domain ebkDomain,
+        ebk_name ebkName
+        FROM t_merchant m
+        WHERE 1=1
+        <if test="merchantId != null">
+            AND m.merchant_id=#{merchantId}
+        </if>
+        <if test="merchantCode != null and merchantCode!='' ">
+            AND m.merchant_code=#{merchantCode}
+        </if>
+        <if test="domain != null and domain!='' ">
+            AND (m.domain=#{domain} or m.second_domain=#{domain})
+        </if>
+        <if test="ebkDomain != null and ebkDomain!='' ">
+            AND  m.ebk_domain = #{ebkDomain}
+        </if>
+    </select>
+</mapper>

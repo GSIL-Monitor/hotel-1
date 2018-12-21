@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.bill.mapper.SupplyBillImportMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.bill.domain.SupplyBillImportDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="import_no" jdbcType="INTEGER" property="importNo" />
+    <result column="bill_id" jdbcType="INTEGER" property="billId" />
+    <result column="channel_code" jdbcType="VARCHAR" property="channelCode" />
+    <result column="customer_order_code" jdbcType="VARCHAR" property="customerOrderCode" />
+    <result column="order_sum" jdbcType="DECIMAL" property="orderSum" />
+    <result column="order_code" jdbcType="VARCHAR" property="orderCode" />
+    <result column="is_match" jdbcType="INTEGER" property="isMatch" />
+    <result column="fail_reason" jdbcType="VARCHAR" property="failReason" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <select id="queryImportNo" resultType="java.lang.Integer">
+    SELECT IFNULL(MAX(i.import_no),0)+1 FROM t_fin_supply_bill_import i
+  </select>
+
+  <update id="updateAutoMatchResult" parameterType="java.lang.Integer">
+    UPDATE t_fin_supply_bill_import i
+	LEFT JOIN
+		(SELECT so.supply_order_code order_code,
+                  so.hotel_name,
+                  so.checkin_date,
+                  so.checkout_date,
+                  o.guest_names,
+                  so.confirm_no,
+                  so.payable_amount receivable_amount,
+                  osf.settlement_amount,
+                  osf.account_status
+			FROM o_order o INNER JOIN o_supply_order so ON o.id=so.order_id
+					INNER JOIN o_supply_finance osf ON so.id=osf.supply_order_id)o
+			ON i.hotel_name = o.hotel_name
+			AND STR_TO_DATE(i.checkin_date,'%Y-%m-%d')=o.checkin_date
+			AND STR_TO_DATE(i.checkout_date,'%Y-%m-%d')=o.checkout_date
+			AND o.guest_names regexp i.guest
+			AND (i.confirm_no IS NULL OR i.confirm_no=o.confirm_no)
+    SET i.is_match=
+    (CASE WHEN o.order_code IS NULL THEN
+    2
+    WHEN i.order_sum-o.receivable_amount != 0 THEN
+    2
+    WHEN o.account_status =2 THEN
+    2
+    ELSE
+    1
+    END),
+    i.fail_reason=
+    (CASE WHEN o.order_code IS NULL THEN
+    '未找到订单'
+    WHEN i.order_sum-o.receivable_amount != 0 THEN
+    '价格不符'
+    WHEN o.account_status =2 THEN
+    '已纳入其他账单'
+    ELSE
+    NULL
+    END),
+    i.order_code=o.order_code
+    WHERE i.import_no=#{importNo}
+  </update>
+
+  <select id="queryAutoMatchResult" parameterType="java.lang.Integer"
+          resultType="com.fangcang.finance.bill.response.BillAutoMatchResultDTO">
+    SELECT
+    COUNT(id) totalCount,
+    sum(IF(is_match = 1, 1, 0)) AS matchCount,
+    sum(IF(is_match = 2, 1, 0)) AS unMatchCount,
+    COUNT(bill_id) importCount
+    FROM
+    t_fin_supply_bill_import i
+    WHERE i.import_no=#{importNo}
+  </select>
+
+  <select id="querySupplyBillImport" parameterType="com.fangcang.finance.bill.request.QuerySupplyBillImportDTO"
+          resultType="com.fangcang.finance.bill.response.SupplyBillImportDTO">
+    SELECT
+    i.bill_id billId,
+    i.confirm_no confirmNo,
+    i.order_sum orderSum,
+    i.is_match isMatch,
+    i.fail_reason failReason,
+    so.base_currency currency,
+    so.id orderId,
+    so.supply_order_code orderCode,
+    i.hotel_name hotelName,
+    i.room_type_name roomTypeName,
+    i.rateplan_name ratePlanName,
+    i.guest,
+    i.checkin_date checkInDate,
+    i.checkout_date checkOutDate,
+    DATEDIFF(STR_TO_DATE(i.checkout_date,'%Y-%m-%d'),STR_TO_DATE(i.checkin_date,'%Y-%m-%d')) nightNum,
+    so.room_num roomNum,
+    so.payable_amount receivableAmount,
+    f.settlement_amount paidinAmount,
+    so.payable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0) currPaidinAmount,
+    so.balance_method balanceMethod
+    FROM
+    t_fin_supply_bill_import i
+    LEFT JOIN o_supply_order so ON i.order_code=so.supply_order_code LEFT JOIN o_order o ON so.order_id=o.id
+    LEFT JOIN o_supply_finance f ON so.id = f.supply_order_id
+    LEFT JOIN
+      (SELECT
+      foi.order_code,
+      SUM(foi.amount)noticeAmount
+      FROM
+      t_fin_supply_finance_order fo,
+      t_fin_supply_finance_order_item foi
+      WHERE
+      fo.id = foi.finance_order_id
+      AND fo.finance_status=0
+      GROUP BY foi.order_code)tmp ON so.supply_order_code=tmp.order_code
+    WHERE 1=1 AND i.import_no=#{importNo}
+    <choose>
+      <when test="dateType==2">
+        <if test="beginDate!=null and beginDate!=''">
+          AND i.checkin_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND i.checkin_date &lt;= #{endDate}
+        </if>
+      </when>
+      <when test="dateType==3">
+        <if test="beginDate!=null and beginDate!=''">
+          AND i.checkout_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND i.checkout_date &lt;= #{endDate}
+        </if>
+      </when>
+    </choose>
+    <if test="hotelName != null and hotelName != ''">
+      AND i.hotel_name=#{hotelName}
+    </if>
+    <if test="guest != null and guest != ''">
+      AND i.guest LIKE concat(concat('%',#{guest}),'%')
+    </if>
+    <choose>
+      <when test="matchStatus==1">
+        AND i.is_match=1
+      </when>
+      <when test="matchStatus==2">
+        AND i.is_match=2
+      </when>
+    </choose>
+  </select>
+
+  <insert id="addMatchedOrderToBill" parameterType="com.fangcang.finance.bill.request.AddMatchedOrderDTO">
+    INSERT INTO t_fin_supply_bill_order (
+    bill_id,
+    order_id,
+    order_code,
+    hotel_name,
+    room_type_name,
+    rate_plan_name,
+    guest,
+    check_in_date,
+    check_out_date,
+    room_night,
+    currency,
+    customer_order_code,
+    receivable_amount,
+    paidin_amount,
+    curr_paidin_amount,
+    order_create_date,
+    balance_method,
+    order_item_count,
+    creator,
+    create_time
+    ) SELECT
+    #{billId},
+    so.id,
+    so.supply_order_code,
+    so.hotel_name,
+    so.room_type_name,
+    so.rateplan_name,
+    o.guest_names,
+    so.checkin_date,
+    so.checkout_date,
+    DATEDIFF(so.checkout_date,so.checkin_date) * so.room_num,
+    so.base_currency,
+    NULL,
+    so.payable_amount,
+    f.settlement_amount,
+    so.payable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0),
+    o.create_time orderCreateDate,
+    so.balance_method,
+    0,
+    #{operator},
+    SYSDATE()
+    FROM t_fin_supply_bill_import i INNER JOIN o_supply_order so ON i.order_code=so.supply_order_code INNER JOIN o_order o ON so.order_id=o.id
+    INNER JOIN o_supply_finance f ON so.id = f.supply_order_id
+    LEFT JOIN
+    (SELECT
+    foi.order_code,
+    SUM(foi.amount)noticeAmount
+    FROM
+    t_fin_supply_finance_order fo,
+    t_fin_supply_finance_order_item foi
+    WHERE
+    fo.id = foi.finance_order_id
+    AND fo.finance_status=0
+    GROUP BY foi.order_code)tmp ON so.supply_order_code=tmp.order_code
+    WHERE so.supply_status IN (3,4)
+    AND f.account_status IN (0,1)
+    AND i.is_match=1
+    AND i.bill_id IS NULL
+    AND i.import_no=#{importNo}
+  </insert>
+
+  <delete id="deleteSupplyBillImport" parameterType="java.lang.Integer">
+    DELETE FROM t_fin_supply_bill_import WHERE import_no=#{importNo}
+  </delete>
+</mapper>

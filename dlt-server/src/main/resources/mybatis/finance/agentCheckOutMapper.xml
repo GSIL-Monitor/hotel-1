@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.finance.dao.AgentCheckOutMapper">
+
+	<!-- 查询分销商出账 -->
+	<select id="queryAgentCheckOutList" resultType="com.travel.finance.entity.OrgCheckOut" parameterType="com.travel.common.dto.finance.query.AgentCheckOutQueryDTO">
+		select
+		  a.agent_code     orgCode,
+		  a.agent_name     orgName,
+		  a.sale_currency  currency,
+		  a.receivable     receivable,
+		  a.actualreceived actualReceived,
+		  a.unreceivable   unreceivable
+		from (
+		       select
+		         o.agent_code,
+		         o.agent_name,
+		         o.sale_currency,
+		         sum(o.receivable)                          receivable,
+		         sum(o.actual_received)                     actualreceived,
+		         sum(o.receivable) - sum(o.actual_received) unreceivable
+		       from (
+		              select
+		                t.order_code,
+		                t.agent_code,
+		                t.agent_name,
+		                t.sale_currency,
+		                t.order_state,
+		                t.supply_code,
+		                t.supply_name,
+		                t.pay_method,
+		                t.guest_name,
+		                t.checkin_date,
+		                t.checkout_date,
+		                t.create_date,
+		                t.dept_no,
+				        t.dept_name,
+		                case when t.pay_method = 'pay'
+		                  then 0 - ifnull(t.agent_commission, 0)
+		                else ifnull(t.receivable, 0) end      receivable,
+		                ifnull(t.actual_received, 0)          actual_received
+		              from t_order t) o, t_order_product op
+		       <where>
+		       		 o.order_code = op.order_code
+		       		 and o.receivable != o.actual_received
+		       		 <if test="orderStateList != null and orderStateList.size() > 0">
+		             	and o.order_state in <foreach collection="orderStateList" index="index" item="item" open="(" separator="," close=")">#{item}</foreach>
+		             </if>
+		             <if test="agentCode != null and agentCode != ''">
+		             	and o.agent_code = #{agentCode}
+		             </if>
+		             <if test="agentCode == null or agentCode == ''">
+		             	<if test="agentName != null and agentName != ''">
+		             		and o.agent_name like concat('%',#{agentName},'%')
+		             	</if>
+		             </if>
+		             <if test="supplyCode != null and supplyCode != ''">
+		             	and o.supply_code = #{supplyCode}
+		             </if>
+		             <if test="supplyCode == null or supplyCode == ''">
+		             	<if test="supplyName != null and supplyName != ''">
+		             		and o.supply_name like concat('%',#{supplyName},'%')
+		             	</if>
+		             </if>
+		             <if test="deptNo != null and deptNo != ''">
+		             	and o.dept_no = #{deptNo}
+		             </if>
+		             <if test="deptNo == null or deptNo == ''">
+		             	<if test="deptName != null and deptName != ''">
+		             		and o.dept_name like concat('%',#{deptName},'%')
+		             	</if>
+		             </if>
+		             <if test="currency != null and currency != ''">
+		             	and o.sale_currency = #{currency}
+		             </if>
+		             <if test="payMethod != null and payMethod != ''">
+		             	and o.pay_method = #{payMethod}
+		             </if>
+		             <if test="orderCode != null and orderCode != ''">
+		             	and o.order_code like concat('%',#{orderCode},'%')
+		             </if>
+		             <if test="billState != null">
+		             	and o.order_code in (select t.order_code from t_order_day_price t where ifnull(t.order_bill_status, 0) = #{billState} group by t.order_code)
+		             </if>
+		             <if test="hotelId != null">
+		             	and op.hotel_id = #{hotelId}
+		             </if>
+		             <if test="hotelId == null">
+		             	<if test="hotelName != null and hotelName != ''">
+		             		and op.hotel_name like concat('%',#{hotelName},'%')
+		             	</if>
+		             </if>
+		             <if test="guestName != null and guestName != ''">
+		             	and o.guest_name like concat('%',#{guestName},'%')
+		             </if>
+		             <if test="dateType == 1">
+			             <if test="beginDate != null and beginDate != ''">
+		             		and o.order_code in (select t.order_code from t_order_day_price t where cast(t.sale_date as date) >= cast(#{beginDate} as date) group by t.order_code)
+			             </if>
+			             <if test="endDate != null and endDate != ''">
+			             	<![CDATA[and o.order_code in (select t.order_code from t_order_day_price t where cast(t.sale_date as date) <= cast(#{endDate} as date) group by t.order_code)]]>
+			             </if>
+		             </if>
+		             <if test="dateType == 2">
+			             <if test="beginDate != null and beginDate != ''">
+			             	and cast(o.checkin_date as date) >= cast(#{beginDate} as date)
+			             </if>
+			             <if test="endDate != null and endDate != ''">
+			             	<![CDATA[and cast(o.checkin_date as date) <= cast(#{endDate} as date)]]>
+			             </if>
+		             </if>
+		             <if test="dateType == 3">
+			             <if test="beginDate != null and beginDate != ''">
+			             	and cast(o.checkout_date as date) >= cast(#{beginDate} as date)
+			             </if>
+			             <if test="endDate != null and endDate != ''">
+			             	<![CDATA[and cast(o.checkout_date as date) <= cast(#{endDate} as date)]]>
+			             </if>
+		             </if>
+		             <if test="dateType == 4">
+			             <if test="beginDate != null and beginDate != ''">
+			             	and cast(o.create_date as date) >= cast(#{beginDate} as date)
+			             </if>
+			             <if test="endDate != null and endDate != ''">
+			             	<![CDATA[and cast(o.create_date as date) <= cast(#{endDate} as date)]]>
+			             </if>
+		             </if>
+		       </where>
+		       group by o.agent_code, o.agent_name, o.sale_currency) a
+		<where>
+			1 = 1
+			<if test="isGreaterZero == true">
+				and a.unreceivable != 0
+			</if>
+		</where>
+		order by a.unreceivable desc
+	</select>
+	
+	<!-- 查询分销商每日小结 -->
+	<select id="queryAgentDayCheckOutList" resultType="com.travel.finance.entity.DayCheckOut" parameterType="com.travel.common.dto.finance.query.AgentCheckOutQueryDTO">
+		select * from (
+			select
+			  a.sale_date                               saledate,
+			  sum(a.rooms)                              rooms,
+			  sum(a.sale_b_price)                       receivable,
+			  sum(a.actual_received)                    actualreceived,
+			  sum(a.sale_b_price - a.actual_received) unreceivable
+			from (
+			       select
+			         odp.sale_date,
+			         odp.rooms,
+			         case when o.pay_method = 'pay'
+			           then 0 - odp.agent_commission
+			         else odp.sale_b_price end    sale_b_price,
+			         odp.actual_received          actual_received
+			       from t_order o, t_order_product op, (
+			                                             select
+			                                               t.op_id,
+			                                               t.sale_date,
+			                                               ifnull(t.rooms, 0)                             rooms,
+			                                               ifnull(t.sale_b_price, 0) * ifnull(t.rooms, 0) sale_b_price,
+			                                               ifnull(t.actual_received, 0)                   actual_received,
+			                                               ifnull(t.agent_commission, 0)				  agent_commission
+			                                             from t_order_day_price t) odp
+			<where>
+				 o.order_code = op.order_code 
+				 and op.opid = odp.op_id
+				 <if test="orderStateList != null and orderStateList.size() > 0">
+	             	and o.order_state in <foreach collection="orderStateList" index="index" item="item" open="(" separator="," close=")">#{item}</foreach>
+	             </if>
+	             <if test="agentCode != null and agentCode != ''">
+	             	and o.agent_code = #{agentCode}
+	             </if>
+	             <if test="agentCode == null or agentCode == ''">
+	             	<if test="agentName != null and agentName != ''">
+	             		and o.agent_name like concat('%',#{agentName},'%')
+	             	</if>
+	             </if>
+	             <if test="supplyCode != null and supplyCode != ''">
+	             	and o.supply_code = #{supplyCode}
+	             </if>
+	             <if test="supplyCode == null or supplyCode == ''">
+	             	<if test="supplyName != null and supplyName != ''">
+	             		and o.supply_name like concat('%',#{supplyName},'%')
+	             	</if>
+	             </if>
+	             <if test="deptNo != null and deptNo != ''">
+	             	and o.dept_no = #{deptNo}
+	             </if>
+	             <if test="deptNo == null or deptNo == ''">
+	             	<if test="deptName != null and deptName != ''">
+	             		and o.dept_name like concat('%',#{deptName},'%')
+	             	</if>
+	             </if>
+	             <if test="currency != null and currency != ''">
+	             	and o.sale_currency = #{currency}
+	             </if>
+	             <if test="payMethod != null and payMethod != ''">
+	             	and o.pay_method = #{payMethod}
+	             </if>
+	             <if test="orderCode != null and orderCode != ''">
+	             	and o.order_code like concat('%',#{orderCode},'%')
+	             </if>
+	             <if test="billState != null">
+	             	and o.order_code in (select t.order_code from t_order_day_price t where ifnull(t.order_bill_status, 0) = #{billState} group by t.order_code)
+	             </if>
+	             <if test="hotelId != null">
+	             	and op.hotel_id = #{hotelId}
+	             </if>
+	             <if test="hotelId == null">
+	             	<if test="hotelName != null and hotelName != ''">
+	             		and op.hotel_name like concat('%',#{hotelName},'%')
+	             	</if>
+	             </if>
+	             <if test="guestName != null and guestName != ''">
+	             	and o.guest_name like concat('%',#{guestName},'%')
+	             </if>
+	             <if test="dateType == 1">
+		             <if test="beginDate != null and beginDate != ''">
+	             		and cast(odp.sale_date as date) >= cast(#{beginDate} as date)
+		             </if>
+		             <if test="endDate != null and endDate != ''">
+		             	<![CDATA[and cast(odp.sale_date as date) <= cast(#{endDate} as date)]]>
+		             </if>
+	             </if>
+	             <if test="dateType == 2">
+		             <if test="beginDate != null and beginDate != ''">
+		             	and cast(o.checkin_date as date) >= cast(#{beginDate} as date)
+		             </if>
+		             <if test="endDate != null and endDate != ''">
+		             	<![CDATA[and cast(o.checkin_date as date) <= cast(#{endDate} as date)]]>
+		             </if>
+	             </if>
+	             <if test="dateType == 3">
+		             <if test="beginDate != null and beginDate != ''">
+		             	and cast(o.checkout_date as date) >= cast(#{beginDate} as date)
+		             </if>
+		             <if test="endDate != null and endDate != ''">
+		             	<![CDATA[and cast(o.checkout_date as date) <= cast(#{endDate} as date)]]>
+		             </if>
+	             </if>
+	             <if test="dateType == 4">
+		             <if test="beginDate != null and beginDate != ''">
+		             	and cast(o.create_date as date) >= cast(#{beginDate} as date)
+		             </if>
+		             <if test="endDate != null and endDate != ''">
+		             	<![CDATA[and cast(o.create_date as date) <= cast(#{endDate} as date)]]>
+		             </if>
+	             </if>
+			</where>) a where a.sale_b_price != a.actual_received
+			group by a.sale_date) b
+		<where>
+			1 = 1
+			<if test="isGreaterZero == true">
+				and b.unreceivable != 0
+			</if>
+		</where>
+		order by b.unreceivable desc
+	</select>
+	
+	<!-- 查询分销商每日小结明细 -->
+	<select id="queryAgentDayCheckOutDetailList" resultType="com.travel.finance.entity.OrgCheckOutDetail" parameterType="com.travel.common.dto.finance.query.AgentCheckOutQueryDTO">
+		select
+		  a.ordercode,
+		  a.orgcode,
+		  a.orgname,
+		  a.paymethod,
+		  a.roomno,
+		  a.hotelid,
+		  a.hotelname,
+		  a.roomtypeid,
+		  a.roomtypename,
+		  a.orderstate,
+		  a.guestname,
+		  a.daypriceid,
+		  a.rooms,
+		  a.checkindate,
+		  a.checkoutdate,
+		  a.priceplanid,
+		  a.roomprice,
+		  a.orderbillstatus,
+		  a.orderbilluser,
+		  a.receivable,
+		  a.actualreceived,
+		  a.currentactualreceived,
+		  a.receivable - a.actualreceived unreceivable,
+		  a.creator
+		from (
+		       select
+		         o.order_code                                                ordercode,
+		         o.agent_code                                                orgcode,
+		         o.agent_name                                                orgname,
+		         o.pay_method												 paymethod,
+		         o.room_no													 roomno,
+		         op.hotel_id                                                 hotelid,
+		         op.hotel_name                                               hotelname,
+		         op.room_type_id                                             roomtypeid,
+		         op.room_type_name                                           roomtypename,
+		         o.order_state                                               orderstate,
+		         o.guest_name                                                guestname,
+		         odp.day_price_id                                            daypriceid,
+		         ifnull(odp.rooms, 0)                                        rooms,
+		         odp.sale_date                                               checkindate,
+		         odp.priceplan_id											 priceplanid,
+		         date_add(odp.sale_date, interval 1 day)                     checkoutdate,
+		         ifnull(odp.sale_b_price, 0)                                 roomprice,
+		         odp.order_bill_status                                       orderbillstatus,
+		         odp.order_bill_user                                         orderbilluser,
+		         case when o.pay_method = 'pay'
+		           then 0 - ifnull(odp.agent_commission, 0)
+		         else ifnull(odp.sale_b_price, 0) end * ifnull(odp.rooms, 0) receivable,
+		         ifnull(odp.actual_received, 0)                     		 actualreceived,
+		         ifnull(tc.current_actual, 0)			                     currentactualreceived,
+		         o.creator                                                   creator
+		       from t_order o, t_order_product op, t_order_day_price odp left join (
+		                                                                             select
+		                                                                               a.day_price_id,
+		                                                                               a.current_actual
+		                                                                             from t_checkout as a
+		                                                                             where not exists(select 1
+		                                                                                              from t_checkout b
+		                                                                                              where
+		                                                                                                a.day_price_id =
+		                                                                                                b.day_price_id
+		                                                                                                <![CDATA[and a.create_date < b.create_date]]>)) tc
+		           on odp.day_price_id = tc.day_price_id
+		<where>
+		  o.order_code = op.order_code
+		  and op.opid = odp.op_id
+			 <if test="dayPriceIdList != null and dayPriceIdList.size() > 0">
+			 	and odp.day_price_id in <foreach collection="dayPriceIdList" index="index" item="item" open="(" separator="," close=")">#{item}</foreach>
+			 </if>
+			 <if test="orderStateList != null and orderStateList.size() > 0">
+             	and o.order_state in <foreach collection="orderStateList" index="index" item="item" open="(" separator="," close=")">#{item}</foreach>
+             </if>
+             <if test="agentCode != null and agentCode != ''">
+             	and o.agent_code = #{agentCode}
+             </if>
+             <if test="agentCode == null or agentCode == ''">
+             	<if test="agentName != null and agentName != ''">
+             		and o.agent_name like concat('%',#{agentName},'%')
+             	</if>
+             </if>
+             <if test="supplyCode != null and supplyCode != ''">
+             	and o.supply_code = #{supplyCode}
+             </if>
+             <if test="supplyCode == null or supplyCode == ''">
+             	<if test="supplyName != null and supplyName != ''">
+             		and o.supply_name like concat('%',#{supplyName},'%')
+             	</if>
+             </if>
+             <if test="deptNo != null and deptNo != ''">
+             	and o.dept_no = #{deptNo}
+             </if>
+             <if test="deptNo == null or deptNo == ''">
+             	<if test="deptName != null and deptName != ''">
+             		and o.dept_name like concat('%',#{deptName},'%')
+             	</if>
+             </if>
+             <if test="currency != null and currency != ''">
+             	and o.sale_currency = #{currency}
+             </if>
+             <if test="payMethod != null and payMethod != ''">
+             	and o.pay_method = #{payMethod}
+             </if>
+             <if test="orderCode != null and orderCode != ''">
+             	and o.order_code like concat('%',#{orderCode},'%')
+             </if>
+             <if test="billState != null">
+             	and o.order_code in (select t.order_code from t_order_day_price t where ifnull(t.order_bill_status, 0) = #{billState} group by t.order_code)
+             </if>
+             <if test="hotelId != null">
+             	and op.hotel_id = #{hotelId}
+             </if>
+             <if test="hotelId == null">
+             	<if test="hotelName != null and hotelName != ''">
+             		and op.hotel_name like concat('%',#{hotelName},'%')
+             	</if>
+             </if>
+             <if test="guestName != null and guestName != ''">
+             	and o.guest_name like concat('%',#{guestName},'%')
+             </if>
+			 <if test="dateType == 1">
+	             <if test="beginDate != null and beginDate != ''">
+             		and cast(odp.sale_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(odp.sale_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+             <if test="dateType == 2">
+	             <if test="beginDate != null and beginDate != ''">
+	             	and cast(o.checkin_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(o.checkin_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+             <if test="dateType == 3">
+	             <if test="beginDate != null and beginDate != ''">
+	             	and cast(o.checkout_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(o.checkout_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+             <if test="dateType == 4">
+	             <if test="beginDate != null and beginDate != ''">
+	             	and cast(o.create_date as date) >= cast(#{beginDate} as date)
+	             </if>
+	             <if test="endDate != null and endDate != ''">
+	             	<![CDATA[and cast(o.create_date as date) <= cast(#{endDate} as date)]]>
+	             </if>
+             </if>
+		</where>) a where a.receivable != a.actualreceived order by a.checkindate
+	</select>
+	
+</mapper>

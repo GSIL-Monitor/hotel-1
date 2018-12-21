@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.hotelinfo.mapper.RoomTypeMapper">
+
+	<resultMap type="com.fangcang.hotelinfo.domain.RoomTypeDO"
+		id="roomTypeMap">
+		<id column="roomtype_id" jdbcType="INTEGER" property="roomTypeId" />
+		<result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+		<result column="hotel_name" jdbcType="VARCHAR" property="hotelName" />
+		<result column="roomtype_name" jdbcType="INTEGER" property="roomTypeName" />
+		<result column="roomtype_name_en" jdbcType="VARCHAR" property="engRoomTypeName" />
+		<result column="floor" jdbcType="VARCHAR" property="floor" />
+		<result column="area" jdbcType="VARCHAR" property="area" />
+		<result column="max_person" jdbcType="TINYINT" property="maxPerson" />
+		<result column="room_num" jdbcType="VARCHAR" property="roomNum" />
+		<result column="is_window" jdbcType="TINYINT" property="isWindow" />
+		<result column="is_wired" jdbcType="TINYINT" property="isWired" />
+		<result column="is_wifi" jdbcType="TINYINT" property="isWifi" />
+		<result column="is_smokeless" jdbcType="TINYINT" property="isSmokeless" />
+		<result column="bedtype" jdbcType="VARCHAR" property="bedType" />
+		<result column="bed_description" jdbcType="VARCHAR" property="bedDescription" />
+		<result column="is_active" jdbcType="TINYINT" property="isActive" />
+		<result column="roomtype_describe" jdbcType="VARCHAR" property="roomTypeDescribe" />
+		<result column="is_extra_bed" jdbcType="TINYINT" property="isExtraBed" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="creator" jdbcType="VARCHAR" property="creator" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+		<result column="modifier" jdbcType="VARCHAR" property="modifier" />
+		<result column="sort" jdbcType="INTEGER" property="sort" />
+		<association property="imagedo"
+			javaType="com.fangcang.hotelinfo.domain.ImageDO">
+			<id column="image_id" jdbcType="INTEGER" property="imageId" />
+			<result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+			<result column="image_type" jdbcType="TINYINT" property="imageType" />
+			<result column="extid" jdbcType="INTEGER" property="extid" />
+			<result column="is_main_image" jdbcType="TINYINT" property="isMainImage" />
+			<result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
+			<result column="image_large_url" jdbcType="VARCHAR" property="imageLargeUrl" />
+			<result column="image_middle_url" jdbcType="VARCHAR" property="imageMiddleUrl" />
+			<result column="image_small_url" jdbcType="VARCHAR" property="imageSmallUrl" />
+			<result column="real_path" jdbcType="VARCHAR" property="realPath" />
+		</association>
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		roomtype_id, r.hotel_id,h.hotel_name, roomtype_name, roomtype_name_en,
+		floor, area,
+		max_person, r.room_num, is_window, is_wired, is_wifi,
+		is_smokeless, bedtype,
+		bed_description, r.is_active, roomtype_describe,
+		is_extra_bed,image_url,real_path,image_id,sort
+	</sql>
+
+	<insert id="insertRoomType" parameterType="com.fangcang.hotelinfo.domain.RoomTypeDO"
+		useGeneratedKeys="true" keyProperty="roomTypeId">
+		insert into t_roomtype
+		(hotel_id,
+		roomtype_name,
+		roomtype_name_en,
+		floor,
+		area,
+		max_person,
+		room_num,
+		is_window,
+		is_wired,
+		is_wifi,
+		is_smokeless,
+		bedtype,
+		bed_description,
+		is_active,
+		roomtype_describe,
+		is_extra_bed,
+		sort,
+		create_time,
+		creator)
+		values (#{hotelId,jdbcType=INTEGER},
+		#{roomTypeName,jdbcType=VARCHAR},
+		#{engRoomTypeName,jdbcType=VARCHAR},
+		#{floor,jdbcType=VARCHAR},
+		#{area,jdbcType=VARCHAR},
+		#{maxPerson,jdbcType=TINYINT},
+		#{roomNum,jdbcType=VARCHAR},
+		#{isWindow,jdbcType=TINYINT},
+		#{isWired,jdbcType=TINYINT},
+		#{isWifi,jdbcType=TINYINT},
+		#{isSmokeless,jdbcType=TINYINT},
+		#{bedType,jdbcType=TINYINT},
+		#{bedDescription,jdbcType=VARCHAR},
+		#{isActive,jdbcType=TINYINT},
+		#{roomTypeDescribe,jdbcType=VARCHAR},
+		#{isExtraBed,jdbcType=TINYINT},
+		#{sort,jdbcType=INTEGER},
+		NOW(),
+		#{creator,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="updateRoomType" parameterType="com.fangcang.hotelinfo.domain.RoomTypeDO">
+		update t_roomtype
+		<set>
+			<if test="roomTypeName!= null and roomTypeName != ''">
+				roomtype_name = #{roomTypeName,jdbcType=VARCHAR},
+			</if>
+			<if test="engRoomTypeName!= null and engRoomTypeName != ''">
+				roomtype_name_en = #{engRoomTypeName,jdbcType=VARCHAR},
+			</if>
+			<if test="floor!= null and floor!= ''">
+				floor = #{floor,jdbcType=VARCHAR},
+			</if>
+			modify_time = NOW(),
+			<if test="modifier != null and modifier != ''">
+				modifier = #{modifier,jdbcType=VARCHAR},
+			</if>
+			<if test="isActive != null">
+				is_active = #{isActive,jdbcType=TINYINT},
+			</if>
+			<if test="area != null and area != ''">
+				area = #{area,jdbcType=VARCHAR},
+			</if>
+			<if test="maxPerson!= null">
+				max_person = #{maxPerson,jdbcType=TINYINT},
+			</if>
+			<if test="roomNum != null">
+				room_num = #{roomNum,jdbcType=VARCHAR},
+			</if>
+			<if test="isWindow != null">
+				is_window = #{isWindow,jdbcType=TINYINT},
+			</if>
+			<if test="isWired != null">
+				is_wired= #{isWired,jdbcType=TINYINT},
+			</if>
+			<if test="isWifi != null">
+				is_wifi= #{isWifi,jdbcType=VARCHAR},
+			</if>
+			<if test="isSmokeless != null">
+				is_smokeless= #{isSmokeless,jdbcType=TINYINT},
+			</if>
+			<if test="bedType != null and bedType != ''">
+				bedtype= #{bedType,jdbcType=VARCHAR},
+			</if>
+			<if test="bedDescription != null and bedDescription != ''">
+				bed_description= #{bedDescription,jdbcType=VARCHAR},
+			</if>
+			<if test="roomTypeDescribe != null and roomTypeDescribe != ''">
+				roomtype_describe= #{roomTypeDescribe,jdbcType=VARCHAR},
+			</if>
+			<if test="isExtraBed != null and isExtraBed != ''">
+				is_extra_bed= #{isExtraBed,jdbcType=VARCHAR},
+			</if>
+			<if test="sort != null">
+				sort=#{sort,jdbcType=INTEGER}
+			</if>
+		</set>
+		where roomtype_id=#{roomTypeId,jdbcType=INTEGER}
+	</update>
+	<select id="queryRoomTypeInfoByHotelId" parameterType="com.fangcang.hotelinfo.request.RoomTypeQueryDTO" resultMap="roomTypeMap">
+		select <include refid="Base_Column_List" />
+		  from t_hotel h,t_roomtype r
+	 left join t_image i
+		     on r.hotel_id = i.hotel_id
+		    and r.roomtype_id = i.extid
+		    and i.image_type = 2
+		    and i.is_main_image= 1
+		<where>
+			h.hotel_id = r.hotel_id
+			<if test="hotelId != null">
+				and r.hotel_id = #{hotelId,jdbcType=INTEGER}
+			</if>
+			<if test="roomTypeId != null">
+				and r.roomtype_id = #{roomTypeId,jdbcType=INTEGER}
+			</if>
+			<if test="isActive != null">
+				and r.is_active = #{isActive,jdbcType=INTEGER}
+			</if>
+		</where>
+		 order by sort,r.roomtype_id desc
+	</select>
+	<resultMap type="com.fangcang.hotelinfo.domain.RoomTypeDO" id="Base_Column_Map">
+		<id column="roomtype_id" jdbcType="INTEGER" property="roomTypeId" />
+		<result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+		<result column="roomtype_name" jdbcType="INTEGER" property="roomTypeName" />
+		<result column="roomtype_name_en" jdbcType="VARCHAR" property="engRoomTypeName" />
+		<result column="floor" jdbcType="VARCHAR" property="floor" />
+		<result column="area" jdbcType="VARCHAR" property="area" />
+		<result column="max_person" jdbcType="TINYINT" property="maxPerson" />
+		<result column="room_num" jdbcType="VARCHAR" property="roomNum" />
+		<result column="is_window" jdbcType="TINYINT" property="isWindow" />
+		<result column="is_wired" jdbcType="TINYINT" property="isWired" />
+		<result column="is_wifi" jdbcType="TINYINT" property="isWifi" />
+		<result column="is_smokeless" jdbcType="TINYINT" property="isSmokeless" />
+		<result column="bedtype" jdbcType="VARCHAR" property="bedType" />
+		<result column="bed_description" jdbcType="VARCHAR" property="bedDescription" />
+		<result column="is_active" jdbcType="TINYINT" property="isActive" />
+		<result column="roomtype_describe" jdbcType="VARCHAR" property="roomTypeDescribe" />
+		<result column="is_extra_bed" jdbcType="TINYINT" property="isExtraBed" />
+		<result column="sort" jdbcType="INTEGER" property="sort" />
+
+		<collection property="imagedo" column="{hotelId=hotel_id,roomTypeId=roomtype_id}"
+					ofType="com.fangcang.hotelinfo.domain.ImageDO"
+					select="com.fangcang.hotelinfo.mapper.ImageMapper.queryMainImageByRoomTypeId"/>
+
+	</resultMap>
+
+	<sql id="Base_Column_List2">
+		roomtype_id, hotel_id, roomtype_name, roomtype_name_en,
+		floor, area,
+		max_person, room_num, is_window, is_wired, is_wifi,
+		is_smokeless, bedtype,
+		bed_description, is_active, roomtype_describe,
+		is_extra_bed,sort
+	</sql>
+
+	<select id="queryRoomTypeByHotelId" resultMap="Base_Column_Map" parameterType="java.util.HashMap" >
+		select <include refid="Base_Column_List2" />
+		  from t_roomtype r
+		 where hotel_id = #{hotel_id,jdbcType=INTEGER}
+		   and is_active = 1
+		 order by sort
+	</select>
+	    
+	<insert id="insertRoomTypes" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="roomTypeId">
+	   insert into t_roomtype (hotel_id,
+		                        roomtype_name,
+								roomtype_name_en,
+								floor,
+								area,
+								max_person,
+								room_num,
+								is_window,
+								is_wired,
+								is_wifi,
+								is_smokeless,
+								bedtype,
+								bed_description,
+								is_active,
+								roomtype_describe,
+								is_extra_bed,
+								sort,
+								create_time,
+								creator)
+						values
+						<foreach collection="list"  item="item" separator=",">
+								(#{item.hotelId,jdbcType=INTEGER},
+								  #{item.roomTypeName,jdbcType=VARCHAR},
+								  #{item.engRoomTypeName,jdbcType=VARCHAR},
+								  #{item.floor,jdbcType=VARCHAR},
+								  #{item.area,jdbcType=VARCHAR},
+								  #{item.maxPerson,jdbcType=TINYINT},
+								  #{item.roomNum,jdbcType=VARCHAR},
+								  #{item.isWindow,jdbcType=TINYINT},
+								  #{item.isWired,jdbcType=TINYINT},
+		 						  #{item.isWifi,jdbcType=TINYINT},
+								  #{item.isSmokeless,jdbcType=TINYINT},
+								 #{item.bedType,jdbcType=TINYINT},
+							     #{item.bedDescription,jdbcType=VARCHAR},
+							     #{item.isActive,jdbcType=TINYINT},
+		                         #{item.roomTypeDescribe,jdbcType=VARCHAR},
+							     #{item.isExtraBed,jdbcType=TINYINT},
+		                        #{item.sort,jdbcType=INTEGER},
+								NOW(),
+								#{item.creator,jdbcType=VARCHAR}
+							  )
+						</foreach>
+	 </insert>
+</mapper>

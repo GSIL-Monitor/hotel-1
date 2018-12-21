@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.hotelinfo.mapper.HotelAdditionalMapper" >
+  <resultMap id="BaseResultMap" type="com.fangcang.hotelinfo.domain.HotelAdditionalDO" >
+    <id column="additional_id" property="additionalId" jdbcType="INTEGER" />
+    <result column="hotel_id" property="hotelId" jdbcType="INTEGER" />
+    <result column="additional_type" property="additionalType" jdbcType="TINYINT" />
+    <result column="additional_name" property="additionalName" jdbcType="VARCHAR" />
+    <result column="additional_price" property="additionalPrice" jdbcType="DECIMAL" />
+    <result column="merchant_code" property="merchantCode" jdbcType="VARCHAR" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    additional_id, hotel_id, additional_type, additional_name, additional_price, merchant_code
+  </sql>
+  
+  <insert id="inserHotelAdditional" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="additionalId">
+    	insert into t_hotel_additional (hotel_id,
+    								additional_type, 
+      								additional_name,
+      								additional_price,
+      								merchant_code,
+      								create_time,
+                                    creator)                           
+      						values 
+      						<foreach collection="list" item="item" separator=",">
+      						        (#{item.hotelId,jdbcType=INTEGER},
+      								#{item.additionalType,jdbcType=TINYINT}, 
+     								#{item.additionalName,jdbcType=VARCHAR},
+     								#{item.additionalPrice,jdbcType=DECIMAL},
+     								#{item.merchantCode,jdbcType=VARCHAR},
+    								NOW(),
+                                    #{item.creator,jdbcType=VARCHAR})  
+                            </foreach>      								    								 
+  </insert>
+
+    <delete id="deleteHotelAdditional" parameterType="com.fangcang.hotelinfo.domain.HotelAdditionalDO" >
+        delete from t_hotel_additional
+               where hotel_id = #{hotelId,jdbcType=INTEGER}
+                 and merchant_code = #{merchantCode,jdbcType=VARCHAR}
+    </delete>
+
+    <select id="queryHotelAdditionalByHotelIdAndMerchantCode" parameterType="java.util.HashMap" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+          from t_hotel_additional
+         where hotel_id = #{hotelId,jdbcType=INTEGER}
+           and merchant_code = #{merchantCode,jdbcType=VARCHAR}
+    </select>
+</mapper>

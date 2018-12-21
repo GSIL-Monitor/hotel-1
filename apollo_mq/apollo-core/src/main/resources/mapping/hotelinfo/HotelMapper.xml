@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.hotelinfo.mapper.HotelMapper" >
+  <resultMap id="BaseResultMap" type="com.fangcang.hotelinfo.domain.HotelDO" >
+    <id column="hotel_id" property="hotelId" jdbcType="INTEGER" />
+    <result column="hotel_name" property="hotelName" jdbcType="VARCHAR" />
+    <result column="hotel_name_en" property="engHotelName" jdbcType="VARCHAR" />
+    <result column="country" property="country" jdbcType="VARCHAR" />
+    <result column="city_code" property="cityCode" jdbcType="VARCHAR" />
+    <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+    <result column="bussiness_zone_code" property="businessCode" jdbcType="VARCHAR" />
+    <result column="address" property="hotelAddress" jdbcType="VARCHAR" />
+    <result column="address_en" property="engHotelAddress" jdbcType="VARCHAR" />
+    <result column="hotel_star" property="hotelStar" jdbcType="INTEGER" />
+    <result column="theme" property="theme" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="fax" property="fax" jdbcType="VARCHAR" />
+    <result column="room_num" property="roomTotalNum" jdbcType="INTEGER" />
+    <result column="decoration_date" property="decorationDate" jdbcType="DATE" />
+    <result column="opening_date" property="openingDate" jdbcType="DATE" />
+    <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+    <result column="is_active" property="isActive" jdbcType="TINYINT" />
+    <result column="free_room_policy" jdbcType="VARCHAR" property="freeRoomPolicy" />
+    <result column="cancel_policy" property="cancelPolicy" jdbcType="VARCHAR" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />   
+    <result column="isCommoned" jdbcType="INTEGER" property="isCommonUsed" />
+    <result column="merchant_code" jdbcType="VARCHAR" property="merchantCode" />
+    <result column="product_remark" jdbcType="VARCHAR" property="producRemark" />
+    <result column="order_remark" jdbcType="VARCHAR" property="orderRemark" />
+
+    <association property="imagedo" column="hotel_id"
+                   javaType="com.fangcang.hotelinfo.domain.ImageDO"
+                   select="com.fangcang.hotelinfo.mapper.ImageMapper.queryHotelMainImageByHotelId">
+    </association>
+
+    <association property="hotelPolicyDO" column="hotel_id"
+              javaType="com.fangcang.hotelinfo.domain.HotelPolicyDO"
+              select="com.fangcang.hotelinfo.mapper.HotelPolicyMapper.queryHotelPolicyByHotelId">   		
+    </association>
+
+      <collection property="additionalList" column="{hotelId=hotel_id,merchantCode=merchant_code}"
+                  javaType="java.util.ArrayList" ofType="com.fangcang.hotelinfo.domain.HotelAdditionalDO"
+                  select="com.fangcang.hotelinfo.mapper.HotelAdditionalMapper.queryHotelAdditionalByHotelIdAndMerchantCode"/>
+
+      <collection property="facilityList" column="hotel_id"
+                  javaType="java.util.ArrayList" ofType="com.fangcang.hotelinfo.domain.HotelFacilityDO"
+                  select="com.fangcang.hotelinfo.mapper.HotelFacilityMapper.queryHotelFacilityByHotelId"/>
+
+      <collection property="roomTypeList" column="hotel_id"
+                  javaType="java.util.ArrayList" ofType="com.fangcang.hotelinfo.domain.RoomTypeDO"
+                  select="com.fangcang.hotelinfo.mapper.RoomTypeMapper.queryRoomTypeByHotelId"/>
+  </resultMap> 
+  
+  <sql id="Base_Column_List" >
+   hotel_id, hotel_name, hotel_name_en, country, city_code, city_name, bussiness_zone_code, 
+   address, address_en, hotel_star, theme, phone, fax, room_num, decoration_date, opening_date, 
+   free_room_policy,introduction, is_active, cancel_policy,product_remark,order_remark
+  </sql>
+  
+ <insert id="insertHotel" parameterType="com.fangcang.hotelinfo.domain.HotelDO" useGeneratedKeys="true" keyProperty="hotelId" >
+    insert into t_hotel
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="productRemark != null and '' != productRemark" >
+            product_remark,
+        </if>
+        <if test="orderRemark != null and '' != orderRemark" >
+            order_remark,
+        </if>
+
+      <if test="hotelName != null and '' != hotelName" >
+        hotel_name,
+      </if>
+      <if test="engHotelName != null and '' != engHotelName" >
+        hotel_name_en,
+      </if>
+      <if test="country != null and '' != country" >
+        country,
+      </if>
+      <if test="cityCode != null and '' != cityCode" >
+        city_code,
+      </if>
+      <if test="cityName != null and '' != cityName" >
+        city_name,
+      </if>
+      <if test="businessCode != null and '' != businessCode" >
+        bussiness_zone_code,
+      </if>
+      <if test="hotelAddress != null and '' != hotelAddress" >
+        address,
+      </if>
+      <if test="engHotelAddress != null and '' != engHotelAddress" >
+        address_en,
+      </if>
+      <if test="hotelStar != null " >
+        hotel_star,
+      </if>
+      <if test="theme != null and '' != theme" >
+        theme,
+      </if>
+      <if test="phone != null and '' != phone" >
+        phone,
+      </if>
+      <if test="fax != null and '' != fax" >
+        fax,
+      </if>
+      <if test="roomTotalNum != null" >
+        room_num,
+      </if>
+      <if test="decorationDate != null and '' != decorationDate" >
+        decoration_date,
+      </if>
+      <if test="openingDate != null and '' != openingDate" >
+        opening_date,
+      </if>
+      <if test="introduction != null  and '' != introduction" >
+        introduction,
+      </if>
+      <if test="isActive != null" >
+        is_active,
+      </if>
+      <if test="cancelPolicy != null and '' != cancelPolicy" >
+        cancel_policy,
+      </if>
+	  <if test="freeRoomPolicy != null and '' != freeRoomPolicy" >
+        free_room_policy,
+      </if>
+	  <if test="createTime != null " >
+        create_time,
+      </if>
+	  <if test="creator != null and '' != creator" >
+        creator,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+
+        <if test="productRemark != null and '' != productRemark" >
+            #{productRemark,jdbcType=VARCHAR},
+        </if>
+        <if test="orderRemark != null and '' != orderRemark" >
+            #{orderRemark,jdbcType=VARCHAR},
+        </if>
+      <if test="hotelName != null and '' != hotelName">
+        #{hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="engHotelName != null and '' != engHotelName" >
+        #{engHotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null and '' != country" >
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null and '' != cityCode" >
+        #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityName != null and '' != cityName" >
+        #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="businessCode != null and '' != businessCode" >
+        #{businessCode,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelAddress != null and '' != hotelAddress" >
+        #{hotelAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="engHotelAddress != null and '' != engHotelAddress" >
+        #{engHotelAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelStar != null" >
+        #{hotelStar,jdbcType=INTEGER},
+      </if>
+      <if test="theme != null and '' != theme" >
+        #{theme,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null and '' != phone">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="fax != null and '' != fax" >
+        #{fax,jdbcType=VARCHAR},
+      </if>
+      <if test="roomTotalNum != null" >
+        #{roomTotalNum,jdbcType=INTEGER},
+      </if>
+      <if test="decorationDate != null and '' != decorationDate">
+        #{decorationDate,jdbcType=DATE},
+      </if>
+      <if test="openingDate != null and '' != openingDate" >
+        #{openingDate,jdbcType=DATE},
+      </if>
+      <if test="introduction != null and '' != introduction" >
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="isActive != null" >
+        #{isActive,jdbcType=TINYINT},
+      </if>
+      <if test="cancelPolicy != null and '' != cancelPolicy" >
+        #{cancelPolicy,jdbcType=VARCHAR},
+      </if>
+	  <if test="freeRoomPolicy != null and '' != freeRoomPolicy" >
+        #{freeRoomPolicy,jdbcType=VARCHAR},
+      </if>
+	  <if test="createTime != null" >
+        NOW(),
+      </if>
+	    <if test="creator != null and '' != creator" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateHotel" parameterType="com.fangcang.hotelinfo.domain.HotelDO" >
+    update t_hotel
+    <set >
+        <if test="productRemark != null" >
+            product_remark=#{productRemark,jdbcType=VARCHAR},
+        </if>
+        <if test="orderRemark != null" >
+            order_remark=#{orderRemark,jdbcType=VARCHAR},
+        </if>
+      <if test="hotelName != null and '' != hotelName" >
+        hotel_name = #{hotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="engHotelName != null" >
+        hotel_name_en = #{engHotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null and '' != country" >
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="cityCode != null and '' != cityCode" >
+        city_code = #{cityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityName != null and '' != cityName" >
+        city_name = #{cityName,jdbcType=VARCHAR},
+      </if>
+      <if test="businessCode != null" >
+        bussiness_zone_code = #{businessCode,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelAddress != null" >
+        address = #{hotelAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="engHotelAddress != null" >
+        address_en = #{engHotelAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelStar != null" >
+        hotel_star = #{hotelStar,jdbcType=INTEGER},
+      </if>
+      <if test="theme != null" >
+        theme = #{theme,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="fax != null" >
+        fax = #{fax,jdbcType=VARCHAR},
+      </if>
+      <if test="roomTotalNum != null" >
+        room_num = #{roomTotalNum,jdbcType=INTEGER},
+      </if>
+      <if test="decorationDate != null" >
+        decoration_date = #{decorationDate,jdbcType=DATE},
+      </if>
+      <if test="openingDate != null" >
+        opening_date = #{openingDate,jdbcType=DATE},
+      </if>
+      <if test="introduction != null" >
+        introduction = #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="isActive != null" >
+        is_active = #{isActive,jdbcType=TINYINT},
+      </if>
+      <if test="cancelPolicy != null" >
+        cancel_policy = #{cancelPolicy,jdbcType=VARCHAR},
+      </if>
+      <if test="freeRoomPolicy != null" >
+        free_room_policy = #{freeRoomPolicy,jdbcType=INTEGER},
+      </if>
+        modify_time = NOW(),
+      <if test="modifier != null and '' != modifier">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where hotel_id = #{hotelId,jdbcType=INTEGER}
+  </update>
+
+    <resultMap type="com.fangcang.hotelinfo.domain.HotelDO" id="HotelListMap">
+        <id column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+        <result column="hotel_name" jdbcType="VARCHAR" property="hotelName" />
+        <result column="city_code" jdbcType="VARCHAR" property="cityCode" />
+        <result column="city_name" jdbcType="VARCHAR" property="cityName" />
+        <result column="country" jdbcType="VARCHAR" property="country" />
+        <result column="isCommonUsed" jdbcType="INTEGER" property="isCommonUsed" />
+        <result column="hotel_name_en" jdbcType="VARCHAR" property="engHotelName" />
+        <result column="address" jdbcType="VARCHAR" property="hotelAddress" />
+        <result column="address_en" jdbcType="VARCHAR" property="engHotelAddress" />
+        <result column="hotel_star" jdbcType="INTEGER" property="hotelStar" />
+
+        <result column="product_remark" jdbcType="VARCHAR" property="producRemark" />
+        <result column="order_remark" jdbcType="VARCHAR" property="orderRemark" />
+
+        <association property="imagedo" column="hotel_id"
+                   javaType="com.fangcang.hotelinfo.domain.ImageDO"
+                   select="com.fangcang.hotelinfo.mapper.ImageMapper.queryHotelMainImageByHotelId">
+        </association>
+    </resultMap>
+
+    <select id="getHotelList" parameterType="com.fangcang.hotelinfo.request.HotelListQueryDTO" resultMap="HotelListMap">
+        select h.hotel_id,
+                hotel_name,
+                hotel_name_en,
+                city_code,
+                city_name,
+                country,
+                address,
+                address_en,
+                hotel_star,
+                IF(c.id IS NOT NULL,1,0) AS isCommonUsed
+        from t_hotel h left join t_common_hotel c ON h.hotel_id = c.hotel_id and merchant_code = #{merchantCode,jdbcType=VARCHAR}
+        <where>
+            <if test="cityCode != null and cityCode != ''">
+                and city_code = #{cityCode,jdbcType=VARCHAR}
+            </if>
+            <if test="hotelId != null">
+                and h.hotel_id = #{hotelId,jdbcType=INTEGER}
+            </if>
+            <if test="hotelName != null and hotelName != ''">
+                and hotel_name like CONCAT('%',#{hotelName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="null != isActive">
+                and is_active = #{isActive,jdbcType=INTEGER}
+            </if>
+            <if test="null != businessCode and '' != businessCode">
+                and bussiness_zone_code = #{businessCode,jdbcType=VARCHAR}
+            </if>
+            <if test="null != hotelStars and hotelStars.size > 0">
+                and hotel_star in
+              <foreach collection="hotelStars" item="hotelStar" open="(" close=")" separator=",">
+                  #{hotelStar}
+              </foreach>
+            </if>
+        </where>
+        order by isCommonUsed desc,hotel_id desc
+    </select>
+
+    <select id="queryHotelInfoByHotelId" resultMap="BaseResultMap" parameterType="com.fangcang.hotelinfo.request.HotelBaseInfoRequestDTO" >
+        select 
+    <include refid="Base_Column_List" />,#{merchantCode} as merchant_code
+	    from t_hotel
+	    where hotel_id = #{hotelId,jdbcType=INTEGER}
+  </select>
+  
+  <select id="queryCommonUsedHotel" resultType="com.fangcang.hotelinfo.domain.HotelDO" parameterType="com.fangcang.hotelinfo.request.CommonUsedHotelRequestDTO" >
+	    SELECT h.hotel_id as hotelId,
+                h.hotel_name as hotelName,
+                IF(c.hotel_id IS NOT NULL,1,0) AS isCommonUsed
+	    FROM t_hotel h
+   LEFT JOIN t_common_hotel c
+           ON h.hotel_id=c.hotel_id AND c.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+	    <where>
+	    	<if test="hotelName != null and '' != hotelName">
+	    		and hotel_name LIKE CONCAT('%',#{hotelName,jdbcType=VARCHAR},'%')
+	    	</if>
+	    	<if test="cityCode != null and '' != cityCode">
+	    		and city_code = #{cityCode,jdbcType=VARCHAR}	    		
+	    	</if>
+            <if test="null != isActive">
+                and is_active = #{isActive,jdbcType=INTEGER}
+            </if>
+	    </where>
+        order by isCommonUsed desc,h.hotel_id desc
+  </select>      
+</mapper>

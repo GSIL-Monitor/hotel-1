@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.agent.mapper.AgentUserMapper">
+    <resultMap id="BaseResultMap" type="com.fangcang.agent.domain.AgentUserDO">
+        <id column="agent_user_id" property="agentUserId" jdbcType="INTEGER"/>
+        <result column="username" property="userName" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="modifier" property="modifier" jdbcType="VARCHAR"/>
+        <result column="is_active" property="isActive" jdbcType="TINYINT"/>
+        <result column="agent_id" property="agentId" jdbcType="INTEGER"/>
+        <result column="master" property="master" jdbcType="TINYINT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    agent_user_id, username, password, real_name, phone, create_time, creator, modify_time, 
+    modifier, is_active, agent_id, master
+    </sql>
+
+    <select id="getUserInfo" parameterType="com.fangcang.agent.request.AgentUserRequestDTO"
+            resultType="com.fangcang.agent.response.AgentUserResponseDTO">
+        SELECT u.agent_user_id userId ,u.password,u.real_name realName,u.username userName,u.agent_id agentId,u.is_active isActive
+        FROM t_agent_user u,t_agent a
+        WHERE u.agent_id=a.agent_id
+        <if test="userId != null ">
+            AND u.agent_user_id=#{userId}
+        </if>
+        <if test="userName != null">
+            AND u.username=#{userName}
+        </if>
+        <if test="merchantId != null">
+            AND a.merchant_id=#{merchantId}
+        </if>
+    </select>
+
+
+    <insert id="insertUsers" parameterType="java.util.List">
+        INSERT INTO t_agent_user(
+        username,
+        password,
+        real_name,create_time,agent_id,creator,master,is_active,phone) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.userName,jdbcType=VARCHAR}, #{item.password,jdbcType=VARCHAR},
+            #{item.realName,jdbcType=VARCHAR},NOW(),#{item.agentId,jdbcType=INTEGER},
+            #{item.creator,jdbcType=VARCHAR},#{item.master,jdbcType=TINYINT},1,#{item.phone,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <update id="batchUpdateUsers" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            UPDATE t_agent_user
+            <set>
+                password=#{item.password},
+                real_name=#{item.realName},
+                modifier=#{item.modifier},
+                modify_time=#{item.modifyTime},
+                master=#{item.master,jdbcType=TINYINT}
+            </set>
+            WHERE agent_user_id=#{item.agentUserId,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <select id="selectAgentUserByMasterAndAgentId"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_agent_user WHERE master=1 AND agent_id = #{agent_id}
+    </select>
+
+    <!--添加单个分销商用户 后来添加的用户master都为0-->
+    <insert id="insertSingleAgentUser" parameterType="com.fangcang.agent.domain.AgentUserDO"  useGeneratedKeys="true" keyProperty="agentUserId">
+        INSERT INTO t_agent_user(
+        username,
+        password,
+        real_name,create_time,agent_id,creator,master,is_active,phone) VALUES (#{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+            #{realName,jdbcType=VARCHAR},NOW(),#{agentId,jdbcType=INTEGER},
+            #{creator,jdbcType=VARCHAR},0,1,#{phone,jdbcType=VARCHAR})
+    </insert>
+
+    <!--编辑单个分销商用户-->
+    <update id="updateSingleAgentUser" parameterType="com.fangcang.agent.domain.AgentUserDO">
+        UPDATE t_agent_user
+        <set>
+            password=#{password},
+            real_name=#{realName},
+            modifier=#{modifier},
+            modify_time=NOW(),
+        </set>
+        WHERE agent_user_id=#{agentUserId,jdbcType=INTEGER}
+    </update>
+
+    <!--根据id获取详情-->
+    <select id="getUserByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_agent_user WHERE agent_user_id=#{agentUserId,jdbcType=INTEGER}
+    </select>
+
+    <update id="setUserActive" parameterType="com.fangcang.agent.domain.AgentUserDO">
+        UPDATE t_agent_user
+        <set>
+            is_active=#{isActive,jdbcType=TINYINT},
+            modifier=#{modifier,jdbcType=VARCHAR},
+            modify_time=NOW(),
+        </set>
+        WHERE agent_user_id=#{agentUserId,jdbcType=INTEGER}
+    </update>
+
+    <!--根据agentId查询所有分销商用户-->
+    <select id="selectUserListByAgentId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_agent_user
+        WHERE agent_id = #{agent_id,jdbcType=INTEGER}
+    </select>
+    <resultMap id="BaseResultMap2" type="com.fangcang.agent.dto.MasterUserInfoDTO">
+        <id column="agent_user_id" property="agentUserId" jdbcType="INTEGER"/>
+        <result column="username" property="userName" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="is_active" property="isActive" jdbcType="TINYINT"/>
+        <result column="agent_id" property="agentId" jdbcType="INTEGER"/>
+        <result column="master" property="master" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <select id="selectMasterUser" resultMap="BaseResultMap2" parameterType="java.lang.Long">
+        SELECT
+        agent_user_id,username,password,real_name,is_active,agent_id,master
+        FROM t_agent_user
+        WHERE agent_id = #{agent_id,jdbcType=INTEGER} AND master=1
+    </select>
+
+    <!--新增单个用户用-->
+    <select id="selectUserByUsernameAndMerchantId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM t_agent_user u LEFT JOIN t_agent a ON u.agent_id=a.agent_id
+        WHERE u.username = #{username} AND a.merchant_id = #{merchantId}
+    </select>
+
+    <!--新增分销商用-->
+    <select id="selectUserByUsernameListAndMerchantId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM t_agent_user u LEFT JOIN t_agent a ON u.agent_id=a.agent_id
+        WHERE u.username IN
+        <foreach collection="list" index="index" item="username" open="(" separator="," close=")">
+            #{username}
+        </foreach>
+        AND a.merchant_id = #{merchantId}
+    </select>
+
+
+</mapper>

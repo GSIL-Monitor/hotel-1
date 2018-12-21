@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.mapping.mapper.RatePlanMappingMapper" >
+
+    <select id="queryMapping" resultType="com.fangcang.mapping.dto.Mapping">
+
+            SELECT
+                temppriceplan.merchant_code     merchantCode,
+                temppriceplan.hotel_id          hotelId,
+                temppriceplan.hotel_name        hotelName,
+                temppriceplan.roomtype_id       roomTypeId,
+                temppriceplan.roomtype_name     roomTypeName,
+                temppriceplan.priceplan_id      ratePlanId,
+                temppriceplan.priceplan_name    ratePlanName,
+                temppriceplan.city_code         cityCode,
+                temppriceplan.city_name         cityName,
+                tempmaphotel.dlt_hotel_id        dltHotelId,
+                tempmapping.dlt_room_id         dltRatePlanId
+            FROM
+                (
+                    SELECT
+                        p.merchant_code,
+                        h.hotel_id,
+                        h.hotel_name,
+                        r.roomtype_id,
+                        r.roomtype_name,
+                        p.priceplan_id,
+                        p.priceplan_name,
+                        h.city_code,
+                        h.city_name
+                    FROM
+                        t_htlpro_priceplan p,
+                        t_hotel h,
+                        t_roomtype r
+                    WHERE
+                        p.hotel_id = h.hotel_id
+                    AND p.room_type_id = r.roomtype_id
+                    AND p.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+                    AND p.hotel_id IN
+                    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                ) temppriceplan
+            LEFT JOIN (
+            select mh.m_hotel_id,
+            mh.dlt_hotel_id
+            from t_dlt_map_hotel mh
+            where mh.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+            and mh.m_hotel_id in
+                <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            ) tempmaphotel
+            on temppriceplan.hotel_id = tempmaphotel.m_hotel_id
+            LEFT JOIN (
+                SELECT
+                    mh.merchant_code,
+                    mh.m_hotel_id,
+                    mh.dlt_hotel_id,
+                    mr.dlt_room_id,
+                    mr.m_room_id,
+                    mr.m_rp_id
+                FROM
+                    t_dlt_map_hotel mh,
+                    t_dlt_map_room mr
+                WHERE
+                    mh.merchant_code = mr.merchant_code
+                AND mh.m_hotel_id = mr.m_hotel_id
+                AND mh.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+                AND mh.m_hotel_id IN
+                <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            ) tempmapping ON temppriceplan.hotel_id = tempmapping.m_hotel_id
+            AND temppriceplan.roomtype_id = tempmapping.m_room_id
+            AND temppriceplan.priceplan_id = tempmapping.m_rp_id
+    </select>
+
+</mapper>

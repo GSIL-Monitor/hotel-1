@@ -1,0 +1,1091 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.order.dao.OrderPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.order.entity.po.OrderPO" >
+    <id column="order_id" property="orderId" jdbcType="BIGINT" />
+    <result column="ORDER_CODE" property="orderCode" jdbcType="VARCHAR" />
+    <result column="supply_code" property="supplyCode" jdbcType="VARCHAR" />
+    <result column="supply_name" property="supplyName" jdbcType="VARCHAR" />
+    <result column="agent_code" property="agentCode" jdbcType="VARCHAR" />
+    <result column="agent_name" property="agentName" jdbcType="VARCHAR" />
+    <result column="settlement" property="settlement" jdbcType="VARCHAR" />
+    <result column="confirm_no" property="confirmNo" jdbcType="VARCHAR" />
+    <result column="customer_order_code" property="customerOrderCode" jdbcType="VARCHAR" />
+    <result column="order_state" property="orderState" jdbcType="VARCHAR" />
+    <result column="pay_method" property="payMethod" jdbcType="VARCHAR" />
+    <result column="pay_state" property="payState" jdbcType="INTEGER" />
+    <result column="base_currency" property="baseCurrency" jdbcType="VARCHAR" />
+    <result column="base_price" property="basePrice" jdbcType="DECIMAL" />
+    <result column="SALE_CURRENCY" property="saleCurrency" jdbcType="VARCHAR" />
+    <result column="SALE_PRICE" property="salePrice" jdbcType="DECIMAL" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+    <result column="channel_code" property="channelCode" jdbcType="VARCHAR" />
+    <result column="child_channel_code" property="childChannelCode" jdbcType="VARCHAR" />
+    <result column="channel_state" property="channelState" jdbcType="VARCHAR" />
+    <result column="finance_lock_status" property="financeLockStatus" jdbcType="INTEGER" />
+    <result column="finance_locker" property="financeLocker" jdbcType="VARCHAR" />
+    <result column="guest_name" property="guestName" jdbcType="VARCHAR" />
+    <result column="guest_file" property="guestFile" jdbcType="VARCHAR" />
+    <result column="receivable" property="receivable" jdbcType="DECIMAL" />
+    <result column="payable" property="payable" jdbcType="DECIMAL" />
+    <result column="actual_received" property="actualReceived" jdbcType="DECIMAL" />
+    <result column="actual_paied" property="actualPaied" jdbcType="DECIMAL" />
+    <result column="checkin_date" property="checkinDate" jdbcType="TIMESTAMP" />
+    <result column="checkout_date" property="checkoutDate" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="dept_no" property="deptNo" jdbcType="VARCHAR" />
+    <result column="dept_name" property="deptName" jdbcType="VARCHAR" />
+    <result column="agent_commission" property="agentCommission" jdbcType="DECIMAL" />
+    <result column="supply_commission" property="supplyCommission" jdbcType="DECIMAL" />
+    <result column="room_no" property="roomNo" jdbcType="VARCHAR" />
+    <result column="maker" property="maker" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+
+  <resultMap id="OrderDetailResultMap" type="com.travel.hotel.order.entity.po.OrderPO" >
+    <id column="order_id" property="orderId" jdbcType="BIGINT" />
+    <result column="ORDER_CODE" property="orderCode" jdbcType="VARCHAR" />
+    <result column="supply_code" property="supplyCode" jdbcType="VARCHAR" />
+    <result column="supply_name" property="supplyName" jdbcType="VARCHAR" />
+    <result column="agent_code" property="agentCode" jdbcType="VARCHAR" />
+    <result column="agent_name" property="agentName" jdbcType="VARCHAR" />
+    <result column="settlement" property="settlement" jdbcType="VARCHAR" />
+    <result column="confirm_no" property="confirmNo" jdbcType="VARCHAR" />
+    <result column="room_no" property="roomNo" jdbcType="VARCHAR" />
+    <result column="customer_order_code" property="customerOrderCode" jdbcType="VARCHAR" />
+    <result column="order_state" property="orderState" jdbcType="VARCHAR" />
+    <result column="pay_method" property="payMethod" jdbcType="VARCHAR" />
+    <result column="pay_state" property="payState" jdbcType="INTEGER" />
+    <result column="base_currency" property="baseCurrency" jdbcType="VARCHAR" />
+    <result column="base_price" property="basePrice" jdbcType="DECIMAL" />
+    <result column="SALE_CURRENCY" property="saleCurrency" jdbcType="VARCHAR" />
+    <result column="SALE_PRICE" property="salePrice" jdbcType="DECIMAL" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+    <result column="channel_code" property="channelCode" jdbcType="VARCHAR" />
+    <result column="child_channel_code" property="childChannelCode" jdbcType="VARCHAR" />
+    <result column="channel_state" property="channelState" jdbcType="VARCHAR" />
+    <result column="finance_lock_status" property="financeLockStatus" jdbcType="INTEGER" />
+    <result column="finance_locker" property="financeLocker" jdbcType="VARCHAR" />
+    <result column="guest_name" property="guestName" jdbcType="VARCHAR" />
+    <result column="guest_file" property="guestFile" jdbcType="VARCHAR" />
+    <result column="receivable" property="receivable" jdbcType="DECIMAL" />
+    <result column="payable" property="payable" jdbcType="DECIMAL" />
+    <result column="actual_received" property="actualReceived" jdbcType="DECIMAL" />
+    <result column="actual_paied" property="actualPaied" jdbcType="DECIMAL" />
+    <result column="checkin_date" property="checkinDate" jdbcType="TIMESTAMP" />
+    <result column="checkout_date" property="checkoutDate" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="dept_no" property="deptNo" jdbcType="VARCHAR" />
+    <result column="dept_name" property="deptName" jdbcType="VARCHAR" />
+    <result column="agent_commission" property="agentCommission" jdbcType="DECIMAL" />
+    <result column="supply_commission" property="supplyCommission" jdbcType="DECIMAL" />
+    <result column="maker" property="maker" jdbcType="VARCHAR" />
+    <collection property="orderRestrictPOList" ofType="com.travel.hotel.order.entity.po.OrderRestrictPO">
+        <id column="res_restrict_id" property="restrictId" jdbcType="BIGINT" />
+        <result column="res_priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+        <result column="res_sale_date" property="saleDate" jdbcType="DATE" />
+        <result column="res_book_days" property="bookDays" jdbcType="INTEGER" />
+        <result column="res_OCCUPANCY_TYPE" property="occupancyType" jdbcType="INTEGER" />
+        <result column="res_OCCUPANCY_DAYS" property="occupancyDays" jdbcType="INTEGER" />
+        <result column="res_CANCEL_TYPE" property="cancelType" jdbcType="INTEGER" />
+        <result column="res_CANCEL_DAYS" property="cancelDays" jdbcType="INTEGER" />
+        <result column="res_CANCEL_TIME" property="cancelTime" jdbcType="VARCHAR" />
+        <result column="res_CANCEL_REMARK" property="cancelRemark" jdbcType="VARCHAR" />
+        <result column="res_BOOK_ROOMS" property="bookRooms" jdbcType="INTEGER" />
+        <result column="res_CREATOR" property="creator" jdbcType="VARCHAR" />
+        <result column="res_create_date" property="createDate" jdbcType="TIMESTAMP" />
+        <result column="res_modifier" property="modifier" jdbcType="VARCHAR" />
+        <result column="res_modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+        <result column="res_book_time" property="bookTime" jdbcType="VARCHAR" />
+        <result column="res_order_code" property="orderCode" jdbcType="VARCHAR" />
+    </collection>
+    <collection property="orderProductPOList"
+                ofType="com.travel.hotel.order.entity.po.OrderProductPO">
+        <id column="prd_opid" property="opid" jdbcType="BIGINT" />
+        <result column="prd_hotel_id" property="hotelId" jdbcType="BIGINT" />
+        <result column="prd_hotel_name" property="hotelName" jdbcType="VARCHAR" />
+        <result column="prd_room_type_id" property="roomTypeId" jdbcType="VARCHAR" />
+        <result column="prd_room_type_name" property="roomTypeName" jdbcType="VARCHAR" />
+        <result column="prd_priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+        <result column="prd_priceplan_name" property="priceplanName" jdbcType="VARCHAR" />
+        <result column="prd_checkin_date" property="checkinDate" jdbcType="DATE" />
+        <result column="prd_checkout_date" property="checkoutDate" jdbcType="DATE" />
+        <result column="prd_isactive" property="isactive" jdbcType="INTEGER" />
+        <result column="prd_creator" property="creator" jdbcType="VARCHAR" />
+        <result column="prd_create_date" property="createDate" jdbcType="DATE" />
+        <result column="prd_modifier" property="modifier" jdbcType="VARCHAR" />
+        <result column="prd_modify_date" property="modifyDate" jdbcType="DATE" />
+        <result column="prd_order_code" property="orderCode" jdbcType="VARCHAR" />
+        <result column="prd_product_type" property="productType" jdbcType="VARCHAR" />
+        <collection property="orderDayPricePOList"
+                    ofType="com.travel.hotel.order.entity.po.OrderDayPricePO">
+            <id column="dp_day_price_id" property="dayPriceId" jdbcType="BIGINT" />
+            <result column="dp_op_id" property="opId" jdbcType="BIGINT" />
+            <result column="dp_order_code" property="orderCode" jdbcType="VARCHAR" />
+            <result column="dp_priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+            <result column="dp_PRICEPLAN_NAME" property="priceplanName" jdbcType="VARCHAR" />
+            <result column="dp_SALE_DATE" property="saleDate" jdbcType="DATE" />
+            <result column="dp_BASE_CURRENCY" property="baseCurrency" jdbcType="VARCHAR" />
+            <result column="dp_BASE_PRICE" property="basePrice" jdbcType="DECIMAL" />
+            <result column="dp_sale_b_currency" property="saleBCurrency" jdbcType="VARCHAR" />
+            <result column="dp_sale_b_price" property="saleBPrice" jdbcType="DECIMAL" />
+            <result column="dp_creator" property="creator" jdbcType="VARCHAR" />
+            <result column="dp_create_date" property="createDate" jdbcType="TIMESTAMP" />
+            <result column="dp_modifier" property="modifier" jdbcType="VARCHAR" />
+            <result column="dp_modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+            <result column="dp_order_bill_status" property="orderBillStatus" jdbcType="INTEGER" />
+            <result column="dp_order_bill_user" property="orderBillUser" jdbcType="VARCHAR" />
+            <result column="dp_supply_bill_status" property="supplyBillStatus" jdbcType="INTEGER" />
+            <result column="dp_supply_bill_user" property="supplyBillUser" jdbcType="VARCHAR" />
+            <result column="dp_sale_c_currency" property="saleCCurrency" jdbcType="VARCHAR" />
+            <result column="dp_sale_c_price" property="saleCPrice" jdbcType="DECIMAL" />
+            <result column="dp_base_rate" property="baseRate" jdbcType="DECIMAL" />
+            <result column="dp_sale_channel_rate" property="saleChannelRate" jdbcType="DECIMAL" />
+            <result column="dp_sale_c_rate" property="saleCRate" jdbcType="DECIMAL" />
+            <result column="dp_voucher_code" property="voucherCode" jdbcType="VARCHAR" />
+            <result column="dp_rooms" property="rooms" jdbcType="INTEGER" />
+            <result column="dp_breakfast_num" property="breakfastNum" jdbcType="VARCHAR" />
+        </collection>
+    </collection>
+  </resultMap>
+
+  <select id="selectOrderDetailByPrimaryKey" resultMap="OrderDetailResultMap" parameterType="java.lang.Long" >
+    select
+      t1.order_id, t1.ORDER_CODE, t1.supply_code, t1.supply_name, t1.agent_code, t1.agent_name, t1.settlement,
+      confirm_no, t1.room_no, t1.customer_order_code, t1.order_state, t1.pay_method, t1.pay_state, t1.base_currency, t1.
+      base_price, t1.SALE_CURRENCY, t1.SALE_PRICE, t1.creator, t1.create_date, t1.modifier, t1.modify_date, t1.
+      channel_code, t1.child_channel_code, t1.channel_state, t1.finance_lock_status, t1.finance_locker, t1.guest_name, t1.guest_file, t1.
+      receivable, t1.payable, t1.actual_received, t1.actual_paied, t1.checkin_date, t1.checkout_date,t1.remark,t1.dept_no,t1.dept_name,t1.agent_commission, t1.supply_commission,t1.maker,
+
+      t2.restrict_id res_restrict_id, t2.priceplan_id res_priceplan_id, t2.sale_date res_sale_date, t2.book_days res_book_days, t2.OCCUPANCY_TYPE res_OCCUPANCY_TYPE, t2.OCCUPANCY_DAYS res_OCCUPANCY_DAYS, t2.
+      CANCEL_TYPE res_CANCEL_TYPE, t2.CANCEL_DAYS res_CANCEL_DAYS, t2.CANCEL_TIME res_CANCEL_TIME, t2.CANCEL_REMARK res_CANCEL_REMARK, t2.BOOK_ROOMS res_BOOK_ROOMS, t2.CREATOR res_CREATOR, t2.create_date res_create_date, t2.
+      modifier res_modifier, t2.modify_date res_modify_date, t2.book_time res_book_time, t2.order_code res_order_code,
+
+      t3.opid prd_opid, t3.hotel_id prd_hotel_id, t3.hotel_name prd_hotel_name, t3.room_type_id prd_room_type_id, t3.room_type_name prd_room_type_name, t3.priceplan_id prd_priceplan_id, t3.priceplan_name prd_priceplan_name, t3.
+      checkin_date prd_checkin_date, t3.checkout_date prd_checkout_date, t3.isactive prd_isactive, t3.creator prd_creator, t3.create_date prd_create_date, t3.modifier prd_modifier, t3.modify_date prd_modify_date, t3.
+      order_code prd_order_code, t3.product_type prd_product_type,
+
+      t4.day_price_id dp_day_price_id, t4.op_id dp_op_id, t4.order_code dp_order_code, t4.priceplan_id dp_priceplan_id, t4.PRICEPLAN_NAME dp_PRICEPLAN_NAME, t4.SALE_DATE dp_SALE_DATE, t4.BASE_CURRENCY dp_BASE_CURRENCY, t4.
+      BASE_PRICE dp_BASE_PRICE, t4.sale_b_currency dp_sale_b_currency, t4.sale_b_price dp_sale_b_price, t4.creator dp_creator, t4.create_date dp_create_date, t4.modifier dp_modifier, t4.modify_date dp_modify_date, t4.
+      order_bill_status dp_order_bill_status, t4.order_bill_user dp_order_bill_user, t4.supply_bill_status dp_supply_bill_status, t4.supply_bill_user dp_supply_bill_user, t4.sale_c_currency dp_sale_c_currency,
+      t4.sale_c_price dp_sale_c_price, t4.base_rate dp_base_rate, t4.sale_channel_rate dp_sale_channel_rate, t4.
+      sale_c_rate dp_sale_c_rate, t4.voucher_code dp_voucher_code, t4.rooms dp_rooms, t4.breakfast_num dp_breakfast_num
+    from t_order t1
+    left join t_order_restrict t2 on t1.order_code = t2.order_code
+    left join t_order_product t3 on t1.order_code = t3.order_code
+    left join t_order_day_price t4 on t3.opid = t4.op_id and t3.order_code = t4.order_code
+    where t1.order_id = #{orderId,jdbcType=BIGINT} order by t4.sale_date
+  </select>
+
+  <sql id="Base_Column_List" >
+    order_id, ORDER_CODE, supply_code, supply_name, agent_code, agent_name, settlement, 
+    confirm_no, customer_order_code, order_state, pay_method, pay_state, base_currency, 
+    base_price, SALE_CURRENCY, SALE_PRICE, creator, create_date, modifier, modify_date, 
+    channel_code, child_channel_code, channel_state, finance_lock_status, finance_locker, 
+    guest_name, guest_file, receivable, payable, actual_received, actual_paied, checkin_date, 
+    checkout_date, remark, dept_no, dept_name, agent_commission, supply_commission, room_no, 
+    maker
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.order.entity.po.OrderPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_order
+    where order_id = #{orderId,jdbcType=BIGINT}
+  </select>
+  <select id="selectByOrderCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from t_order
+    where order_code = #{orderCode,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_order
+    where order_id = #{orderId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.hotel.order.entity.po.OrderPOExample" >
+    delete from t_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.order.entity.po.OrderPO" useGeneratedKeys="true" keyProperty="orderId">
+    insert into t_order (order_id, ORDER_CODE, supply_code, 
+      supply_name, agent_code, agent_name, 
+      settlement, confirm_no, customer_order_code, 
+      order_state, pay_method, pay_state, 
+      base_currency, base_price, SALE_CURRENCY, 
+      SALE_PRICE, creator, create_date, 
+      modifier, modify_date, channel_code, 
+      child_channel_code, channel_state, finance_lock_status, 
+      finance_locker, guest_name, guest_file, 
+      receivable, payable, actual_received, 
+      actual_paied, checkin_date, checkout_date, 
+      remark, dept_no, dept_name, 
+      agent_commission, supply_commission, room_no, 
+      maker)
+    values (#{orderId,jdbcType=BIGINT}, #{orderCode,jdbcType=VARCHAR}, #{supplyCode,jdbcType=VARCHAR}, 
+      #{supplyName,jdbcType=VARCHAR}, #{agentCode,jdbcType=VARCHAR}, #{agentName,jdbcType=VARCHAR}, 
+      #{settlement,jdbcType=VARCHAR}, #{confirmNo,jdbcType=VARCHAR}, #{customerOrderCode,jdbcType=VARCHAR}, 
+      #{orderState,jdbcType=VARCHAR}, #{payMethod,jdbcType=VARCHAR}, #{payState,jdbcType=INTEGER}, 
+      #{baseCurrency,jdbcType=VARCHAR}, #{basePrice,jdbcType=DECIMAL}, #{saleCurrency,jdbcType=VARCHAR}, 
+      #{salePrice,jdbcType=DECIMAL}, #{creator,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{modifyDate,jdbcType=TIMESTAMP}, #{channelCode,jdbcType=VARCHAR}, 
+      #{childChannelCode,jdbcType=VARCHAR}, #{channelState,jdbcType=VARCHAR}, #{financeLockStatus,jdbcType=INTEGER}, 
+      #{financeLocker,jdbcType=VARCHAR}, #{guestName,jdbcType=VARCHAR}, #{guestFile,jdbcType=VARCHAR}, 
+      #{receivable,jdbcType=DECIMAL}, #{payable,jdbcType=DECIMAL}, #{actualReceived,jdbcType=DECIMAL}, 
+      #{actualPaied,jdbcType=DECIMAL}, #{checkinDate,jdbcType=TIMESTAMP}, #{checkoutDate,jdbcType=TIMESTAMP}, 
+      #{remark,jdbcType=VARCHAR}, #{deptNo,jdbcType=VARCHAR}, #{deptName,jdbcType=VARCHAR}, 
+      #{agentCommission,jdbcType=DECIMAL}, #{supplyCommission,jdbcType=DECIMAL}, #{roomNo,jdbcType=VARCHAR}, 
+      #{maker,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.order.entity.po.OrderPO" >
+    insert into t_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="orderCode != null" >
+        ORDER_CODE,
+      </if>
+      <if test="supplyCode != null" >
+        supply_code,
+      </if>
+      <if test="supplyName != null" >
+        supply_name,
+      </if>
+      <if test="agentCode != null" >
+        agent_code,
+      </if>
+      <if test="agentName != null" >
+        agent_name,
+      </if>
+      <if test="settlement != null" >
+        settlement,
+      </if>
+      <if test="confirmNo != null" >
+        confirm_no,
+      </if>
+      <if test="customerOrderCode != null" >
+        customer_order_code,
+      </if>
+      <if test="orderState != null" >
+        order_state,
+      </if>
+      <if test="payMethod != null" >
+        pay_method,
+      </if>
+      <if test="payState != null" >
+        pay_state,
+      </if>
+      <if test="baseCurrency != null" >
+        base_currency,
+      </if>
+      <if test="basePrice != null" >
+        base_price,
+      </if>
+      <if test="saleCurrency != null" >
+        SALE_CURRENCY,
+      </if>
+      <if test="salePrice != null" >
+        SALE_PRICE,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifyDate != null" >
+        modify_date,
+      </if>
+      <if test="channelCode != null" >
+        channel_code,
+      </if>
+      <if test="childChannelCode != null" >
+        child_channel_code,
+      </if>
+      <if test="channelState != null" >
+        channel_state,
+      </if>
+      <if test="financeLockStatus != null" >
+        finance_lock_status,
+      </if>
+      <if test="financeLocker != null" >
+        finance_locker,
+      </if>
+      <if test="guestName != null" >
+        guest_name,
+      </if>
+      <if test="guestFile != null" >
+        guest_file,
+      </if>
+      <if test="receivable != null" >
+        receivable,
+      </if>
+      <if test="payable != null" >
+        payable,
+      </if>
+      <if test="actualReceived != null" >
+        actual_received,
+      </if>
+      <if test="actualPaied != null" >
+        actual_paied,
+      </if>
+      <if test="checkinDate != null" >
+        checkin_date,
+      </if>
+      <if test="checkoutDate != null" >
+        checkout_date,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="deptNo != null" >
+        dept_no,
+      </if>
+      <if test="deptName != null" >
+        dept_name,
+      </if>
+      <if test="agentCommission != null" >
+        agent_commission,
+      </if>
+      <if test="supplyCommission != null" >
+        supply_commission,
+      </if>
+      <if test="roomNo != null" >
+        room_no,
+      </if>
+      <if test="maker != null" >
+        maker,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orderId != null" >
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="orderCode != null" >
+        #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="supplyCode != null" >
+        #{supplyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="supplyName != null" >
+        #{supplyName,jdbcType=VARCHAR},
+      </if>
+      <if test="agentCode != null" >
+        #{agentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="agentName != null" >
+        #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="settlement != null" >
+        #{settlement,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmNo != null" >
+        #{confirmNo,jdbcType=VARCHAR},
+      </if>
+      <if test="customerOrderCode != null" >
+        #{customerOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="orderState != null" >
+        #{orderState,jdbcType=VARCHAR},
+      </if>
+      <if test="payMethod != null" >
+        #{payMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="payState != null" >
+        #{payState,jdbcType=INTEGER},
+      </if>
+      <if test="baseCurrency != null" >
+        #{baseCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="basePrice != null" >
+        #{basePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="saleCurrency != null" >
+        #{saleCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="salePrice != null" >
+        #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="channelCode != null" >
+        #{channelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="childChannelCode != null" >
+        #{childChannelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="channelState != null" >
+        #{channelState,jdbcType=VARCHAR},
+      </if>
+      <if test="financeLockStatus != null" >
+        #{financeLockStatus,jdbcType=INTEGER},
+      </if>
+      <if test="financeLocker != null" >
+        #{financeLocker,jdbcType=VARCHAR},
+      </if>
+      <if test="guestName != null" >
+        #{guestName,jdbcType=VARCHAR},
+      </if>
+      <if test="guestFile != null" >
+        #{guestFile,jdbcType=VARCHAR},
+      </if>
+      <if test="receivable != null" >
+        #{receivable,jdbcType=DECIMAL},
+      </if>
+      <if test="payable != null" >
+        #{payable,jdbcType=DECIMAL},
+      </if>
+      <if test="actualReceived != null" >
+        #{actualReceived,jdbcType=DECIMAL},
+      </if>
+      <if test="actualPaied != null" >
+        #{actualPaied,jdbcType=DECIMAL},
+      </if>
+      <if test="checkinDate != null" >
+        #{checkinDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkoutDate != null" >
+        #{checkoutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="deptNo != null" >
+        #{deptNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deptName != null" >
+        #{deptName,jdbcType=VARCHAR},
+      </if>
+      <if test="agentCommission != null" >
+        #{agentCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="supplyCommission != null" >
+        #{supplyCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="roomNo != null" >
+        #{roomNo,jdbcType=VARCHAR},
+      </if>
+      <if test="maker != null" >
+        #{maker,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.hotel.order.entity.po.OrderPOExample" resultType="java.lang.Integer" >
+    select count(*) from t_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_order
+    <set >
+      <if test="record.orderId != null" >
+        order_id = #{record.orderId,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderCode != null" >
+        ORDER_CODE = #{record.orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.supplyCode != null" >
+        supply_code = #{record.supplyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.supplyName != null" >
+        supply_name = #{record.supplyName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.agentCode != null" >
+        agent_code = #{record.agentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.agentName != null" >
+        agent_name = #{record.agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settlement != null" >
+        settlement = #{record.settlement,jdbcType=VARCHAR},
+      </if>
+      <if test="record.confirmNo != null" >
+        confirm_no = #{record.confirmNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerOrderCode != null" >
+        customer_order_code = #{record.customerOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderState != null" >
+        order_state = #{record.orderState,jdbcType=VARCHAR},
+      </if>
+      <if test="record.payMethod != null" >
+        pay_method = #{record.payMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="record.payState != null" >
+        pay_state = #{record.payState,jdbcType=INTEGER},
+      </if>
+      <if test="record.baseCurrency != null" >
+        base_currency = #{record.baseCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.basePrice != null" >
+        base_price = #{record.basePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.saleCurrency != null" >
+        SALE_CURRENCY = #{record.saleCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.salePrice != null" >
+        SALE_PRICE = #{record.salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.creator != null" >
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createDate != null" >
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.modifier != null" >
+        modifier = #{record.modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifyDate != null" >
+        modify_date = #{record.modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.channelCode != null" >
+        channel_code = #{record.channelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.childChannelCode != null" >
+        child_channel_code = #{record.childChannelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.channelState != null" >
+        channel_state = #{record.channelState,jdbcType=VARCHAR},
+      </if>
+      <if test="record.financeLockStatus != null" >
+        finance_lock_status = #{record.financeLockStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.financeLocker != null" >
+        finance_locker = #{record.financeLocker,jdbcType=VARCHAR},
+      </if>
+      <if test="record.guestName != null" >
+        guest_name = #{record.guestName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.guestFile != null" >
+        guest_file = #{record.guestFile,jdbcType=VARCHAR},
+      </if>
+      <if test="record.receivable != null" >
+        receivable = #{record.receivable,jdbcType=DECIMAL},
+      </if>
+      <if test="record.payable != null" >
+        payable = #{record.payable,jdbcType=DECIMAL},
+      </if>
+      <if test="record.actualReceived != null" >
+        actual_received = #{record.actualReceived,jdbcType=DECIMAL},
+      </if>
+      <if test="record.actualPaied != null" >
+        actual_paied = #{record.actualPaied,jdbcType=DECIMAL},
+      </if>
+      <if test="record.checkinDate != null" >
+        checkin_date = #{record.checkinDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.checkoutDate != null" >
+        checkout_date = #{record.checkoutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deptNo != null" >
+        dept_no = #{record.deptNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deptName != null" >
+        dept_name = #{record.deptName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.agentCommission != null" >
+        agent_commission = #{record.agentCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="record.supplyCommission != null" >
+        supply_commission = #{record.supplyCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="record.roomNo != null" >
+        room_no = #{record.roomNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.maker != null" >
+        maker = #{record.maker,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_order
+    set order_id = #{record.orderId,jdbcType=BIGINT},
+      ORDER_CODE = #{record.orderCode,jdbcType=VARCHAR},
+      supply_code = #{record.supplyCode,jdbcType=VARCHAR},
+      supply_name = #{record.supplyName,jdbcType=VARCHAR},
+      agent_code = #{record.agentCode,jdbcType=VARCHAR},
+      agent_name = #{record.agentName,jdbcType=VARCHAR},
+      settlement = #{record.settlement,jdbcType=VARCHAR},
+      confirm_no = #{record.confirmNo,jdbcType=VARCHAR},
+      customer_order_code = #{record.customerOrderCode,jdbcType=VARCHAR},
+      order_state = #{record.orderState,jdbcType=VARCHAR},
+      pay_method = #{record.payMethod,jdbcType=VARCHAR},
+      pay_state = #{record.payState,jdbcType=INTEGER},
+      base_currency = #{record.baseCurrency,jdbcType=VARCHAR},
+      base_price = #{record.basePrice,jdbcType=DECIMAL},
+      SALE_CURRENCY = #{record.saleCurrency,jdbcType=VARCHAR},
+      SALE_PRICE = #{record.salePrice,jdbcType=DECIMAL},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      modifier = #{record.modifier,jdbcType=VARCHAR},
+      modify_date = #{record.modifyDate,jdbcType=TIMESTAMP},
+      channel_code = #{record.channelCode,jdbcType=VARCHAR},
+      child_channel_code = #{record.childChannelCode,jdbcType=VARCHAR},
+      channel_state = #{record.channelState,jdbcType=VARCHAR},
+      finance_lock_status = #{record.financeLockStatus,jdbcType=INTEGER},
+      finance_locker = #{record.financeLocker,jdbcType=VARCHAR},
+      guest_name = #{record.guestName,jdbcType=VARCHAR},
+      guest_file = #{record.guestFile,jdbcType=VARCHAR},
+      receivable = #{record.receivable,jdbcType=DECIMAL},
+      payable = #{record.payable,jdbcType=DECIMAL},
+      actual_received = #{record.actualReceived,jdbcType=DECIMAL},
+      actual_paied = #{record.actualPaied,jdbcType=DECIMAL},
+      checkin_date = #{record.checkinDate,jdbcType=TIMESTAMP},
+      checkout_date = #{record.checkoutDate,jdbcType=TIMESTAMP},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      dept_no = #{record.deptNo,jdbcType=VARCHAR},
+      dept_name = #{record.deptName,jdbcType=VARCHAR},
+      agent_commission = #{record.agentCommission,jdbcType=DECIMAL},
+      supply_commission = #{record.supplyCommission,jdbcType=DECIMAL},
+      room_no = #{record.roomNo,jdbcType=VARCHAR},
+      maker = #{record.maker,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.order.entity.po.OrderPO" >
+    update t_order
+    <set >
+      <if test="orderCode != null" >
+        ORDER_CODE = #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="supplyCode != null" >
+        supply_code = #{supplyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="supplyName != null" >
+        supply_name = #{supplyName,jdbcType=VARCHAR},
+      </if>
+      <if test="agentCode != null" >
+        agent_code = #{agentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="agentName != null" >
+        agent_name = #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="settlement != null" >
+        settlement = #{settlement,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmNo != null" >
+        confirm_no = #{confirmNo,jdbcType=VARCHAR},
+      </if>
+      <if test="customerOrderCode != null" >
+        customer_order_code = #{customerOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="orderState != null" >
+        order_state = #{orderState,jdbcType=VARCHAR},
+      </if>
+      <if test="payMethod != null" >
+        pay_method = #{payMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="payState != null" >
+        pay_state = #{payState,jdbcType=INTEGER},
+      </if>
+      <if test="baseCurrency != null" >
+        base_currency = #{baseCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="basePrice != null" >
+        base_price = #{basePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="saleCurrency != null" >
+        SALE_CURRENCY = #{saleCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="salePrice != null" >
+        SALE_PRICE = #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="channelCode != null" >
+        channel_code = #{channelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="childChannelCode != null" >
+        child_channel_code = #{childChannelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="channelState != null" >
+        channel_state = #{channelState,jdbcType=VARCHAR},
+      </if>
+      <if test="financeLockStatus != null" >
+        finance_lock_status = #{financeLockStatus,jdbcType=INTEGER},
+      </if>
+      <if test="financeLocker != null" >
+        finance_locker = #{financeLocker,jdbcType=VARCHAR},
+      </if>
+      <if test="guestName != null" >
+        guest_name = #{guestName,jdbcType=VARCHAR},
+      </if>
+      <if test="guestFile != null" >
+        guest_file = #{guestFile,jdbcType=VARCHAR},
+      </if>
+      <if test="receivable != null" >
+        receivable = #{receivable,jdbcType=DECIMAL},
+      </if>
+      <if test="payable != null" >
+        payable = #{payable,jdbcType=DECIMAL},
+      </if>
+      <if test="actualReceived != null" >
+        actual_received = #{actualReceived,jdbcType=DECIMAL},
+      </if>
+      <if test="actualPaied != null" >
+        actual_paied = #{actualPaied,jdbcType=DECIMAL},
+      </if>
+      <if test="checkinDate != null" >
+        checkin_date = #{checkinDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkoutDate != null" >
+        checkout_date = #{checkoutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="deptNo != null" >
+        dept_no = #{deptNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deptName != null" >
+        dept_name = #{deptName,jdbcType=VARCHAR},
+      </if>
+      <if test="agentCommission != null" >
+        agent_commission = #{agentCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="supplyCommission != null" >
+        supply_commission = #{supplyCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="roomNo != null" >
+        room_no = #{roomNo,jdbcType=VARCHAR},
+      </if>
+      <if test="maker != null" >
+        maker = #{maker,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where order_id = #{orderId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.order.entity.po.OrderPO" >
+    update t_order
+    set ORDER_CODE = #{orderCode,jdbcType=VARCHAR},
+      supply_code = #{supplyCode,jdbcType=VARCHAR},
+      supply_name = #{supplyName,jdbcType=VARCHAR},
+      agent_code = #{agentCode,jdbcType=VARCHAR},
+      agent_name = #{agentName,jdbcType=VARCHAR},
+      settlement = #{settlement,jdbcType=VARCHAR},
+      confirm_no = #{confirmNo,jdbcType=VARCHAR},
+      customer_order_code = #{customerOrderCode,jdbcType=VARCHAR},
+      order_state = #{orderState,jdbcType=VARCHAR},
+      pay_method = #{payMethod,jdbcType=VARCHAR},
+      pay_state = #{payState,jdbcType=INTEGER},
+      base_currency = #{baseCurrency,jdbcType=VARCHAR},
+      base_price = #{basePrice,jdbcType=DECIMAL},
+      SALE_CURRENCY = #{saleCurrency,jdbcType=VARCHAR},
+      SALE_PRICE = #{salePrice,jdbcType=DECIMAL},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      channel_code = #{channelCode,jdbcType=VARCHAR},
+      child_channel_code = #{childChannelCode,jdbcType=VARCHAR},
+      channel_state = #{channelState,jdbcType=VARCHAR},
+      finance_lock_status = #{financeLockStatus,jdbcType=INTEGER},
+      finance_locker = #{financeLocker,jdbcType=VARCHAR},
+      guest_name = #{guestName,jdbcType=VARCHAR},
+      guest_file = #{guestFile,jdbcType=VARCHAR},
+      receivable = #{receivable,jdbcType=DECIMAL},
+      payable = #{payable,jdbcType=DECIMAL},
+      actual_received = #{actualReceived,jdbcType=DECIMAL},
+      actual_paied = #{actualPaied,jdbcType=DECIMAL},
+      checkin_date = #{checkinDate,jdbcType=TIMESTAMP},
+      checkout_date = #{checkoutDate,jdbcType=TIMESTAMP},
+      remark = #{remark,jdbcType=VARCHAR},
+      dept_no = #{deptNo,jdbcType=VARCHAR},
+      dept_name = #{deptName,jdbcType=VARCHAR},
+      agent_commission = #{agentCommission,jdbcType=DECIMAL},
+      supply_commission = #{supplyCommission,jdbcType=DECIMAL},
+      room_no = #{roomNo,jdbcType=VARCHAR},
+      maker = #{maker,jdbcType=VARCHAR}
+    where order_id = #{orderId,jdbcType=BIGINT}
+  </update>
+  
+  	<!-- 订单锁单分页查询 -->
+	<select id="queryOrderLockList" resultType="com.travel.hotel.order.entity.OrderInfo" parameterType="com.travel.common.dto.finance.query.OrderLockQueryDTO">
+		select distinct
+		  o.order_id            orderId,
+		  o.order_code          orderCode,
+		  op.hotel_name         hotelName,
+		  o.guest_name          guestName,
+		  o.checkin_date        checkinDate,
+		  o.checkout_date       checkoutDate,
+		  o.agent_code          agentCode,
+		  o.agent_name          agentName,
+		  o.supply_code         supplyCode,
+		  o.supply_name         supplyName,
+		  o.settlement          settlement,
+		  o.order_state         orderState,
+		  o.confirm_no			confirmNo,
+		  o.room_no				roomNo,
+		  o.finance_lock_status financeLockStatus,
+		  o.finance_locker      financeLocker
+		from t_order o, t_order_product op
+		<where> 
+			o.order_code = op.order_code
+			<if test="orderCode != null and orderCode != ''">and o.order_code like concat('%',#{orderCode},'%')</if>
+			<if test="financeLockStatus != null and financeLockStatus == 1">and o.finance_lock_status = #{financeLockStatus}</if>
+			<if test="financeLockStatus != null and financeLockStatus == 0">and (o.finance_lock_status is null or o.finance_lock_status = 0)</if>
+		</where>
+	</select>
+	
+	<select id="queryOrderInfoList" resultType="com.travel.hotel.order.entity.OrderInfo" parameterType="com.travel.common.dto.order.request.QueryOrderRequestDTO">
+		select distinct
+		  o.order_id            orderId,
+		  o.order_code          orderCode,
+          o.customer_Order_Code customerOrderCode,
+          o.channel_Code        channelCode,
+          o.child_channel_Code  childChannelCode,
+		  o.agent_code          agentCode,
+		  o.agent_name          agentName,
+		  o.supply_code         supplyCode,
+		  o.supply_name         supplyName,
+		  o.guest_name          guestName,
+		  o.confirm_no			confirmNo,
+		  o.room_no				roomNo,
+		  o.finance_lock_status financeLockStatus,
+		  op.hotel_id           hotelId,
+		  op.hotel_name         hotelName,
+		  o.checkin_date        checkinDate,
+		  o.checkout_date       checkoutDate,
+		  o.channel_state       channelState,
+          o.order_state         orderState,
+          o.create_date			createDate,
+          o.modify_date         modifyDate
+		from t_order o, t_order_product op
+		<where> 
+			o.order_code = op.order_code
+			<if test="orderCode != null and orderCode != ''">
+				and o.order_code like concat('%',#{orderCode},'%')
+			</if>
+            <if test="customerOrderCode != null and customerOrderCode != ''">
+                and o.customer_Order_Code like concat('%',#{customerOrderCode},'%')
+            </if>
+            <if test="orderState != null and orderState != ''">
+                and o.order_state = #{orderState}
+            </if>
+            <if test="channelCode != null and channelCode != ''">
+                and o.channel_Code = #{channelCode}
+            </if>
+			<if test="agentCode != null and agentCode != ''">
+				and o.agent_code = #{agentCode}
+			</if>
+			<if test="agentCode == null or agentCode == ''">
+				<if test="agentName != null and agentName != ''">
+					and o.agent_name like concat('%',#{agentName},'%')
+				</if>
+			</if>
+			<if test="supplyCode != null and supplyCode != ''">
+				and o.supply_code = #{supplyCode}
+			</if>
+			<if test="supplyCode == null or supplyCode == ''">
+				<if test="supplyName != null and supplyName != ''">
+					and o.supply_name like concat('%',#{supplyName},'%')
+				</if>
+			</if>
+			<if test="guestName != null and guestName != ''">
+				and o.guest_name like concat('%',#{guestName},'%')
+			</if>
+			<if test="hotelId != null and hotelId != ''">
+				and op.hotel_id = #{hotelId}
+			</if>
+			<if test="hotelId == null or hotelId == ''">
+				<if test="hotelName != null and hotelName != ''">
+					and op.hotel_name like concat('%',#{hotelName},'%')
+				</if>
+			</if>
+			<if test="deptName != null and deptName != ''">
+				and o.dept_name like concat('%',#{deptName},'%')
+			</if>
+			<if test="creator != null and creator != ''">
+				and o.creator like concat('%',#{creator},'%')
+			</if>
+			<if test="dateType != null">
+				<if test="dateType == 1">
+					<if test="startDate != null and startDate != ''">
+						and o.order_code in (select t.order_code from t_order_day_price t where cast(t.sale_date as date) >= cast(#{startDate} as date) group by t.order_code)
+					</if>
+					<if test="endDate != null and endDate != ''">
+						<![CDATA[and o.order_code in (select t.order_code from t_order_day_price t where cast(t.sale_date as date) <= cast(#{endDate} as date) group by t.order_code)]]>
+					</if>
+				</if>
+				<if test="dateType == 2">
+					 <if test="startDate != null and startDate != ''">
+		             	and cast(o.checkin_date as date) >= cast(#{startDate} as date)
+		             </if>
+		             <if test="endDate != null and endDate != ''">
+		             	<![CDATA[and cast(o.checkin_date as date) <= cast(#{endDate} as date)]]>
+		             </if>
+				</if>
+				<if test="dateType == 3">
+					 <if test="startDate != null and startDate != ''">
+		             	and cast(o.checkout_date as date) >= cast(#{startDate} as date)
+		             </if>
+		             <if test="endDate != null and endDate != ''">
+		             	<![CDATA[and cast(o.checkout_date as date) <= cast(#{endDate} as date)]]>
+		             </if>
+				</if>
+				<if test="dateType == 4">
+					 <if test="startDate != null and startDate != ''">
+		             	and cast(o.create_date as date) >= cast(#{startDate} as date)
+		             </if>
+		             <if test="endDate != null and endDate != ''">
+		             	<![CDATA[and cast(o.create_date as date) <= cast(#{endDate} as date)]]>
+		             </if>
+				</if>
+			</if>
+		</where>
+		order by o.create_date desc, o.modify_date desc
+	</select>
+	
+	<!-- 追加备注 -->
+	<update id="appendRemark" parameterType="com.travel.hotel.order.entity.po.OrderPO">
+		update t_order t set t.remark = concat(ifnull(t.remark,''),#{remark,jdbcType=VARCHAR}) where t.order_code = #{orderCode}
+	</update>
+	
+	<!-- 订单批量锁单 -->
+	<update id="batchLockOrder" parameterType="java.util.List">
+		<foreach collection="list" close=";" index="index" item="record" open="" separator=";">
+			update t_order t 
+				set t.finance_lock_status = #{record.financeLockStatus},
+				t.finance_locker = #{record.financeLocker},
+				t.modifier = #{record.modifier}
+			where t.order_code = #{record.orderCode}
+		</foreach>
+	</update>
+	
+	<!-- 查询酒店当天订单数量 -->
+	<select id="queryOrderCountByHotel" resultType="com.travel.hotel.order.entity.HotelOrderCount" parameterType="com.travel.common.dto.order.request.SearchRoomQueryDTO">
+		select
+		  op.hotel_id       hotelid,
+		  op.hotel_name     hotelname,
+		  count(o.order_id) count
+		from t_order o, (
+		                  select distinct
+		                    p.order_code,
+		                    p.hotel_id,
+		                    p.hotel_name
+		                  from t_order_product p) op
+		<where>
+			o.order_code = op.order_code
+			and cast(o.create_date as date) = cast(now() as date)
+			<if test="hotelId != null">
+				and op.hotel_id = #{hotelId}
+			</if>
+			<if test="hotelId == null">
+				<if test="hotelName != null and hotelName != ''">
+					and op.hotel_name like concat('%',#{hotelName},'%')
+				</if>
+			</if>
+		</where>
+		group by op.hotel_id, op.hotel_name
+	</select>
+	
+</mapper>

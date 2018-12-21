@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.OrderCheckDetailMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.OrderCheckDetailDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="oder_id" jdbcType="INTEGER" property="oderId" />
+    <result column="supply_order_id" jdbcType="INTEGER" property="supplyOrderId" />
+    <result column="supply_product_id" jdbcType="INTEGER" property="supplyProductId" />
+    <result column="checkin_date" jdbcType="TIMESTAMP" property="checkinDate" />
+    <result column="checkout_date" jdbcType="TIMESTAMP" property="checkoutDate" />
+    <result column="room_num" jdbcType="INTEGER" property="roomNum" />
+    <result column="base_price" jdbcType="DECIMAL" property="basePrice" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+</mapper>

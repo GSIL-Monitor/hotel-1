@@ -1,0 +1,102 @@
+spring:
+  application:
+    name: bms
+  redis:
+      host: 
+      database: 0
+      port: 6379
+      password: fangcang
+  dataSource:
+      url: jdbc:mysql://:3306/apollo_mq?characterEncoding=UTF-8&allowMultiQueries=true
+      username: 
+      password: 
+      driver-class-name: com.mysql.jdbc.Driver
+      type: com.alibaba.druid.pool.DruidDataSource
+      filters: stat
+      maxActive: 20
+      initialSize: 1
+      maxWait: 60000
+      minIdle: 1
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: select 'x'
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxOpenPreparedStatements: 20
+  jackson:
+    time-zone: GMT+8
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30Mb
+      max-request-size: 30Mb
+
+server:
+  port: 18082
+  servlet:
+    session:
+      cookie:
+        max-age: 28800
+
+mybatis:
+  mapper-locations: classpath:mapping/*/*.xml,com/fangcang/test/*.xml
+  type-aliases-package: com.fangcang.*.domain,com.fangcang.*.*.domain
+
+mapper:
+  mappers: com.fangcang.common.MyMapper
+  not-empty: false
+  identity: MYSQL
+
+#pagehelper分页插件
+pagehelper:
+    helperDialect: mysql
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql
+
+ftp:
+    addr: 
+    port: 21
+    userName: ftpusr
+    passWord: ftpusr
+    domainName: http://fc.image.com/Apollo/
+    realPath: /data/image/upload/Apollo/
+    supplyContractPath: /home/fangcang168/supplyContract/
+    agentContractPath:  /home/fangcang168/agentContract/
+    fileDirpRefix: /data/image/apollo
+    fileUrlRefix: http://apolloimage.fangcang.com/apollo
+
+apollo:
+    increment:
+        ip: 
+        port: 8080
+        server: dlt-server
+        interfaceName: incrementPush
+    hotelbaseinfo:
+        ip: localhost
+        port: 8080
+        server: hotel-baseinfo-server
+    dltorder:
+        ip: 
+        port: 8080
+        server: dlt-server
+        interfaceName: orderOperate
+    template:
+        quotaReportUrl: http://apolloimage.fangcang.com/apollo/template/dailyQuotaReport.xls
+        receivableReportUrl: http://apolloimage.fangcang.com/apollo/template/receivableReport.xls
+        payableReportUrl: http://apolloimage.fangcang.com/apollo/template/payableReport.xls
+        profitReportUrl: http://apolloimage.fangcang.com/apollo/template/profitReport.xls
+        prepayContractReportUrl: http://apolloimage.fangcang.com/apollo/template/prepayContractReport.xls
+        agentBillReportUrl: http://apolloimage.fangcang.com/apollo/template/AgentBillReport.xls
+        supplyBillReportUrl: http://apolloimage.fangcang.com/apollo/template/SupplyBillReport.xls
+
+logging.level.org.springframework: INFO
+logging.level.com.fangcang.merchant.mapper: DEBUG
+logging.level.com.fangcang.supplier.mapper: DEBUG
+logging.level.com.fangcang.agent.mapper: DEBUG
+logging.level.com.fangcang.product.mapper.SaleStateMapper: DEBUG
+logging.level.com.fangcang.product.mapper.QuotaStateMapper: DEBUG
+logging.level.com.fangcang.product.mapper.PriceInfoMapper: DEBUG
+

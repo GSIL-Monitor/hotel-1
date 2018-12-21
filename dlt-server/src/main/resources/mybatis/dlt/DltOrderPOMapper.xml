@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.dlt.dao.DltOrderPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.dlt.entity.po.DltOrderPO" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="dlt_order_id" property="dltOrderId" jdbcType="VARCHAR" />
+    <result column="merchant_code" property="merchantCode" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="is_handled" property="isHandled" jdbcType="INTEGER" />
+    <result column="handle_date" property="handleDate" jdbcType="TIMESTAMP" />
+    <result column="handle_result" property="handleResult" jdbcType="VARCHAR" />
+    <result column="handle_remark" property="handleRemark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, dlt_order_id,merchant_code, create_date, is_handled, handle_date, handle_result, handle_remark
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.dlt.entity.po.DltOrderPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_dlt_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_dlt_order
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_dlt_order
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.hotel.dlt.entity.po.DltOrderPOExample" >
+    delete from t_dlt_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.dlt.entity.po.DltOrderPO" >
+    insert into t_dlt_order (id, dlt_order_id,merchant_code, create_date,
+      is_handled, handle_date, handle_result, 
+      handle_remark)
+    values (#{id,jdbcType=BIGINT}, #{dltOrderId,jdbcType=VARCHAR},#{merchantCode,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP},
+      #{isHandled,jdbcType=INTEGER}, #{handleDate,jdbcType=TIMESTAMP}, #{handleResult,jdbcType=VARCHAR}, 
+      #{handleRemark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List" >
+    insert into t_dlt_order (id, dlt_order_id,merchant_code, create_date,
+    is_handled, handle_date, handle_result,
+    handle_remark,order_id
+    ,channel
+    ,child_channel
+    ,update_time
+    ,order_date
+    ,form_type
+    ,order_status
+    ,checkin_date
+    ,checkout_date)
+    values
+    <foreach collection="list" item="order" separator=",">
+    (#{order.id,jdbcType=BIGINT}, #{order.dltOrderId,jdbcType=VARCHAR},#{order.merchantCode,jdbcType=VARCHAR}, #{order.createDate,jdbcType=TIMESTAMP},
+    #{order.isHandled,jdbcType=INTEGER}, #{order.handleDate,jdbcType=TIMESTAMP}, #{order.handleResult,jdbcType=VARCHAR},
+    #{order.handleRemark,jdbcType=VARCHAR},#{order.orderId,jdbcType=VARCHAR}
+      ,#{order.channel,jdbcType=VARCHAR}
+      ,#{order.childChannel,jdbcType=VARCHAR}
+      ,#{order.updateTime,jdbcType=TIMESTAMP}
+      ,#{order.orderDate,jdbcType=TIMESTAMP}
+      ,#{order.formType,jdbcType=VARCHAR}
+      ,#{order.orderStatus,jdbcType=VARCHAR}
+      ,#{order.checkinDate,jdbcType=TIMESTAMP}
+      ,#{order.checkoutDate,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.dlt.entity.po.DltOrderPO" >
+    insert into t_dlt_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="dltOrderId != null" >
+        dlt_order_id,
+      </if>
+      <if test="merchantCode != null" >
+        merchant_code,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="isHandled != null" >
+        is_handled,
+      </if>
+      <if test="handleDate != null" >
+        handle_date,
+      </if>
+      <if test="handleResult != null" >
+        handle_result,
+      </if>
+      <if test="handleRemark != null" >
+        handle_remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="dltOrderId != null" >
+        #{dltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="merchantCode != null" >
+        #{merchantCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isHandled != null" >
+        #{isHandled,jdbcType=INTEGER},
+      </if>
+      <if test="handleDate != null" >
+        #{handleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="handleResult != null" >
+        #{handleResult,jdbcType=VARCHAR},
+      </if>
+      <if test="handleRemark != null" >
+        #{handleRemark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.hotel.dlt.entity.po.DltOrderPOExample" resultType="java.lang.Integer" >
+    select count(*) from t_dlt_order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_dlt_order
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.dltOrderId != null" >
+        dlt_order_id = #{record.dltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.merchantCode != null" >
+        merchant_code = #{record.merchantCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createDate != null" >
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isHandled != null" >
+        is_handled = #{record.isHandled,jdbcType=INTEGER},
+      </if>
+      <if test="record.handleDate != null" >
+        handle_date = #{record.handleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.handleResult != null" >
+        handle_result = #{record.handleResult,jdbcType=VARCHAR},
+      </if>
+      <if test="record.handleRemark != null" >
+        handle_remark = #{record.handleRemark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_dlt_order
+    set id = #{record.id,jdbcType=BIGINT},
+      dlt_order_id = #{record.dltOrderId,jdbcType=VARCHAR},
+      merchant_code = #{record.merchantCode,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      is_handled = #{record.isHandled,jdbcType=INTEGER},
+      handle_date = #{record.handleDate,jdbcType=TIMESTAMP},
+      handle_result = #{record.handleResult,jdbcType=VARCHAR},
+      handle_remark = #{record.handleRemark,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.dlt.entity.po.DltOrderPO" >
+    update t_dlt_order
+    <set >
+      <if test="dltOrderId != null" >
+        dlt_order_id = #{dltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="merchantCode != null" >
+        merchant_code = #{merchantCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isHandled != null" >
+        is_handled = #{isHandled,jdbcType=INTEGER},
+      </if>
+      <if test="handleDate != null" >
+        handle_date = #{handleDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="handleResult != null" >
+        handle_result = #{handleResult,jdbcType=VARCHAR},
+      </if>
+      <if test="handleRemark != null" >
+        handle_remark = #{handleRemark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.dlt.entity.po.DltOrderPO" >
+    update t_dlt_order
+    set dlt_order_id = #{dltOrderId,jdbcType=VARCHAR},
+      merchant_code = #{merchantCode,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      is_handled = #{isHandled,jdbcType=INTEGER},
+      handle_date = #{handleDate,jdbcType=TIMESTAMP},
+      handle_result = #{handleResult,jdbcType=VARCHAR},
+      handle_remark = #{handleRemark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

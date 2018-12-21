@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.dlt.dao.DltOrderDayPricePOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.dlt.entity.po.DltOrderDayPricePO" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="dlt_order_Id" property="dltOrderId" jdbcType="VARCHAR" />
+    <result column="effect_date" property="effectDate" jdbcType="TIMESTAMP" />
+    <result column="meal_type" property="mealType" jdbcType="INTEGER" />
+    <result column="breakfast" property="breakfast" jdbcType="VARCHAR" />
+    <result column="breakfast_num" property="breakfastNum" jdbcType="INTEGER" />
+    <result column="currency" property="currency" jdbcType="VARCHAR" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, dlt_order_Id, effect_date, meal_type, breakfast, breakfast_num, currency, price, 
+    creator, create_date, modifier, modify_date
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDayPricePOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_dlt_order_day_price
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_dlt_order_day_price
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_dlt_order_day_price
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDayPricePOExample" >
+    delete from t_dlt_order_day_price
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDayPricePO" >
+    insert into t_dlt_order_day_price (id, dlt_order_Id, effect_date, 
+      meal_type, breakfast, breakfast_num, 
+      currency, price, creator, 
+      create_date, modifier, modify_date
+      )
+    values (#{id,jdbcType=BIGINT}, #{dltOrderId,jdbcType=VARCHAR}, #{effectDate,jdbcType=TIMESTAMP}, 
+      #{mealType,jdbcType=INTEGER}, #{breakfast,jdbcType=VARCHAR}, #{breakfastNum,jdbcType=INTEGER}, 
+      #{currency,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, #{creator,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, #{modifyDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List" >
+    insert into t_dlt_order_day_price (id, dlt_order_Id, effect_date,
+    meal_type, breakfast, breakfast_num,
+    currency, price, creator,
+    create_date, modifier, modify_date
+    )
+    values
+    <foreach collection="list" item="dayPrice" separator=",">
+    (#{dayPrice.id,jdbcType=BIGINT}, #{dayPrice.dltOrderId,jdbcType=VARCHAR}, #{dayPrice.effectDate,jdbcType=TIMESTAMP},
+    #{dayPrice.mealType,jdbcType=INTEGER}, #{dayPrice.breakfast,jdbcType=VARCHAR}, #{dayPrice.breakfastNum,jdbcType=INTEGER},
+    #{dayPrice.currency,jdbcType=VARCHAR}, #{dayPrice.price,jdbcType=DECIMAL}, #{dayPrice.creator,jdbcType=VARCHAR},
+    #{dayPrice.createDate,jdbcType=TIMESTAMP}, #{dayPrice.modifier,jdbcType=VARCHAR}, #{dayPrice.modifyDate,jdbcType=TIMESTAMP}
+    )
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDayPricePO" >
+    insert into t_dlt_order_day_price
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="dltOrderId != null" >
+        dlt_order_Id,
+      </if>
+      <if test="effectDate != null" >
+        effect_date,
+      </if>
+      <if test="mealType != null" >
+        meal_type,
+      </if>
+      <if test="breakfast != null" >
+        breakfast,
+      </if>
+      <if test="breakfastNum != null" >
+        breakfast_num,
+      </if>
+      <if test="currency != null" >
+        currency,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifyDate != null" >
+        modify_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="dltOrderId != null" >
+        #{dltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="effectDate != null" >
+        #{effectDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mealType != null" >
+        #{mealType,jdbcType=INTEGER},
+      </if>
+      <if test="breakfast != null" >
+        #{breakfast,jdbcType=VARCHAR},
+      </if>
+      <if test="breakfastNum != null" >
+        #{breakfastNum,jdbcType=INTEGER},
+      </if>
+      <if test="currency != null" >
+        #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDayPricePOExample" resultType="java.lang.Integer" >
+    select count(*) from t_dlt_order_day_price
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_dlt_order_day_price
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.dltOrderId != null" >
+        dlt_order_Id = #{record.dltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.effectDate != null" >
+        effect_date = #{record.effectDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.mealType != null" >
+        meal_type = #{record.mealType,jdbcType=INTEGER},
+      </if>
+      <if test="record.breakfast != null" >
+        breakfast = #{record.breakfast,jdbcType=VARCHAR},
+      </if>
+      <if test="record.breakfastNum != null" >
+        breakfast_num = #{record.breakfastNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.currency != null" >
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.price != null" >
+        price = #{record.price,jdbcType=DECIMAL},
+      </if>
+      <if test="record.creator != null" >
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createDate != null" >
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.modifier != null" >
+        modifier = #{record.modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifyDate != null" >
+        modify_date = #{record.modifyDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_dlt_order_day_price
+    set id = #{record.id,jdbcType=BIGINT},
+      dlt_order_Id = #{record.dltOrderId,jdbcType=VARCHAR},
+      effect_date = #{record.effectDate,jdbcType=TIMESTAMP},
+      meal_type = #{record.mealType,jdbcType=INTEGER},
+      breakfast = #{record.breakfast,jdbcType=VARCHAR},
+      breakfast_num = #{record.breakfastNum,jdbcType=INTEGER},
+      currency = #{record.currency,jdbcType=VARCHAR},
+      price = #{record.price,jdbcType=DECIMAL},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      modifier = #{record.modifier,jdbcType=VARCHAR},
+      modify_date = #{record.modifyDate,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDayPricePO" >
+    update t_dlt_order_day_price
+    <set >
+      <if test="dltOrderId != null" >
+        dlt_order_Id = #{dltOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="effectDate != null" >
+        effect_date = #{effectDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mealType != null" >
+        meal_type = #{mealType,jdbcType=INTEGER},
+      </if>
+      <if test="breakfast != null" >
+        breakfast = #{breakfast,jdbcType=VARCHAR},
+      </if>
+      <if test="breakfastNum != null" >
+        breakfast_num = #{breakfastNum,jdbcType=INTEGER},
+      </if>
+      <if test="currency != null" >
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.dlt.entity.po.DltOrderDayPricePO" >
+    update t_dlt_order_day_price
+    set dlt_order_Id = #{dltOrderId,jdbcType=VARCHAR},
+      effect_date = #{effectDate,jdbcType=TIMESTAMP},
+      meal_type = #{mealType,jdbcType=INTEGER},
+      breakfast = #{breakfast,jdbcType=VARCHAR},
+      breakfast_num = #{breakfastNum,jdbcType=INTEGER},
+      currency = #{currency,jdbcType=VARCHAR},
+      price = #{price,jdbcType=DECIMAL},
+      creator = #{creator,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modify_date = #{modifyDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

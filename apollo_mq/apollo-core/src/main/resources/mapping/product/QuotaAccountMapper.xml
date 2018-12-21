@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.product.mapper.QuotaAccountMapper">
+
+
+    <insert id="insertQuotaAccount" parameterType="com.fangcang.product.domain.QuotaAccountDO" useGeneratedKeys="true" keyProperty="quotaAccountId">
+        insert into t_htlpro_quota_account (
+                                            quotaaccount_name,
+                                            hotel_id,
+                                            supply_code,
+                                            create_time,
+                                            creator,
+                                            is_share)
+                                values (#{quotaAccountName,jdbcType=VARCHAR},
+                                        #{hotelId,jdbcType=INTEGER},
+                                        #{supplyCode,jdbcType=VARCHAR},
+                                        NOW(),
+                                        #{creator,jdbcType=VARCHAR},
+                                        #{isShare,jdbcType=INTEGER})
+    </insert>
+
+    <update id="updateQuotaAccount" parameterType="com.fangcang.product.domain.QuotaAccountDO">
+        update t_htlpro_quota_account
+        <set>
+            <if test="quotaAccountId != null">
+                quotaaccount_id = #{quotaAccountId,jdbcType=INTEGER},
+            </if>
+            <if test="quotaAccountName != null">
+                quotaaccount_name = #{quotaAccountName,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="isShare != null">
+                is_share = #{isShare,jdbcType=INTEGER},
+            </if>
+            modify_time = NOW()
+        </set>
+        where quotaaccount_id = #{quotaAccountId,jdbcType=INTEGER}
+    </update>
+
+    <insert id="batchSaveQuotaAccount" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="quotaAccountId">
+        insert into t_htlpro_quota_account (
+        quotaaccount_name,
+        hotel_id,
+        supply_code,
+        create_time,
+        creator,
+        is_share)
+        values
+        <foreach collection="list" item="qa" separator=",">
+            (#{qa.quotaAccountName,jdbcType=VARCHAR},
+            #{qa.hotelId,jdbcType=INTEGER},
+            #{qa.supplyCode,jdbcType=VARCHAR},
+            NOW(),
+            #{qa.creator,jdbcType=VARCHAR},
+            #{qa.isShare,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+    <resultMap id="BaseResultMap" type="com.fangcang.product.domain.QuotaAccountDO">
+        <id column="quotaaccount_id" jdbcType="INTEGER" property="quotaAccountId" />
+        <result column="quotaaccount_name" jdbcType="VARCHAR" property="quotaAccountName" />
+        <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+        <result column="supply_code" jdbcType="VARCHAR" property="supplyCode" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="is_share" jdbcType="BIT" property="isShare" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        quotaaccount_id, quotaaccount_name, hotel_id, supply_code, create_time, creator,
+        modify_time, modifier, is_share
+    </sql>
+
+    <select id="dynamicQueryQuotaAccount" parameterType="com.fangcang.product.request.QuotaAccountQueryDTO" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_htlpro_quota_account
+        <where>
+            <if test="quotaAccountId != null">
+                and quotaaccount_id = #{quotaaccountId,jdbcType=INTEGER}
+            </if>
+            <if test="quotaAccountIds != null and '' != quotaAccountIds">
+                and quotaaccount_id in (${quotaAccountIds})
+            </if>
+        </where>
+    </select>
+</mapper>

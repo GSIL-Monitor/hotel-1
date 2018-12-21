@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.hotelinfo.mapper.HotelInfoMappingMapper" >
+
+    <insert id="insertHotelMapping" parameterType="com.fangcang.hotelinfo.domain.HotelMappingDO">
+        insert into t_hotel_mapping (old_hotel_id, new_hotel_id)
+             values ( #{oldHotelId,jdbcType=INTEGER}, #{newHotelId,jdbcType=INTEGER})
+    </insert>
+
+</mapper>

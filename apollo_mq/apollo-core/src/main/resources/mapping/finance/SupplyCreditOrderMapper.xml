@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.bill.mapper.SupplyCreditOrderMapper">
+
+  <update id="updateOrderFinance" parameterType="com.fangcang.finance.bill.request.UpdateOrderFinanceDTO">
+      UPDATE o_supply_finance o
+      <trim prefix="set" suffixOverrides=",">
+        <if test="settlementAmount != null">
+          o.settlement_amount = #{settlementAmount},
+        </if>
+        <if test="accountStatus != null">
+          o.account_status = #{accountStatus},
+        </if>
+        <if test="settlementStatus != null">
+          o.settlement_status=#{settlementStatus},
+        </if>
+      </trim>
+      where o.supply_order_code = #{orderCode}
+  </update>
+
+  <select id="querySupplyCheckOut" parameterType="com.fangcang.finance.bill.request.QueryCheckOutDTO"
+      resultType="com.fangcang.finance.bill.response.CheckOutDTO">
+    SELECT
+      tmp1.supply_code orgCode,
+      tmp1.supply_name orgName,
+      tmp1.totalAmount,
+      CONCAT(ROUND(tmp1.totalAmount / tmp2.allAmount * 100,2),'','%') amountOfPercent,
+      tmp1.orderCount
+    FROM
+      (SELECT
+        so.supply_code,
+        s.supply_name,
+        sum(so.payable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0)) totalAmount,
+        count(1) orderCount
+      FROM o_order o INNER JOIN o_supply_order so ON o.id=so.order_id INNER JOIN o_supply_finance f ON so.id = f.supply_order_id
+        INNER JOIN t_supply s ON so.supply_code=s.supply_code
+        LEFT JOIN
+        (SELECT
+        foi.order_code,
+        SUM(foi.amount)noticeAmount
+        FROM
+        t_fin_supply_finance_order fo,
+        t_fin_supply_finance_order_item foi
+        WHERE
+        fo.id = foi.finance_order_id
+        AND fo.finance_status=0
+        GROUP BY foi.order_code)tmp ON so.supply_order_code=tmp.order_code
+      WHERE so.supply_status IN (3,4)
+        AND f.account_status IN (0,1)
+        AND o.merchant_code=#{merchantCode}
+    <choose>
+      <when test="dateType==1">
+        <if test="beginDate!=null and beginDate!=''">
+          AND o.create_time >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+        </if>
+      </when>
+      <when test="dateType==2">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkin_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkin_date &lt;= #{endDate}
+        </if>
+      </when>
+      <when test="dateType==3">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkout_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkout_date &lt;= #{endDate}
+        </if>
+      </when>
+    </choose>
+    <choose>
+      <when test="orgCode!=null and orgCode!=''">
+        AND so.supply_code=#{orgCode}
+      </when>
+      <otherwise>
+        <if test="orgName != null and orgName != ''">
+          AND s.supply_name LIKE concat(concat('%',#{orgName}),'%')
+        </if>
+      </otherwise>
+    </choose>
+    <if test="orderCode != null and orderCode != ''">
+      AND so.supply_order_code=#{orderCode}
+    </if>
+    <if test="guest != null and guest != ''">
+      AND o.guest_names LIKE concat(concat('%',#{guest}),'%')
+    </if>
+      GROUP BY so.supply_code,s.supply_name
+      ORDER BY totalAmount DESC
+    ) tmp1,
+    (SELECT
+          sum(so.payable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0)) allAmount
+        FROM o_order o INNER JOIN o_supply_order so ON o.id=so.order_id INNER JOIN o_supply_finance f ON so.id = f.supply_order_id
+          INNER JOIN t_supply s ON so.supply_code=s.supply_code
+          LEFT JOIN
+          (SELECT
+          foi.order_code,
+          SUM(foi.amount)noticeAmount
+          FROM
+          t_fin_supply_finance_order fo,
+          t_fin_supply_finance_order_item foi
+          WHERE
+          fo.id = foi.finance_order_id
+          AND fo.finance_status=0
+          GROUP BY foi.order_code)tmp ON so.supply_order_code=tmp.order_code
+        WHERE so.supply_status IN (3,4)
+        AND f.account_status IN (0,1)
+        AND o.merchant_code=#{merchantCode}
+    <choose>
+      <when test="dateType==1">
+        <if test="beginDate!=null and beginDate!=''">
+          AND o.create_time >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+        </if>
+      </when>
+      <when test="dateType==2">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkin_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkin_date &lt;= #{endDate}
+        </if>
+      </when>
+      <when test="dateType==3">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkout_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkout_date &lt;= #{endDate}
+        </if>
+      </when>
+    </choose>
+    <choose>
+      <when test="orgCode!=null and orgCode!=''">
+        AND so.supply_code=#{orgCode}
+      </when>
+      <otherwise>
+        <if test="orgName != null and orgName != ''">
+          AND s.supply_name LIKE concat(concat('%',#{orgName}),'%')
+        </if>
+      </otherwise>
+    </choose>
+    <if test="orderCode != null and orderCode != ''">
+      AND so.supply_order_code=#{orderCode}
+    </if>
+    <if test="guest != null and guest != ''">
+      AND o.guest_names LIKE concat(concat('%',#{guest}),'%')
+    </if>
+    ) tmp2 WHERE tmp1.orderCount>0
+  </select>
+
+  <select id="querySupplyCheckOutCurrency" parameterType="com.fangcang.finance.bill.request.QueryCheckOutCurrencyDTO"
+          resultType="com.fangcang.finance.bill.domain.CheckOutCurrencyDO">
+    SELECT
+      so.supply_code orgCode,
+      so.base_currency currency,
+      sum(so.payable_amount - f.settlement_amount - IFNULL(tmp.noticeAmount,0)) amount
+    FROM o_order o INNER JOIN o_supply_order so ON o.id=so.order_id INNER JOIN o_supply_finance f ON so.id = f.supply_order_id
+      LEFT JOIN
+      (SELECT
+      foi.order_code,
+      SUM(foi.amount)noticeAmount
+      FROM
+      t_fin_supply_finance_order fo,
+      t_fin_supply_finance_order_item foi
+      WHERE
+      fo.id = foi.finance_order_id
+      AND fo.finance_status=0
+      GROUP BY foi.order_code)tmp ON so.supply_order_code=tmp.order_code
+    WHERE so.supply_status IN (3,4)
+    AND f.account_status IN (0,1)
+    <choose>
+      <when test="dateType==1">
+        <if test="beginDate!=null and beginDate!=''">
+          AND o.create_time >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+        </if>
+      </when>
+      <when test="dateType==2">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkin_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkin_date &lt;= #{endDate}
+        </if>
+      </when>
+      <when test="dateType==3">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkout_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkout_date &lt;= #{endDate}
+        </if>
+      </when>
+    </choose>
+    <if test="orderCode != null and orderCode != ''">
+      AND so.supply_order_code=#{orderCode}
+    </if>
+    <if test="guest != null and guest != ''">
+      AND o.guest_names LIKE concat(concat('%',#{guest}),'%')
+    </if>
+    AND so.supply_code in
+    <foreach collection="orgCodelist" item="item" open="(" separator="," close=")">#{item}</foreach>
+    GROUP BY so.supply_code,so.base_currency
+  </select>
+
+  <select id="queryCheckOutOrder" parameterType="com.fangcang.finance.bill.request.QueryCheckOutDTO"
+          resultType="com.fangcang.finance.bill.response.CheckOutOrderDTO">
+    SELECT
+      f.account_status accountStatus,
+      so.id orderId,
+      so.supply_order_code orderCode,
+      so.hotel_name hotelName,
+      so.room_type_name roomTypeName,
+      so.rateplan_name ratePlanName,
+      o.guest_names guest,
+      DATE_FORMAT(so.checkin_date,"%Y-%m-%d") checkInDate,
+      DATE_FORMAT(so.checkout_date,"%Y-%m-%d") checkOutDate,
+      DATEDIFF(so.checkout_date,so.checkin_date)*so.room_num roomNight,
+      so.base_currency currency,
+      so.payable_amount receivableAmount,
+      f.settlement_amount paidinAmount,
+      so.payable_amount-f.settlement_amount - IFNULL(tmp.noticeAmount,0) currPaidinAmount,
+      DATE_FORMAT(o.create_time,"%Y-%m-%d %T") orderCreateDate,
+      so.balance_method balanceMethod
+    FROM o_order o INNER JOIN o_supply_order so ON o.id=so.order_id INNER JOIN o_supply_finance f ON so.id = f.supply_order_id
+      INNER JOIN t_supply s ON so.supply_code=s.supply_code
+      LEFT JOIN
+      (SELECT
+      foi.order_code,
+      SUM(foi.amount)noticeAmount
+      FROM
+      t_fin_supply_finance_order fo,
+      t_fin_supply_finance_order_item foi
+      WHERE
+      fo.id = foi.finance_order_id
+      AND fo.finance_status=0
+      GROUP BY foi.order_code)tmp ON so.supply_order_code=tmp.order_code
+    WHERE so.supply_status IN (3,4)
+    AND o.merchant_code=#{merchantCode}
+    <if test="accountStatusList != null and accountStatusList.size > 0">
+      AND f.account_status IN
+      <foreach collection="accountStatusList" item="item" open="(" separator="," close=")">#{item}</foreach>
+    </if>
+    <choose>
+      <when test="dateType==1">
+        <if test="beginDate!=null and beginDate!=''">
+          AND o.create_time >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+        </if>
+      </when>
+      <when test="dateType==2">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkin_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkin_date &lt;= #{endDate}
+        </if>
+      </when>
+      <when test="dateType==3">
+        <if test="beginDate!=null and beginDate!=''">
+          AND so.checkout_date >= #{beginDate}
+        </if>
+        <if test="endDate!=null and endDate!=''">
+          AND so.checkout_date &lt;= #{endDate}
+        </if>
+      </when>
+    </choose>
+    <choose>
+      <when test="orgCode!=null and orgCode!=''">
+        AND so.supply_code=#{orgCode}
+      </when>
+      <otherwise>
+        <if test="orgName != null and orgName != ''">
+          AND s.supply_name LIKE concat(concat('%',#{orgName}),'%')
+        </if>
+      </otherwise>
+    </choose>
+    <if test="orderCode != null and orderCode != ''">
+      AND so.supply_order_code=#{orderCode}
+    </if>
+    <if test="guest != null and guest != ''">
+      AND o.guest_names LIKE concat(concat('%',#{guest}),'%')
+    </if>
+  </select>
+
+  <select id="queryCheckOutOrderItem" parameterType="java.util.List" resultType="com.fangcang.finance.bill.response.CheckOutOrderItemDTO">
+
+  </select>
+
+  <select id="queryOrderIdBySupplyOrderId" parameterType="java.util.List" resultType="java.lang.Integer">
+    SELECT
+        so.order_id
+    FROM
+        o_supply_order so
+    WHERE so.id IN
+    <foreach collection="list" item="item" open="(" separator="," close=")">#{item}</foreach>
+  </select>
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.report.mapper.OrderExceptionReportMapper">
+
+    <select id="queryOrderException" parameterType="com.fangcang.report.request.QueryOrderExceptionDTO"
+            resultType="com.fangcang.report.response.OrderExceptionDTO">
+        SELECT
+            o.id orderId,
+            o.order_code orderCode,
+            o.hotel_name hotelName,
+            o.room_type_names roomTypeName,
+            o.rateplan_name rateplanName,
+            DATE_FORMAT(o.create_time, "%Y-%m-%d") createTime,
+            DATE_FORMAT(o.checkin_date, "%Y-%m-%d") checkInDate,
+            DATE_FORMAT(o.checkout_date, "%Y-%m-%d") checkOutDate,
+            o.room_num roomNum,
+            DATEDIFF(o.checkout_date,o.checkin_date) roomNight,
+            o.guest_names guest,
+            o.order_status orderStatus,
+            o.balance_method balanceMethod,
+            o.creator,
+            o.belong_name belongName,
+            o.merchant_bm merchantBm,
+            o.channel_code channelCode,
+            o.customer_order_code customerOrderCode,
+            o.agent_code agentCode,
+            o.agent_name agentName,
+            so.supply_order_code supplyOrderCode,
+            so.supply_status supplyStatus,
+            so.balance_method supplyBalanceMethod,
+            so.confirm_no confirmNo,
+            so.supply_code supplyCode,
+            so.supply_name supplyName,
+            o.sale_currency saleCurrency,
+            o.exception_amount orderExceptionAmount,
+            so.base_currency baseCurrency,
+            so.exception_amount supplyOrderExceptionAmount,
+            n.note
+        FROM
+        o_order o
+        LEFT JOIN (
+            SELECT
+                t.order_id,
+                GROUP_CONCAT(t.note) note
+            FROM o_order_note t
+            WHERE t.note_type = 3
+            GROUP BY t.order_id,t.note_type
+        ) n ON n.order_id = o.id,
+        o_supply_order so
+        WHERE o.id = so.order_id AND so.supply_status != 4 AND o.merchant_code=#{merchantCode}
+        AND (o.exception_amount IS NOT NULL OR so.exception_amount IS NOT NULL)
+        <include refid="queryOrderExceptionCondition"/>
+    </select>
+
+    <sql id="queryOrderExceptionCondition">
+        <choose>
+            <when test="dateType==1">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.create_time >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+                </if>
+            </when>
+            <when test="dateType==2">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.checkin_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.checkin_date &lt;= #{endDate}
+                </if>
+            </when>
+            <when test="dateType==3">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.checkout_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.checkout_date &lt;= #{endDate}
+                </if>
+            </when>
+        </choose>
+        <choose>
+            <when test="agentCode!=null and agentCode!=''">
+                AND o.agent_code=#{agentCode}
+            </when>
+            <otherwise>
+                <if test="agentName != null and agentName != ''">
+                    and o.agent_name LIKE concat(concat('%',#{agentName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="supplyCode!=null and supplyCode!=''">
+                AND so.supply_code=#{supplyCode}
+            </when>
+            <otherwise>
+                <if test="supplyName != null and supplyName != ''">
+                    and so.supply_name LIKE concat(concat('%',#{supplyName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="hotelId!=null and hotelId!=''">
+                AND o.hotel_id=#{hotelId}
+            </when>
+            <otherwise>
+                <if test="hotelName != null and hotelName != ''">
+                    and o.hotel_name LIKE concat(concat('%',#{hotelName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <if test="orderCode != null and orderCode!=''">
+            AND o.order_code=#{orderCode}
+        </if>
+    </sql>
+
+</mapper>

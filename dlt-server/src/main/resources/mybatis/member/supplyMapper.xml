@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.member.dao.SupplyDao">
+
+	<!-- 保存供应商信息 -->
+	<insert id="saveSupply" parameterType="com.travel.member.entity.Supply" useGeneratedKeys="true" keyProperty="supplyId">
+		insert into t_supply (supply_code,supply_name,address,tel,fax,settlement,email,contacts,isactive,creator,createdate) 
+		values (#{supplyCode,jdbcType=VARCHAR},#{supplyName,jdbcType=VARCHAR},#{address,jdbcType=VARCHAR},#{tel,jdbcType=VARCHAR},#{fax,jdbcType=VARCHAR},#{settlement,jdbcType=VARCHAR},#{email,jdbcType=VARCHAR},#{contacts,jdbcType=VARCHAR},1,#{creator,jdbcType=VARCHAR},now())
+	</insert>
+	
+	<!-- 修改供应商信息 -->
+	<update id="updateSupply" parameterType="com.travel.member.entity.Supply">
+		update t_supply t
+		<set>
+			<if test="supplyName != null and supplyName != ''">t.supply_name = #{supplyName},</if>
+			<if test="address != null">t.address = #{address},</if>
+			<if test="tel != null">t.tel = #{tel},</if>
+			<if test="settlement != null">t.settlement = #{settlement},</if>
+			<if test="contacts != null">t.contacts = #{contacts},</if>
+			<if test="isActive != null">t.isactive = #{isActive},</if>
+			<if test="modifier != null">t.modifier = #{modifier},</if>
+			t.fax = #{fax},
+			t.email = #{email},
+			t.modifydate = now()
+		</set>
+		where t.supply_id = #{supplyId}
+	</update>
+	
+	<!-- 删除供应商信息 -->
+	<delete id="deleteSupply" parameterType="java.lang.Long">
+		delete t from t_supply t where t.supply_id = #{supplyId}
+	</delete>
+	
+	<sql id="queryColumn">
+		  t.supply_id    as supplyId,
+		  t.supply_code  as supplyCode,
+		  t.supply_name  as supplyName,
+		  t.address      as address,
+		  t.tel          as tel,
+		  t.fax          as fax,
+		  t.settlement   as settlement,
+		  t.email        as email,
+		  t.contacts     as contacts,
+		  t.isactive     as isActive,
+		  t.creator      as creator,
+		  t.createdate   as createDate,
+		  t.modifydate   as updateDate,
+		  t.modifier     as updator
+	</sql>
+	
+	<!-- 根据供应商id查询供应商 -->
+	<select id="querySupplyById" parameterType="java.lang.Long" resultType="com.travel.member.entity.Supply">
+		select
+		  <include refid="queryColumn" />
+		from t_supply t
+		where t.supply_id = #{supplyId}
+	</select>
+	
+	<!-- 根据供应商编码查询供应商 -->
+	<select id="querySupplyBySupplyCode" parameterType="java.lang.String" resultType="com.travel.member.entity.Supply">
+		select
+		  <include refid="queryColumn" />
+		from t_supply t
+		where t.supply_code = #{supplyCode}
+	</select>
+	
+	<!-- 根据供应商编码查询有效的供应商 -->
+	<select id="querySupplyActiveBySupplyCode" parameterType="java.lang.String" resultType="com.travel.member.entity.Supply">
+		select
+		  <include refid="queryColumn" />
+		from t_supply t
+		where t.isactive = 1 and t.supply_code = #{supplyCode}
+	</select>
+	
+	<!-- 根据供应商名称查询供应商 -->
+	<select id="querySupplyByName" parameterType="java.lang.String" resultType="com.travel.member.entity.Supply">
+		select
+		  <include refid="queryColumn" />
+		from t_supply t
+		where t.supply_name = #{supplyName}
+	</select>
+	
+	<!-- 查询供应商集合 -->
+	<select id="listSupply" parameterType="com.travel.common.dto.member.query.SupplyQueryDTO" resultType="com.travel.member.entity.Supply">
+		select
+		  <include refid="queryColumn" />
+		from t_supply t
+		<where>
+			<if test="isActive != null">
+				and t.isactive = #{isActive}
+			</if>
+			<if test="supplyCode != null and supplyCode != ''">
+				and t.supply_code = #{supplyCode}
+			</if>
+			<if test="supplyCode == null or supplyCode == ''">
+				<if test="supplyName != null and supplyName != ''">
+					and t.supply_name like concat('%',#{supplyName},'%')
+				</if>
+			</if>
+		</where>
+		order by t.createdate desc
+	</select>
+	
+	<!-- 根据酒店关联关系查询供应商 -->
+	<select id="querySupplyByRelation" parameterType="java.lang.Long" resultType="com.travel.member.entity.Supply">
+		select 
+			<include refid="queryColumn" />
+		from t_supply t, t_supply_hotel_relation sh
+		where t.supply_code = sh.supply_code and sh.hotel_id = #{hotelId}
+	</select>
+
+</mapper>

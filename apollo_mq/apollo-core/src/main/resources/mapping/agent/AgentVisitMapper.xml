@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.agent.mapper.AgentVisitMapper">
+    <resultMap id="BaseResultMap" type="com.fangcang.agent.domain.AgentVisitDO">
+        <id column="agent_visit_id" property="agentVisitId" jdbcType="INTEGER"/>
+        <result column="agent_id" property="agentId" jdbcType="INTEGER"/>
+        <result column="agent_code" property="agentCode" jdbcType="VARCHAR"/>
+        <result column="visitor" property="visitor" jdbcType="VARCHAR"/>
+        <result column="visit_time" property="visitTime" jdbcType="TIMESTAMP"/>
+        <result column="visit_content" property="visitContent" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="agent_name" property="agentName"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    agent_visit_id, agent_id, agent_code, visitor, visit_time, visit_content, create_time, 
+    creator
+  </sql>
+
+    <insert id="addVisit" parameterType="com.fangcang.agent.domain.AgentVisitDO" useGeneratedKeys="true"
+            keyProperty="agentVisitId">
+        INSERT INTO t_agent_visit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            agent_id,
+            <if test="agentCode != null">
+                agent_code,
+            </if>
+            <if test="visitTime != null">
+                visit_time,
+            </if>
+            <if test="visitContent != null">
+                visit_content,
+            </if>
+            <if test="visitor != null">
+                visitor,
+            </if>
+            create_time,
+            creator,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{agentId,jdbcType=INTEGER},
+            <if test="agentCode != null">
+                #{agentCode,jdbcType=VARCHAR},
+            </if>
+            <if test="visitTime != null">
+                #{visitTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="visitContent != null">
+                #{visitContent,jdbcType=VARCHAR},
+            </if>
+            <if test="visitor != null">
+                #{visitor,jdbcType=VARCHAR},
+            </if>
+            NOW(),
+            #{creator,jdbcType=VARCHAR},
+        </trim>
+    </insert>
+
+    <select id="selectVisitListByAgentId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_agent_visit WHERE agent_id=#{agent_id,jdbcType=INTEGER}
+    </select>
+
+    <!--查询分销商拜访记录列表(单独的模块)-->
+    <select id="getVisitList" parameterType="com.fangcang.agent.request.GetVisitListQueryDTO"
+            resultMap="BaseResultMap">
+        SELECT
+        av.agent_visit_id, av.agent_id, av.agent_code, av.visitor, av.visit_time, av.visit_content, av.create_time,
+        av.creator,a.agent_name
+        FROM  t_agent a RIGHT JOIN t_agent_visit av ON av.agent_id=a.agent_id AND av.agent_code=a.agent_code
+        LEFT JOIN t_user u ON a.merchant_bm = u.id WHERE 1=1 AND a.merchant_id = #{merchantId}
+        <if test="null!=agentCode and ''!=agentCode">
+            AND av.agent_code=#{agentCode,jdbcType=VARCHAR}
+        </if>
+        <if test="null!=agentName and ''!=agentName">
+            AND a.agent_name LIKE CONCAT('%',#{agentName},'%')
+        </if>
+        <if test="null!=agentId">
+            AND a.agent_id = #{agentId,jdbcType=INTEGER}
+        </if>
+        <if test="null!=merchantBM">
+            AND u.id = #{merchantBM,jdbcType=INTEGER}
+        </if>
+        <if test="null!=merchantBMName and ''!=merchantBMName">
+            AND u.real_name LIKE CONCAT('%',#{merchantBMName},'%')
+        </if>
+        ORDER BY av.visit_time DESC
+    </select>
+
+
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.base.mapper.CommonCityMapper">
+
+    <select id="queryCommonCity" parameterType="java.lang.String"
+            resultType="com.fangcang.base.dto.CommonCityDTO">
+        SELECT
+          city_code cityCode,
+          city_name cityName,
+          1 isCommon
+        FROM t_common_city cc
+        WHERE cc.merchant_code=#{merchantCode}
+    </select>
+
+    <select id="queryMerchantCity" parameterType="com.fangcang.base.request.QueryMerchantCityDTO"
+            resultType="com.fangcang.base.dto.CommonCityDTO">
+        SELECT
+        a.data_code cityCode,
+        a.data_name cityName,
+        CASE WHEN cc.city_code IS NULL THEN 0 ELSE 1 END isCommon
+        FROM
+        t_areadata a
+        LEFT JOIN t_common_city cc ON cc.city_code = a.data_code
+        AND cc.merchant_code = #{merchantCode}
+        WHERE 1=1
+        AND a.type = 3
+        AND a.country_code = 'CN'
+        <choose>
+            <when test="cityCode != null and cityCode != ''">
+                AND a.data_code=#{cityCode}
+            </when>
+            <otherwise>
+                <if test="cityName != null and cityName != ''">
+                    AND a.data_name=#{cityName}
+                </if>
+            </otherwise>
+        </choose>
+        ORDER BY cc.merchant_code desc,a.pinyin
+    </select>
+
+    <!--B2b 模糊查询商家城市-->
+    <select id="queryB2BMerchantCity" parameterType="com.fangcang.b2b.request.QueryMerchantAllCityDTO"
+            resultType="com.fangcang.base.dto.CommonCityDTO">
+        SELECT
+        a.data_code cityCode,
+        a.data_name cityName,
+        CASE WHEN cc.city_code IS NULL THEN 0 ELSE 1 END isCommon
+        FROM
+        t_areadata a
+        LEFT JOIN t_common_city cc ON cc.city_code = a.data_code
+        AND cc.merchant_code = #{merchantCode}
+        WHERE 1=1
+        AND a.type = 3
+        AND a.country_code = #{countryCode}
+        <if test="cityName != null and cityName!=''">
+            AND a.data_name LIKE CONCAT('%',#{cityName},'%')
+        </if>
+        ORDER BY cc.merchant_code desc,a.pinyin
+    </select>
+</mapper>

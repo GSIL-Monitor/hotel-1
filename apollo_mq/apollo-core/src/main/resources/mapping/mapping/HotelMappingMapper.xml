@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.mapping.mapper.HotelMappingMapper" >
+
+    <select id="queryDltMappingHotelList" parameterType="com.fangcang.mapping.request.HotelMappingRequest"
+            resultType="com.fangcang.mapping.response.HotelMappingResponse">
+        SELECT b.hotel_id hotelId,b.hotel_name hotelName,b.city_code cityCode,b.city_name cityName,c.dlt_hotel_id dltHotelId  FROM t_hotel b left join t_dlt_map_hotel c on b.hotel_id = c.m_hotel_id
+        where b.hotel_id in (
+                select distinct hotel_id from t_htlpro_priceplan a where a.merchant_code = #{merchantCode,jdbcType=VARCHAR} and a.is_active=1)
+        <if test="null != hotelId">
+            and b.hotel_id = #{hotelId,jdbcType=INTEGER}
+        </if>
+        <if test="null != cityCode">
+            and b.city_code = #{cityCode,jdbcType=INTEGER}
+        </if>
+        <if test="1 == mappingStatus">
+            and c.dlt_hotel_id is not null AND c.dlt_hotel_id &lt;> ''
+        </if>
+        <if test="0 == mappingStatus">
+            and c.dlt_hotel_id is null OR c.dlt_hotel_id = ''
+        </if>
+    </select>
+
+    <select id="queryDltRateMapping" parameterType="com.fangcang.mapping.request.HotelMappingRequest"
+        resultType="com.fangcang.mapping.response.RatePlanMappingResponse">
+        select a.hotel_id hotelId,a.priceplan_id ratePlanId,a.priceplan_name ratePlanName,a.room_type_id roomTypeId,c.roomtype_name roomTypeName,b.dlt_room_id dltRatePlanId
+          from t_htlpro_priceplan a left join t_dlt_map_room b on b.m_rp_id = a.priceplan_id and a.merchant_code = b.merchant_code
+               ,t_roomtype c
+        WHERE a.room_type_id = c.roomtype_id
+          and a.is_active = 1
+          and a.merchant_code =  #{merchantCode,jdbcType=VARCHAR}
+          and a.hotel_id in
+            <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+    </select>
+
+    <sql id="hotelMappingColumn">
+        id,m_hotel_id,merchant_code,m_hotel_name,dlt_hotel_id,creator,create_date,modifier,modify_date
+    </sql>
+
+
+    <select id="queryMappingHotel" parameterType="com.fangcang.mapping.request.HotelMappingRequest"
+            resultType="java.lang.Long">
+            SELECT
+                tempmappinghotel.m_hotel_id          hotelId
+            FROM
+                (
+                    SELECT
+                        mh.merchant_code,
+                        mh.m_hotel_id
+                    FROM
+                        t_hotel h,
+                        t_dlt_map_hotel mh
+                    WHERE
+                        h.hotel_id = mh.m_hotel_id
+                        and mh.dlt_hotel_id is not null
+                    AND mh.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+                    <if test="cityCode != null and cityCode != ''">
+                          and h.city_code = #{cityCode,jdbcType=VARCHAR}
+                    </if>
+                    <if test="hotelId != null and hotelId > 0">
+                        and h.hotel_id = #{hotelId,jdbcType=INTEGER}
+                    </if>
+                ) tempmappinghotel
+            LEFT JOIN (
+                SELECT
+                    ch.hotel_id,
+                    ch.recommended_level
+                FROM
+                    t_common_hotel ch
+                WHERE
+                    ch.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+            ) tempcommonhotel ON tempmappinghotel.m_hotel_id = tempcommonhotel.hotel_id
+            order by IFNULL(tempcommonhotel.recommended_level,0) desc
+
+    </select>
+
+    <select id="queryUnMappingHotel" parameterType="com.fangcang.mapping.request.HotelMappingRequest"
+            resultType="java.lang.Long">
+
+            SELECT
+                  temphotel.hotel_id           hotelId
+            FROM
+                (
+                    SELECT
+                        distinct h.hotel_id
+                    FROM
+                    t_hotel h,t_htlpro_priceplan p
+                    WHERE
+                    h.hotel_id = p.hotel_id
+                    and not exists (select 1 from t_dlt_map_hotel mh where mh.m_hotel_id = h.hotel_id
+                    and mh.dlt_hotel_id is not null
+                    and mh.merchant_code = p.merchant_code)
+                    and p.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+                        <if test="cityCode != null and cityCode != ''">
+                            and h.city_code = #{cityCode,jdbcType=VARCHAR}
+                        </if>
+                        <if test="hotelId != null and hotelId > 0">
+                            and h.hotel_id = #{hotelId,jdbcType=INTEGER}
+                        </if>
+                ) temphotel
+            LEFT JOIN (
+                SELECT
+                    ch.hotel_id,
+                    ch.recommended_level
+                FROM
+                    t_common_hotel ch
+                WHERE
+                    ch.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+            ) tempcommonhotel ON temphotel.hotel_id = tempcommonhotel.hotel_id
+            order by IFNULL(tempcommonhotel.recommended_level,0) desc
+
+    </select>
+
+    <select id="queryAllHotel" parameterType="com.fangcang.mapping.request.HotelMappingRequest"
+            resultType="java.lang.Long">
+                SELECT
+                    temphotel.hotel_id              hotelId
+                FROM
+                    (
+                        SELECT
+                            distinct h.hotel_id
+                        FROM
+                            t_hotel h,t_htlpro_priceplan p
+                        WHERE
+                        h.hotel_id = p.hotel_id
+                        <if test="cityCode != null and cityCode != ''">
+                            and h.city_code = #{cityCode,jdbcType=VARCHAR}
+                        </if>
+                        <if test="hotelId != null and hotelId > 0">
+                            and h.hotel_id = #{hotelId,jdbcType=INTEGER}
+                        </if>
+                    ) temphotel
+                LEFT JOIN (
+                    SELECT
+                        ch.hotel_id,
+                        ch.recommended_level
+                    FROM
+                        t_common_hotel ch
+                    WHERE
+                        ch.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+                ) tempcommonhotel ON temphotel.hotel_id = tempcommonhotel.hotel_id
+                LEFT JOIN (
+                    SELECT
+                        mh.m_hotel_id
+                    FROM
+                        t_dlt_map_hotel mh
+                    WHERE
+                        mh.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+                ) tempmappinghotel ON temphotel.hotel_id = tempmappinghotel.m_hotel_id
+                order by IFNULL(tempmappinghotel.m_hotel_id,0) desc,IFNULL(tempcommonhotel.recommended_level,0) desc
+
+    </select>
+
+</mapper>

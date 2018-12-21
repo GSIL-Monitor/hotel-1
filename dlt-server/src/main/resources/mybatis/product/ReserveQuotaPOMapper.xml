@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.product.dao.ReserveQuotaPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.product.entity.po.ReserveQuotaPO" >
+    <id column="reserve_id" property="reserveId" jdbcType="BIGINT" />
+    <id column="account_id" property="quotaAccountId" jdbcType="BIGINT" />
+    <result column="priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+    <result column="SALE_DATE" property="saleDate" jdbcType="DATE" />
+    <result column="distribute_code" property="distributeCode" jdbcType="VARCHAR" />
+    <result column="reserve_quota_num" property="reserveQuotaNum" jdbcType="INTEGER" />
+
+    <result column="agent_name" property="agentName" jdbcType="VARCHAR" />
+
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    reserve_id, priceplan_id, SALE_DATE, distribute_code, reserve_quota_num,
+    creator, create_date, modifier, modify_date,ROOM_NAME,agent_name
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_reserve_quota
+    where reserve_id = #{reserveId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.travel.hotel.product.entity.po.ReserveQuotaPO" >
+
+        select a.agent_name ,p.account_id,rq.reserve_id, rq.priceplan_id, rq.SALE_DATE, rq.distribute_code, rq.reserve_quota_num, rq.creator, rq.create_date, rq.modifier, rq.modify_date
+        from t_reserve_quota rq, t_agent a, t_htlpro_priceplan p
+        where a.agent_code =  rq.distribute_code
+        and p.priceplan_id = rq.priceplan_id
+          <if test="status != null" >
+            and rq.status = #{status,jdbcType=INTEGER}
+          </if>
+          <if test="priceplanId != null" >
+            and rq.priceplan_id = #{priceplanId,jdbcType=BIGINT}
+          </if>
+          <if test="saleDate != null" >
+            and rq.SALE_DATE = #{saleDate,jdbcType=DATE}
+          </if>
+          <if test="distributeCode != null" >
+            and rq.distribute_code = #{distributeCode,jdbcType=VARCHAR}
+          </if>
+          <if test="endTime != null" >
+            <![CDATA[and rq.modify_date <  #{endTime,jdbcType=TIMESTAMP}]]>
+            and reserve_quota_num > 0
+            and rq.status = 0
+          </if>
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_reserve_quota
+    where reserve_id = #{reserveId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.product.entity.po.ReserveQuotaPO" >
+    insert into t_reserve_quota (reserve_id, priceplan_id,
+      SALE_DATE, distribute_code, reserve_quota_num, 
+      creator, create_date, modifier, 
+      modify_date)
+    values (#{reserveId,jdbcType=BIGINT}, #{priceplanId,jdbcType=BIGINT},
+      #{saleDate,jdbcType=DATE}, #{distributeCode,jdbcType=VARCHAR}, #{reserveQuotaNum,jdbcType=INTEGER}, 
+      #{creator,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{modifyDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.product.entity.po.ReserveQuotaPO" useGeneratedKeys="true" keyProperty="reserveId" >
+    insert into t_reserve_quota
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="reserveId != null" >
+        reserve_id,
+      </if>
+      <if test="priceplanId != null" >
+        priceplan_id,
+      </if>
+      <if test="saleDate != null" >
+        SALE_DATE,
+      </if>
+      <if test="distributeCode != null" >
+        distribute_code,
+      </if>
+      <if test="reserveQuotaNum != null" >
+        reserve_quota_num,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifyDate != null" >
+        modify_date,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="reserveId != null" >
+        #{reserveId,jdbcType=BIGINT},
+      </if>
+      <if test="priceplanId != null" >
+        #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="saleDate != null" >
+        #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="distributeCode != null" >
+        #{distributeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="reserveQuotaNum != null" >
+        #{reserveQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.product.entity.po.ReserveQuotaPO" >
+    update t_reserve_quota
+    <set >
+
+      <if test="priceplanId != null" >
+        priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="saleDate != null" >
+        SALE_DATE = #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="distributeCode != null" >
+        distribute_code = #{distributeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="reserveQuotaNum != null" >
+        reserve_quota_num = #{reserveQuotaNum,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = now(),
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        modify_date = now(),
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+    </set>
+    where reserve_id = #{reserveId,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateStatusToReserving"  parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+      update t_reserve_quota
+      <set>
+        status=${item.status},
+        modify_date = now()
+      </set>
+      where reserve_id = ${item.reserveId}
+    </foreach>
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.product.entity.po.ReserveQuotaPO" >
+    update t_reserve_quota
+    set
+      priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      SALE_DATE = #{saleDate,jdbcType=DATE},
+      distribute_code = #{distributeCode,jdbcType=VARCHAR},
+      reserve_quota_num = #{reserveQuotaNum,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modify_date = now()
+    where reserve_id = #{reserveId,jdbcType=BIGINT}
+  </update>
+
+
+  <select id="selectDaySumByPricePlan" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select
+    priceplan_id,SALE_DATE,sum(reserve_quota_num) reserve_quota_num
+    from t_reserve_quota
+    <where>
+      reserve_quota_num>0
+      <if test="priceplanId != null" >
+        and priceplan_id = #{priceplanId,jdbcType=BIGINT}
+      </if>
+      <if test="InPriceplanId != null and InPriceplanId.size() > 0" >
+        and priceplan_id in <foreach collection="InPriceplanId" index="idx" item="it" open="(" separator="," close=")">#{it}</foreach>
+      </if>
+      <if test="checkInDate != null">
+        <![CDATA[and cast(SALE_DATE as date) >= cast(#{checkInDate} as date)]]>
+      </if>
+      <if test="checkOutDate != null">
+        <![CDATA[and cast(SALE_DATE as date) < cast(#{checkOutDate} as date)]]>
+      </if>
+    </where>
+     group by priceplan_id,SALE_DATE
+  </select>
+
+</mapper>

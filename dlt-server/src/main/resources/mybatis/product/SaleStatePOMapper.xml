@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.hotel.product.dao.SaleStatePOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.hotel.product.entity.po.SaleStatePO" >
+    <id column="state_id" property="stateId" jdbcType="BIGINT" />
+    <result column="priceplan_id" property="priceplanId" jdbcType="BIGINT" />
+    <result column="channel_code" property="channelCode" jdbcType="VARCHAR" />
+    <result column="sale_state" property="saleState" jdbcType="INTEGER" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    state_id, priceplan_id, channel_code, sale_state, creator, createdate, modifier, 
+    modifydate
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.hotel.product.entity.po.SaleStatePOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_htlpro_sale_state
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_htlpro_sale_state
+    where state_id = #{stateId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByCondition" resultMap="BaseResultMap" parameterType="com.travel.hotel.product.entity.po.SaleStatePO" >
+    select
+    <include refid="Base_Column_List" />
+    from t_htlpro_sale_state
+    where 1=1
+    <if test="priceplanId != null" >
+      and priceplan_id = #{priceplanId,jdbcType=BIGINT}
+    </if>
+    <if test="channelCode != null" >
+      and channel_code = #{channelCode,jdbcType=VARCHAR}
+    </if>
+    <if test="saleState != null" >
+      and sale_state = #{saleState,jdbcType=INTEGER}
+    </if>
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_htlpro_sale_state
+    where state_id = #{stateId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.hotel.product.entity.po.SaleStatePOExample" >
+    delete from t_htlpro_sale_state
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.hotel.product.entity.po.SaleStatePO" >
+    insert into t_htlpro_sale_state (state_id, priceplan_id, channel_code, 
+      sale_state, creator, createdate, 
+      modifier, modifydate)
+    values (#{stateId,jdbcType=BIGINT}, #{priceplanId,jdbcType=BIGINT}, #{channelCode,jdbcType=VARCHAR}, 
+      #{saleState,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{createdate,jdbcType=TIMESTAMP}, 
+      #{modifier,jdbcType=VARCHAR}, #{modifydate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.hotel.product.entity.po.SaleStatePO" >
+    insert into t_htlpro_sale_state
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="stateId != null" >
+        state_id,
+      </if>
+      <if test="priceplanId != null" >
+        priceplan_id,
+      </if>
+      <if test="channelCode != null" >
+        channel_code,
+      </if>
+      <if test="saleState != null" >
+        sale_state,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createdate != null" >
+        createdate,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifydate != null" >
+        modifydate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="stateId != null" >
+        #{stateId,jdbcType=BIGINT},
+      </if>
+      <if test="priceplanId != null" >
+        #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="channelCode != null" >
+        #{channelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="saleState != null" >
+        #{saleState,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        now(),
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.hotel.product.entity.po.SaleStatePOExample" resultType="java.lang.Integer" >
+    select count(*) from t_htlpro_sale_state
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_htlpro_sale_state
+    <set >
+      <if test="record.stateId != null" >
+        state_id = #{record.stateId,jdbcType=BIGINT},
+      </if>
+      <if test="record.priceplanId != null" >
+        priceplan_id = #{record.priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="record.channelCode != null" >
+        channel_code = #{record.channelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.saleState != null" >
+        sale_state = #{record.saleState,jdbcType=INTEGER},
+      </if>
+      <if test="record.creator != null" >
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createdate != null" >
+        createdate = #{record.createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.modifier != null" >
+        modifier = #{record.modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifydate != null" >
+        modifydate = #{record.modifydate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_htlpro_sale_state
+    set state_id = #{record.stateId,jdbcType=BIGINT},
+      priceplan_id = #{record.priceplanId,jdbcType=BIGINT},
+      channel_code = #{record.channelCode,jdbcType=VARCHAR},
+      sale_state = #{record.saleState,jdbcType=INTEGER},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      createdate = #{record.createdate,jdbcType=TIMESTAMP},
+      modifier = #{record.modifier,jdbcType=VARCHAR},
+      modifydate = #{record.modifydate,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.hotel.product.entity.po.SaleStatePO" >
+    update t_htlpro_sale_state
+    <set >
+      <if test="priceplanId != null" >
+        priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      </if>
+      <if test="channelCode != null" >
+        channel_code = #{channelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="saleState != null" >
+        sale_state = #{saleState,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        createdate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null" >
+        modifydate = now(),
+      </if>
+    </set>
+    where state_id = #{stateId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.hotel.product.entity.po.SaleStatePO" >
+    update t_htlpro_sale_state
+    set priceplan_id = #{priceplanId,jdbcType=BIGINT},
+      channel_code = #{channelCode,jdbcType=VARCHAR},
+      sale_state = #{saleState,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=VARCHAR},
+      createdate = #{createdate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modifydate = #{modifydate,jdbcType=TIMESTAMP}
+    where state_id = #{stateId,jdbcType=BIGINT}
+  </update>
+</mapper>

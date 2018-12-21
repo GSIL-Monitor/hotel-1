@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.report.mapper.ProfitReportMapper">
+
+    <sql id="whereCondition">
+        WHERE o.id = so.order_id
+        and so.id  = sp.supply_order_id
+        and so.supply_status != 4
+        and o.merchant_code = #{merchantCode}
+        <if test="cityCode != null and cityCode != ''">
+            AND o.city_code = #{cityCode}
+        </if>
+        <if test="hotelId != null and hotelId != ''">
+            AND o.hotel_id = #{hotelId}
+        </if>
+        <if test="agentCode != null and agentCode != ''">
+            AND o.agent_code = #{agentCode}
+        </if>
+        <choose>
+            <when test="queryType != null and queryType != '' and queryType == 1">
+                AND o.`create_time` >= #{startDate}
+                AND o.`create_time` &lt; date_add(#{endDate},interval 1 day)
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 2">
+                AND sp.`checkin_date` >= #{startDate}
+                AND sp.`checkin_date` &lt;= #{endDate}
+            </when>
+            <when test="queryType != null and queryType != '' and queryType == 3">
+                AND sp.`checkout_date` >= #{startDate}
+                AND sp.`checkout_date` &lt;= #{endDate}
+            </when>
+        </choose>
+        <if test="merchantPm != null and merchantPm != ''">
+            AND o.merchant_pm = #{merchantPm}
+        </if>
+        <if test="merchantBm != null and merchantBm != ''">
+            AND o.merchant_bm = #{merchantBm}
+        </if>
+    </sql>
+    <select id="profitReportGroupByCity" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`city_code` cityCode,
+            tmp.`city_name` cityName,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+        SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            o.`city_code`,
+            o.`city_name`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+        `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`city_code`,
+            o.`city_name`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`city_code`,
+        tmp.`city_name`,
+        tmp.`sale_currency`
+        ORDER BY tmp.city_code ASC
+    </select>
+
+    <select id="profitReportGroupByAgent" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`agent_code` agentCode,
+            tmp.`agent_name` agentName,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+            SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            o.`agent_code`,
+            o.`agent_name`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`agent_code`,
+            o.`agent_name`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`agent_code`,
+        tmp.`agent_name`,
+        tmp.`sale_currency`
+        ORDER BY tmp.agent_code ASC
+    </select>
+
+    <select id="profitReportGroupByHotel" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`hotel_id` hotelId,
+            tmp.`hotel_name` hotelName,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+            SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            o.`hotel_id`,
+            o.`hotel_name`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`hotel_id`,
+            o.`hotel_name`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`hotel_id`,
+        tmp.`hotel_name`,
+        tmp.`sale_currency`
+        ORDER BY tmp.hotel_id ASC
+    </select>
+
+    <select id="profitReportGroupByChannel" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`channel_code` channelCode,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+            SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            CASE
+              o.channel_code
+            WHEN 'ctrip_b2b' THEN
+              'ctrip'
+            WHEN 'ctrip_channel_a' THEN
+              'ctrip'
+            ELSE o.channel_code
+            END channel_code,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`channel_code`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`channel_code`,
+        tmp.`sale_currency`
+        ORDER BY tmp.channel_code ASC
+    </select>
+
+    <select id="profitReportGroupByMerchantPM" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`merchant_pm` merchantPm,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+            SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            o.`merchant_pm`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`merchant_pm`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`merchant_pm`,
+        tmp.`sale_currency`
+        ORDER BY tmp.merchant_pm DESC
+    </select>
+
+    <select id="profitReportGroupByMerchantBM" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`merchant_bm` merchantBm,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+        SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            o.`merchant_bm`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`merchant_bm`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`merchant_bm`,
+        tmp.`sale_currency`
+        ORDER BY tmp.merchant_bm DESC
+    </select>
+
+    <select id="profitReportGroupByHotelAgent" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`hotel_id` hotelId,
+            tmp.`hotel_name` hotelName,
+            tmp.`agent_code` agentCode,
+            tmp.`agent_name` agentName,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+        SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            o.`hotel_id`,
+            o.`hotel_name`,
+            o.`agent_code`,
+            o.`agent_name`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`hotel_id`,
+            o.`hotel_name`,
+            o.`agent_code`,
+            o.`agent_name`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`hotel_id`,
+        tmp.`hotel_name`,
+        tmp.`agent_code`,
+        tmp.`agent_name`,
+        tmp.`sale_currency`
+        ORDER BY tmp.agent_code,tmp.hotel_id ASC
+    </select>
+
+    <select id="profitReportGroupByHotelChannel" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`hotel_id` hotelId,
+            tmp.`hotel_name` hotelName,
+            tmp.`channel_code` channelCode,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+        SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            o.`hotel_id`,
+            o.`hotel_name`,
+            CASE
+              o.channel_code
+            WHEN 'ctrip_b2b' THEN
+              'ctrip'
+            WHEN 'ctrip_channel_a' THEN
+              'ctrip'
+            ELSE o.channel_code
+            END channel_code,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`hotel_id`,
+            o.`hotel_name`,
+            o.`channel_code`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`hotel_id`,
+        tmp.`hotel_name`,
+        tmp.`channel_code`,
+        tmp.`sale_currency`
+        ORDER BY tmp.channel_code,tmp.hotel_id ASC
+    </select>
+
+    <select id="profitReportGroupByMerchantPMHotel" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`hotel_id` hotelId,
+            tmp.`hotel_name` hotelName,
+            tmp.`merchant_pm` merchantPm,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+        SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            o.`hotel_id`,
+            o.`hotel_name`,
+            o.`merchant_pm`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`hotel_id`,
+            o.`hotel_name`,
+            o.`merchant_pm`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`hotel_id`,
+        tmp.`hotel_name`,
+        tmp.`merchant_pm`,
+        tmp.`sale_currency`
+        ORDER BY tmp.merchant_pm DESC,tmp.hotel_id ASC
+    </select>
+
+    <select id="profitReportGroupByMerchantBMHotel" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitReportResponseDTO">
+        SELECT
+            tmp.`hotel_id` hotelId,
+            tmp.`hotel_name` hotelName,
+            tmp.`merchant_bm` merchantBm,
+            tmp.`sale_currency` saleCurrency,
+            SUM( tmp.`receivable_amount` ) receivableAmount,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmount,
+            SUM( tmp.`profit` ) profit,
+        SUM( tmp.`roomNight` ) roomNight
+        FROM (
+        SELECT
+            o.`hotel_id`,
+            o.`hotel_name`,
+            o.`merchant_bm`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNight
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,
+            o.`hotel_id`,
+            o.`hotel_name`,
+            o.`merchant_bm`,
+            o.`sale_currency`,
+            o.`receivable_amount`,
+            o.`profit`)tmp
+        GROUP BY tmp.`hotel_id`,
+        tmp.`hotel_name`,
+        tmp.`merchant_bm`,
+        tmp.`sale_currency`
+        ORDER BY tmp.merchant_bm DESC,tmp.hotel_id ASC
+    </select>
+
+    <select id="profitReportSum" parameterType="com.fangcang.report.request.ProfitReportQueryDTO"
+            resultType="com.fangcang.report.response.ProfitSummaryDTO">
+        SELECT
+            SUM( tmp.`receivable_amount` ) receivableAmountSum,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmountSum,
+            SUM( tmp.`profit` ) profitSum,
+            SUM( tmp.roomNightSum) roomNightSum
+        FROM (
+          SELECT
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNightSum
+        FROM
+            `o_order` o, o_supply_order so, o_supply_product sp
+        <include refid="whereCondition"/>
+        GROUP BY o.`order_code`,o.`receivable_amount`,o.`profit`)tmp
+    </select>
+</mapper>

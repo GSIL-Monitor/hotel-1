@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.report.mapper.PrepayContractReportMapper">
+    <select id="prepayContractReport" parameterType="com.fangcang.report.request.PrepayContractReportQueryDTO"
+            resultType="com.fangcang.report.response.PrepayContractReportResponseDTO">
+        SELECT
+        p.`hotel_name` hotelName,
+        CONCAT(t.`year`,'/',t.`month`) AS `date`,
+        t.`room_night` roomNight,
+        t.`done_room_night` doneRoomNight,
+        (SELECT u.`real_name` FROM `t_user` u WHERE u.`id` = s.`merchant_pm`) merchantPMName,
+        (SELECT u.`real_name` FROM `t_user` u WHERE u.`id` = s.`merchant_bm`) merchantBMName
+        FROM
+        `t_fin_prepay_contract` p,
+        `t_fin_prepay_contract_target` t,
+        `t_supply` s
+        WHERE p.`id` = t.`contract_id`
+        AND p.`supply_id` = s.`supply_id`
+        AND s.`merchant_id` = #{merchantId}
+        <if test="supplyId != null and supplyId != ''">
+            AND p.`supply_id` = #{supplyId}
+        </if>
+        <if test="hotelId != null and hotelId != ''">
+            AND p.`hotel_id` = #{hotelId}
+        </if>
+        <if test="year != null and year != ''">
+            AND t.`year` = #{year}
+        </if>
+        <if test="month != null and month != ''">
+            AND t.`month` = #{month}
+        </if>
+        <if test="merchantPM != null and merchantPM != ''">
+            AND s.`merchant_pm` = #{merchantPM}
+        </if>
+        <if test="merchantBM != null and merchantBM != ''">
+            AND s.`merchant_bm` = #{merchantBM}
+        </if>
+        ORDER BY `date` DESC
+    </select>
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.supplier.mapper.SupplyConfirmTypeMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.supplier.domain.SupplyConfirmTypeDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="supply_id" jdbcType="INTEGER" property="supplyId" />
+    <result column="send_type" jdbcType="VARCHAR" property="sendType" />
+    <result column="week" jdbcType="VARCHAR" property="week" />
+    <result column="begin_time" jdbcType="INTEGER" property="beginTime" />
+    <result column="end_time" jdbcType="INTEGER" property="endTime" />
+    <result column="confirm_no" jdbcType="VARCHAR" property="confirmNo" />
+    <result column="contact" jdbcType="VARCHAR" property="contact" />
+    <result column="contact_phone" jdbcType="VARCHAR" property="contactPhone" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_date" jdbcType="TIMESTAMP" property="modifyDate" />
+  </resultMap>
+
+  <select id="queryCurrentConfirmType" parameterType="com.fangcang.supplier.request.QueryConfirmTypeDTO"
+          resultType="com.fangcang.supplier.dto.SupplyConfirmTypeDTO">
+    SELECT
+      c.id,
+      c.supply_id supplyId,
+      c.send_type sendType,
+      c.week,
+      c.begin_time beginTime,
+      c.end_time endTime,
+      c.confirm_no confirmNo,
+      c.contact,
+      c.contact_phone contactPhone,
+      c.creator,
+      c.create_date createDate,
+      c.modifier,
+      c.modify_date modifyDate
+    FROM t_supply_confirm_type c,t_supply s
+    WHERE c.supply_id=s.supply_id
+    AND s.supply_code=#{supplyCode}
+    AND c.`week` like concat(concat('%',#{week}),'%')
+    AND c.begin_time &lt;= #{time}
+    AND c.end_time >= #{time}
+    ORDER BY c.send_type
+  </select>
+</mapper>

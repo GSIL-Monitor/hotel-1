@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.finance.prepay.mapper.PrepayContractJoinQueryMapper">
+
+    <resultMap id="queryAllPrepayContractMap" type="com.fangcang.finance.prepay.response.QueryAllPrepayContractResponseDTO">
+        <id column="contract_id" property="contractId" jdbcType="VARCHAR"/>
+        <result column="supply_code" property="supplyCode" jdbcType="VARCHAR"/>
+        <result column="valid_begin_date" property="validBeginDate" jdbcType="DATE"/>
+        <result column="valid_end_date" property="validEndDate" jdbcType="DATE"/>
+        <result column="target_room_night_sum" property="targetRoomNightSum" jdbcType="INTEGER"/>
+        <collection property="contractTargetDTOList" javaType="java.util.List" ofType="com.fangcang.finance.prepay.dto.PrepayContractTargetDTO">
+            <id column="id" property="id" jdbcType="INTEGER"/>
+            <result column="year" property="year" jdbcType="VARCHAR"/>
+            <result column="month" property="month" jdbcType="VARCHAR"/>
+            <result column="room_night" property="doneRoomNight" jdbcType="INTEGER"/>
+        </collection>
+    </resultMap>
+
+    <select id="queryPrepayContractList" parameterType="com.fangcang.finance.prepay.request.QueryPrepayListRequestDTO"
+            resultType="com.fangcang.finance.prepay.response.QueryPrepayContractListResponseDTO">
+        SELECT
+        s.`supply_id` supplyId,
+        s.`supply_name` supplyName,
+        s.`deposit_amount` depositAmount,
+        s.`prepay_balance` prepayBalance,
+        s.`base_currency` currency,
+        p.`id` id,
+        p.`hotel_id` hotelId,
+        p.`hotel_name` hotelName,
+        p.`valid_begin_date` validBeginDate,
+        p.`valid_end_date` validEndDate,
+        p.`contract_amount` contractAmount,
+        p.`prepay_amount` prepayAmount,
+        p.`settlement_amount` settlementAmount,
+        (p.`prepay_amount`-p.`settlement_amount`) prepayContractBalance,
+        p.`target_room_night_sum` targetRoomNightSum,
+        p.`done_room_night` doneRoomNight,
+        p.`un_done_room_night` unDoneRoomNight,
+        TIMESTAMPDIFF(MONTH,CURDATE(),p.`valid_end_date`) remainMonth,
+        (SELECT u.`real_name` FROM `t_user` u WHERE u.`id` = s.`merchant_pm`) merchantPMName,
+        (SELECT u.`real_name` FROM `t_user` u WHERE u.`id` = s.`merchant_bm`) merchantBMName
+        FROM `t_supply` s
+        LEFT JOIN `t_fin_prepay_contract` p ON s.`supply_id` = p.`supply_id`
+        WHERE s.`merchant_id` = #{merchantId}
+        <if test="cityCode != null and cityCode != ''">
+            AND s.`city_code` = #{cityCode}
+        </if>
+        <if test="hotelId != null and hotelId != ''">
+            AND p.`hotel_id` = #{hotelId}
+        </if>
+        <if test="supplyId != null and supplyId != ''">
+            AND s.`supply_id` = #{supplyId}
+        </if>
+        <if test="merchantPM != null and merchantPM != ''">
+            AND s.`merchant_pm` = #{merchantPM}
+        </if>
+        <if test="merchantBM != null and merchantBM != ''">
+            AND s.`merchant_bm` = #{merchantBM}
+        </if>
+        <if test="unDoneAmountType != null and unDoneAmountType != '' and unDoneAmount != null">
+            <choose>
+                <when test="unDoneAmountType == 1">
+                    AND (p.`contract_amount`-p.`settlement_amount`) >= #{unDoneAmount}
+                </when>
+                <otherwise>
+                    AND (p.`contract_amount`-p.`settlement_amount`) &lt;= #{unDoneAmount}
+                </otherwise>
+            </choose>
+        </if>
+        <if test="remainMonthType != null and remainMonthType != '' and remainMonth != null">
+            <choose>
+                <when test="remainMonthType == 1">
+                    AND TIMESTAMPDIFF(MONTH,CURDATE(),p.`valid_end_date`) >= #{remainMonth}
+                </when>
+                <otherwise>
+                    AND TIMESTAMPDIFF(MONTH,CURDATE(),p.`valid_end_date`) &lt;= #{remainMonth}
+                </otherwise>
+            </choose>
+        </if>
+        <if test="unDoneRoomNightType != null and unDoneRoomNightType != '' and unDoneRoomNight != null">
+            <choose>
+                <when test="unDoneRoomNightType == 1">
+                    AND p.`un_done_room_night` >= #{unDoneRoomNight}
+                </when>
+                <otherwise>
+                    AND p.`un_done_room_night` &lt;= #{unDoneRoomNight}
+                </otherwise>
+            </choose>
+        </if>
+        <if test="contractQueryType != null and contractQueryType != '' and contractQueryType == 1">
+            AND(p.`valid_end_date` >= CURDATE() OR p.`valid_end_date` IS NULL)
+        </if>
+        ORDER BY validBeginDate DESC, supplyId DESC
+    </select>
+
+    <select id="queryAllPrepayContract" resultMap="queryAllPrepayContractMap">
+        SELECT
+          s.`supply_code`,
+          c.`id` contract_id,
+          c.`valid_begin_date`,
+          c.`valid_end_date`,
+          c.`target_room_night_sum`,
+          ct.`id`,
+          ct.`year`,
+          ct.`month`,
+          ct.`room_night`
+        FROM
+          `t_supply` s,
+          `t_fin_prepay_contract` c,
+          `t_fin_prepay_contract_target` ct
+        WHERE s.`supply_id`  = c.`supply_id`
+          AND c.`id` = ct.`contract_id`
+    </select>
+
+    <select id="querySupplyDoneRoomNight"
+            parameterType="com.fangcang.finance.prepay.request.QuerySupplyDoneRoomNightRequestDTO"
+            resultType="java.lang.Integer">
+        SELECT SUM(sp.`room_num`) roomNight
+        FROM
+        `o_order` o,
+        `o_supply_order` so,
+        `o_supply_product` sp ,
+        `o_supply_product_price` spp
+        WHERE o.`id` = so.`order_id`
+        AND so.`id` = sp.`supply_order_id`
+        AND sp.`id` = spp.`supply_product_id`
+        AND so.`supply_status` = 3
+        AND so.`supply_code` = #{supplyCode}
+        AND spp.`sale_date` >= #{startDate}
+        AND spp.`sale_date` &lt;= #{endDate}
+    </select>
+</mapper>

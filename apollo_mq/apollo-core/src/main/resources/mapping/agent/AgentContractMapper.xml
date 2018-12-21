@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.agent.mapper.AgentContractMapper">
+	<resultMap id="BaseResultMap" type="com.fangcang.agent.domain.AgentContractFileDO">
+        <id column="agent_contract_file_id" jdbcType="INTEGER" property="agentContractFileId" />
+        <result column="agent_id" jdbcType="INTEGER" property="agentId" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+        <result column="file_url" jdbcType="VARCHAR" property="fileUrl" />
+        <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+        <result column="real_path" jdbcType="VARCHAR" property="realPath" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        agent_contract_file_id,agent_id,description,file_url,file_name,real_path,
+        creator,create_time,modifier,modify_time
+    </sql>
+
+    <insert id="addAgentContractFile" parameterType="com.fangcang.agent.domain.AgentContractFileDO"
+            useGeneratedKeys="true" keyProperty="agentContractFileId">
+        INSERT INTO t_agent_contract_file
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="agentId != null">
+                agent_id,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="fileUrl != null">
+                file_url,
+            </if>
+            <if test="fileName != null">
+                file_name,
+            </if>
+            <if test="realPath != null">
+                real_path,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="agentId != null">
+                #{agentId,jdbcType=INTEGER},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="fileUrl != null">
+                #{fileUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="fileName != null">
+                #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="realPath != null">
+                #{realPath,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <resultMap id="BaseResultMap2" type="com.fangcang.supplier.dto.ContractFileDTO">
+        <id column="agent_contract_file_id" jdbcType="INTEGER" property="contractFileId" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+        <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+        <result column="real_path" jdbcType="VARCHAR" property="realPath" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    </resultMap>
+
+    <!-- 一对多查询合同文件列表(查询单个分销商详情) -->
+    <select id="selectContractByAgentId" parameterType="java.lang.Long" resultMap="BaseResultMap2">
+        SELECT
+        agent_contract_file_id ,description,file_name,real_path,
+        creator,create_time,modifier,modify_time
+        FROM t_agent_contract_file
+        WHERE agent_id = #{agent_id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据合同文件id查询合同文件名 -->
+    <select id="getContractFileName" parameterType="java.lang.Long" resultType="java.lang.String">
+      SELECT file_name FROM t_agent_contract_file
+      WHERE agent_contract_file_id = #{contractFileId,jdbcType=INTEGER}
+    </select>
+
+</mapper>

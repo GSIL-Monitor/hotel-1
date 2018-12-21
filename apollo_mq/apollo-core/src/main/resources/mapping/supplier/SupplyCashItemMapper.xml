@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.supplier.mapper.SupplyCashItemMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.supplier.domain.SupplyCashItemDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="supply_id" jdbcType="INTEGER" property="supplyId" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="recharge_type" jdbcType="INTEGER" property="rechargeType" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="balance" jdbcType="DECIMAL" property="balance" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+
+  <select id="querySupplyCashItem" parameterType="com.fangcang.supplier.request.QuerySupplyCashItemDTO"
+          resultType="com.fangcang.supplier.response.SupplyCashItemDTO">
+    SELECT
+      id,
+      supply_id supplyId,
+      type,
+      recharge_type rechargeType,
+      amount,
+      balance,
+      CASE WHEN type=1 THEN
+        amount
+      WHEN type=3 AND amount > 0 THEN
+        amount
+      ELSE
+        NULL
+      END inAmount,
+      CASE WHEN type=2 THEN
+        0-amount
+      WHEN type=3 AND amount &lt; 0 THEN
+        0-amount
+      ELSE
+        NULL
+      END outAmount,
+      content,
+      note,
+      creator,
+      DATE_FORMAT(create_time,"%Y-%m-%d %T")createTime
+    FROM t_supply_cash_item i
+    WHERE i.supply_id=#{supplyId}
+    <if test="beginDate !=null and beginDate !=''">
+      AND i.create_time >= #{beginDate}
+    </if>
+    <if test="endDate !=null and endDate !=''">
+      AND i.create_time &lt;= #{endDate}
+    </if>
+    <if test="accountItemType != null">
+      AND i.type = #{accountItemType}
+    </if>
+    ORDER BY i.create_time DESC
+  </select>
+</mapper>

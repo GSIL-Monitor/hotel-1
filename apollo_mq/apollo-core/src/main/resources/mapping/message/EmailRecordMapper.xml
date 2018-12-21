@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.message.email.mapper.EmailRecordMapper" >
+	
+	<!--查询邮件记录-->
+	<select id="queryEmailRecords" parameterType="java.util.Map"
+		resultType="com.fangcang.message.remote.response.email.EmailInfoDTO">
+		select * from t_msg_email_record where 1=1
+		<if test="from != null">
+			AND `from` = #{from}
+		</if>
+		<if test="toArray != null">
+			AND
+			<foreach item="item" index="index" collection="toArray" open="(" separator=" OR " close=")">
+				`to` like CONCAT('%',#{item},'%')
+			</foreach>
+		</if>
+		<if test="emailType != null">
+			AND emailtype = #{emailType}
+		</if>
+		<if test="sendResult != null">
+			AND sendresult = #{sendResult}
+		</if>
+		<if test="beginTime != null">
+			<![CDATA[
+			AND #{beginTime} < sendtime
+			]]>
+		</if>
+		<if test="endTime != null">
+			<![CDATA[
+			AND sendtime < #{endTime}
+			]]>
+		</if>
+		order by sendtime desc
+	</select>
+	
+</mapper>

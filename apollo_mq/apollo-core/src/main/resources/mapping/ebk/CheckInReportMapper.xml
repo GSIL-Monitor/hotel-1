@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.ebk.mapper.CheckInReportMapper">
+
+    <select id="queryCheckInReport" parameterType="com.fangcang.ebk.request.QueryCheckInReportDTO"
+            resultType="com.fangcang.ebk.response.CheckInReportDTO">
+        SELECT
+          spp.sale_date saleDate,
+          SUM(spp.base_price*sp.room_num)amount,
+          SUM(sp.room_num)roomNight,
+          SUM(CASE WHEN o.is_group_room=1 THEN 0 ELSE sp.room_num END)looseRoomNight,
+          SUM(CASE WHEN o.is_group_room=0 THEN 0 ELSE sp.room_num END)grouponRoomNight,
+          so.hotel_name hotelName
+        FROM
+          o_supply_product_price spp,
+          o_supply_product sp,
+          o_supply_order so,
+          o_order o
+        WHERE
+        spp.supply_product_id = sp.id
+        AND sp.supply_order_id = so.id
+        AND so.order_id=o.id
+        AND so.supply_status IN (2,3)
+        AND so.supply_code=#{supplyCode}
+        <if test="cityCode != null and cityCode!=''">
+            AND o.city_code=#{cityCode}
+        </if>
+        <if test="beginDate != null and beginDate!=''">
+            AND spp.sale_date >= #{beginDate}
+        </if>
+        <if test="endDate != null and endDate!=''">
+            AND spp.sale_date &lt;= #{endDate}
+        </if>
+        <choose>
+            <when test="hotelId != null and hotelId!=''">
+                AND so.hotel_id=#{hotelId}
+            </when>
+            <otherwise>
+                <if test="hotelName != null and hotelName !=''">
+                    AND so.hotel_name LIKE concat(concat('%',#{hotelName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        GROUP BY spp.sale_date,so.hotel_name
+        ORDER BY spp.sale_date
+    </select>
+    
+    <select id="queryCheckInReportSummary" parameterType="com.fangcang.ebk.request.QueryCheckInReportDTO"
+            resultType="com.fangcang.ebk.response.CheckInReportSummaryDTO">
+        SELECT
+          SUM(spp.base_price*sp.room_num)amountTotal,
+          SUM(sp.room_num)roomNightTotal,
+          SUM(CASE WHEN o.is_group_room=1 THEN 0 ELSE sp.room_num END)looseRoomNight,
+          SUM(CASE WHEN o.is_group_room=0 THEN 0 ELSE sp.room_num END)grouponRoomNight
+        FROM
+          o_supply_product_price spp,
+          o_supply_product sp,
+          o_supply_order so,
+          o_order o
+        WHERE
+          spp.supply_product_id = sp.id
+        AND sp.supply_order_id = so.id
+        AND so.order_id=o.id
+        AND so.supply_status IN (2,3)
+        AND so.supply_code=#{supplyCode}
+        <if test="cityCode != null and cityCode!=''">
+            AND o.city_code=#{cityCode}
+        </if>
+        <if test="beginDate != null and beginDate!=''">
+            AND spp.sale_date >= #{beginDate}
+        </if>
+        <if test="endDate != null and endDate!=''">
+            AND spp.sale_date &lt;= #{endDate}
+        </if>
+        <choose>
+            <when test="hotelId != null and hotelId!=''">
+                AND so.hotel_id=#{hotelId}
+            </when>
+            <otherwise>
+                <if test="hotelName != null and hotelName !=''">
+                    AND so.hotel_name LIKE concat(concat('%',#{hotelName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="querySupplyHotel" parameterType="com.fangcang.ebk.request.QuerySupplyHotelDTO"
+            resultType="com.fangcang.ebk.response.SupplyHotelDTO">
+        SELECT DISTINCT
+            h.hotel_id hotelId,
+            h.hotel_name hotelName
+        FROM
+            t_hotel h,
+            t_htlpro_priceplan p
+        WHERE
+            h.hotel_id = p.hotel_id
+        AND p.supply_code=#{supplyCode}
+        <if test="hotelName != null and '' != hotelName">
+            and h.hotel_name LIKE CONCAT('%',#{hotelName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="cityCode != null and '' != cityCode">
+            and h.city_code = #{cityCode,jdbcType=VARCHAR}
+        </if>
+    </select>
+</mapper>

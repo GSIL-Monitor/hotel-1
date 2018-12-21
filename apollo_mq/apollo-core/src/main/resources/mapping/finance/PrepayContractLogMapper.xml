@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.prepay.mapper.PrepayContractLogMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.prepay.domain.PrepayContractLogDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="contract_id" jdbcType="INTEGER" property="contractId" />
+    <result column="supply_id" jdbcType="INTEGER" property="supplyId" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="operator" jdbcType="VARCHAR" property="operator" />
+    <result column="operator_time" jdbcType="TIMESTAMP" property="operatorTime" />
+  </resultMap>
+</mapper>

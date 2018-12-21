@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <!-- 控制台输出 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{35} - %msg %n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!-- 按照每天生成日志文件 -->
+    <appender name="FILEINFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件输出的文件名-->
+        <file>logs/bms-info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/bms-info.log.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{35} - %msg %n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>info</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <appender name="FILEDEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件输出的文件名-->
+        <file>logs/bms-debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/bms-debug.log.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{35} - %msg %n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>debug</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <appender name="FILEERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件输出的文件名-->
+        <file>logs/bms-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/bms-error.log.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{35} - %msg %n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- show parameters for hibernate sql 专为 Hibernate 定制
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder"  level="TRACE" />
+    <logger name="org.hibernate.type.descriptor.sql.BasicExtractor"  level="DEBUG" />
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <logger name="org.hibernate.engine.QueryParameters" level="DEBUG" />
+    <logger name="org.hibernate.engine.query.HQLQueryPlan" level="DEBUG" />-->
+
+    <!--myibatis log configure
+    <logger name="com.apache.ibatis" level="TRACE"/>
+    <logger name="java.sql.Connection" level="DEBUG"/>
+    <logger name="java.sql.Statement" level="DEBUG"/>
+    <logger name="java.sql.PreparedStatement" level="DEBUG"/>-->
+
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE"></appender-ref>
+        <appender-ref ref="FILEINFO"></appender-ref>
+        <appender-ref ref="FILEDEBUG"></appender-ref>
+        <appender-ref ref="FILEERROR"></appender-ref>
+    </root>
+
+    <!--日志异步到数据库 -->
+    <!--<appender name="DB" class="ch.qos.logback.classic.db.DBAppender">-->
+    <!--&lt;!&ndash;日志异步到数据库 &ndash;&gt;-->
+    <!--<connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">-->
+    <!--&lt;!&ndash;连接池 &ndash;&gt;-->
+    <!--<dataSource class="com.mchange.v2.c3p0.ComboPooledDataSource">-->
+    <!--<driverClass>com.mysql.jdbc.Driver</driverClass>-->
+    <!--<url>jdbc:mysql://127.0.0.1:3306/databaseName</url>-->
+    <!--<user>root</user>-->
+    <!--<password>root</password>-->
+    <!--</dataSource>-->
+    <!--</connectionSource>-->
+    <!--</appender>-->
+
+    <!--
+       说明：
+       1、日志级别及文件
+           日志记录采用分级记录，级别与日志文件名相对应，不同级别的日志信息记录到不同的日志文件中
+           例如：error级别记录到log_error_xxx.log或log_error.log（该文件为当前记录的日志文件），而log_error_xxx.log为归档日志，
+           日志文件按日期记录，同一天内，若日志文件大小等于或大于2M，则按0、1、2...顺序分别命名
+           例如log-level-2013-12-21.0.log
+           其它级别的日志也是如此。
+       2、文件路径
+           若开发、测试用，在Eclipse中运行项目，则到Eclipse的安装路径查找logs文件夹，以相对路径../logs。
+           若部署到Tomcat下，则在Tomcat下的logs文件中
+       3、Appender
+           FILEERROR对应error级别，文件名以log-error-xxx.log形式命名
+           FILEWARN对应warn级别，文件名以log-warn-xxx.log形式命名
+           FILEINFO对应info级别，文件名以log-info-xxx.log形式命名
+           FILEDEBUG对应debug级别，文件名以log-debug-xxx.log形式命名
+           stdout将日志信息输出到控制上，为方便开发测试使用
+    -->
+    <!--<appender name="FILEERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+        <!--<file>logs/error.log</file>-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+            <!--&lt;!&ndash; 保存历史记录到这个文件夹一日起为后缀 &ndash;&gt;-->
+            <!--<fileNamePattern>logs/error.log.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+            <!--&lt;!&ndash;日志文件保留天数&ndash;&gt;-->
+            <!--<maxHistory>30</maxHistory>-->
+        <!--</rollingPolicy>-->
+        <!--&lt;!&ndash;日志文件最大的大小&ndash;&gt;-->
+        <!--<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">-->
+            <!--<maxFileSize>10MB</maxFileSize>-->
+        <!--</triggeringPolicy>-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+            <!--<fileNamePattern>logs/error.log.%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+            <!--<maxFileSize>100MB</maxFileSize>-->
+            <!--<maxHistory>30</maxHistory>-->
+            <!--<totalSizeCap>10GB</totalSizeCap>-->
+        <!--</rollingPolicy>-->
+        <!--<encoder>-->
+            <!--&lt;!&ndash;格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符&ndash;&gt;-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n</pattern>-->
+            <!--&lt;!&ndash; 此处设置字符集 &ndash;&gt;-->
+            <!--<charset>UTF-8</charset>-->
+        <!--</encoder>-->
+        <!--&lt;!&ndash; 此日志文件只记录error级别的 &ndash;&gt;-->
+        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">-->
+            <!--<level>error</level>-->
+            <!--<onMatch>ACCEPT</onMatch>-->
+            <!--<onMismatch>DENY</onMismatch>-->
+        <!--</filter>-->
+    <!--</appender>-->
+</configuration>

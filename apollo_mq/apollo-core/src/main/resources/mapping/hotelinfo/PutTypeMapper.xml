@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.hotelinfo.mapper.PutTypeMapper">
+
+    <insert id="batchInsertPutType" parameterType="java.util.List">
+        insert into t_meeting_put_type (meeting_id,
+                                          put_type,
+                                          applicable_number,
+                                          creator,
+                                          create_time
+                                          )
+                                  values
+                                  <foreach collection="list" item="item" separator=",">
+                                      (#{item.meetingId,jdbcType=INTEGER},
+                                      #{item.putType,jdbcType=TINYINT},
+                                      #{item.applicableNumber,jdbcType=VARCHAR},
+                                      #{item.creator,jdbcType=VARCHAR},
+                                      NOW()
+                                      )
+                                  </foreach>
+    </insert>
+
+    <delete id="deletePutTypeByMeetingId" parameterType="com.fangcang.hotelinfo.domain.PutTypeDO">
+        delete from t_meeting_put_type where meeting_id = #{meetingId,jdbcType=INTEGER}
+    </delete>
+
+    <resultMap id="BaseResultMap" type="com.fangcang.hotelinfo.domain.PutTypeDO">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="meeting_id" jdbcType="INTEGER" property="meetingId" />
+        <result column="put_type" jdbcType="TINYINT" property="putType" />
+        <result column="applicable_number" jdbcType="VARCHAR" property="applicableNumber" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, meeting_id, put_type, applicable_number, creator, create_time, modifier, modify_time
+    </sql>
+
+    <select id="queryPutTypeByMeetingId" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" />
+          from t_meeting_put_type
+         where meeting_id = #{meetingId,jdbcType=INTEGER}
+    </select>
+</mapper>

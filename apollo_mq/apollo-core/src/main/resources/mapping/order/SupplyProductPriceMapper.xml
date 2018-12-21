@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.SupplyProductPriceMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.SupplyProductPriceDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="supply_product_id" jdbcType="INTEGER" property="supplyProductId" />
+    <result column="sale_date" jdbcType="DATE" property="saleDate" />
+    <result column="sale_price" jdbcType="DECIMAL" property="salePrice" />
+    <result column="base_price" jdbcType="DECIMAL" property="basePrice" />
+  </resultMap>
+</mapper>

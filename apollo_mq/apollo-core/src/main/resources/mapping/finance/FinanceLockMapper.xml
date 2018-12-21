@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.finance.financelock.mapper.FinanceLockMapper">
+
+    <select id="queryUnlockOrderList" parameterType="com.fangcang.finance.financelock.request.UnlockOrderListRequestDTO"
+            resultType="com.fangcang.finance.financelock.response.UnlockOrderListResponseDTO">
+        SELECT
+          o.`id` orderId,
+          o.`order_code` orderCode,
+          DATE_FORMAT(o.`create_time`,"%Y-%m-%d %H:%i:%S") createTime,
+          o.`agent_name` agentName,
+          o.`hotel_name` hotelName,
+          DATE_FORMAT(o.checkin_date,"%Y-%m-%d")checkinDate,
+          DATE_FORMAT(o.checkout_date,"%Y-%m-%d")checkoutDate,
+          o.`room_num` roomNum,
+          o.`guest_names` guestNames,
+          f.`account_status` accountStatus,
+          f.`finance_lock_status` financeLockStatus
+        FROM
+          `o_order` o
+          LEFT JOIN `o_order_finance` f
+            ON o.`id` = f.`order_id`
+        WHERE o.`merchant_code` = #{merchantCode}
+        <if test="orderCode !=null and orderCode!=''">
+            AND o.order_code LIKE concat(concat('%',#{orderCode}),'%')
+        </if>
+        <if test="supplyOrderCode !=null and supplyOrderCode!=''">
+            AND o.supply_order_codes like concat(concat('%',#{supplyOrderCode}),'%')
+        </if>
+        <if test="guestName !=null and guestName!=''">
+            AND o.guest_names LIKE concat(concat('%',#{guestName}),'%')
+        </if>
+        <if test="agentCode !=null and agentCode!=''">
+            AND o.agent_code=#{agentCode}
+        </if>
+        <if test="financeLockStatus !=null and financeLockStatus!=''">
+            AND f.finance_lock_status=#{financeLockStatus}
+        </if>
+        order by o.id DESC
+    </select>
+</mapper>

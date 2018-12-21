@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.report.mapper.FinanceReportMapper">
+
+    <select id="queryAgentCheckReport" parameterType="com.fangcang.finance.report.request.QueryCheckReportDTO"
+            resultType="com.fangcang.finance.report.response.OrderCheckDTO">
+        SELECT
+            o.agent_code agentCode,
+            o.agent_name agentName,
+            o.id orderId,
+            o.order_code orderCode,
+            o.customer_order_code customerOrderCode,
+            o.hotel_name hotelName,
+            o.room_type_names roomTypeName,
+            o.rateplan_name rateplanName,
+            o.guest_names guest,
+            o.checkin_date checkInDate,
+            o.checkout_date checkOutDate,
+            o.room_num roomNum,
+            DATEDIFF(o.checkout_date,o.checkin_date)*o.room_num roomNightNum,
+            o.balance_method balanceMethod,
+            o.sale_currency currency,
+            o.receivable_amount receivableAmount,
+            oof.settlement_amount settlementAmount,
+            o.receivable_amount-profit payableAmount,
+            oof.settlement_status settlementStatus,
+            CASE WHEN oof.account_status=3 THEN 1 ELSE  0 END accountStatus,
+            DATE_FORMAT(o.create_time, "%Y-%m-%d %T") createTime,
+            DATE_FORMAT(oof.settlement_date, "%Y-%m-%d %T") settlementDate
+        FROM
+            o_order o,
+            o_order_finance oof
+        WHERE o.id=oof.order_id
+        AND o.receivable_amount > 0
+        AND o.merchant_code=#{merchantCode}
+        <if test="orderCode != null and orderCode!=''">
+            AND o.order_code=#{orderCode}
+        </if>
+        <choose>
+            <when test="dateType==1">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.create_time >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+                </if>
+            </when>
+            <when test="dateType==2">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.checkin_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.checkin_date &lt;= #{endDate}
+                </if>
+            </when>
+            <when test="dateType==3">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.checkout_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.checkout_date &lt;= #{endDate}
+                </if>
+            </when>
+        </choose>
+        <choose>
+            <when test="orgCode!=null and orgCode!=''">
+                AND o.agent_code=#{orgCode}
+            </when>
+            <otherwise>
+                <if test="orgName != null and orgName != ''">
+                    and o.agent_name LIKE concat(concat('%',#{orgName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="hotelId!=null and hotelId!=''">
+                AND o.hotel_id=#{hotelId}
+            </when>
+            <otherwise>
+                <if test="hotelName != null and hotelName != ''">
+                    and o.hotel_name LIKE concat(concat('%',#{hotelName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <if test="guest != null and guest != ''">
+            and o.guest_names LIKE concat(concat('%',#{guest}),'%')
+        </if>
+        <if test="settlementStatus==0 or settlementStatus==1">
+            AND oof.settlement_status=#{settlementStatus}
+        </if>
+        <if test="accountStatus==0">
+            AND oof.account_status IN (0,1)
+        </if>
+        <if test="accountStatus==1">
+            AND oof.account_status IN (2,3)
+        </if>
+        ORDER BY o.create_time DESC
+    </select>
+
+    <select id="querySupplyCheckReport" parameterType="com.fangcang.finance.report.request.QueryCheckReportDTO"
+            resultType="com.fangcang.finance.report.response.SupplyOrderCheckDTO">
+        SELECT
+            o.id orderId,
+            so.supply_code supplyCode,
+            so.supply_name supplyName,
+            so.id supplyOrderId,
+            so.supply_order_code supplyOrderCode,
+            so.hotel_name hotelName,
+            so.room_type_name roomTypeName,
+            so.rateplan_name rateplanName,
+            o.guest_names guest,
+            so.checkin_date checkInDate,
+            so.checkout_date checkOutDate,
+            so.room_num roomNum,
+            DATEDIFF(so.checkout_date,so.checkin_date)*so.room_num roomNightNum,
+            so.confirm_no confirmNo,
+            so.balance_method balanceMethod,
+            so.base_currency currency,
+            so.payable_amount payableAmount,
+            osf.settlement_amount settlementAmount,
+            osf.settlement_status settlementStatus,
+            CASE WHEN osf.account_status=3 THEN 1 ELSE  0 END accountStatus,
+            DATE_FORMAT(o.create_time, "%Y-%m-%d %T") createTime,
+            DATE_FORMAT(osf.settlement_date, "%Y-%m-%d %T") settlementDate
+        FROM
+            o_order o,
+            o_supply_order so,
+            o_supply_finance osf
+        WHERE o.id = so.order_id AND so.id = osf.supply_order_id
+        AND so.payable_amount > 0
+        AND o.merchant_code=#{merchantCode}
+        <if test="orderCode != null and orderCode!=''">
+            AND so.supply_order_code=#{orderCode}
+        </if>
+        <choose>
+            <when test="dateType==1">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.create_time >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+                </if>
+            </when>
+            <when test="dateType==2">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND so.checkin_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND so.checkin_date &lt;= #{endDate}
+                </if>
+            </when>
+            <when test="dateType==3">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND so.checkout_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND so.checkout_date &lt;= #{endDate}
+                </if>
+            </when>
+        </choose>
+        <choose>
+            <when test="orgCode!=null and orgCode!=''">
+                AND so.supply_code=#{orgCode}
+            </when>
+            <otherwise>
+                <if test="orgName != null and orgName != ''">
+                    and so.supply_name LIKE concat(concat('%',#{orgName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="hotelId!=null and hotelId!=''">
+                AND so.hotel_id=#{hotelId}
+            </when>
+            <otherwise>
+                <if test="hotelName != null and hotelName != ''">
+                    and so.hotel_name LIKE concat(concat('%',#{hotelName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <if test="guest != null and guest != ''">
+            and o.guest_names LIKE concat(concat('%',#{guest}),'%')
+        </if>
+        <if test="settlementStatus==0 or settlementStatus==1">
+            AND osf.settlement_status=#{settlementStatus}
+        </if>
+        <if test="accountStatus==0">
+            AND osf.account_status IN (0,1)
+        </if>
+        <if test="accountStatus==1">
+            AND osf.account_status IN (2,3)
+        </if>
+        ORDER BY o.create_time DESC
+    </select>
+</mapper>

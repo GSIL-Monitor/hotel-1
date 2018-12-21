@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.report.mapper.OrderDetailReportMapper">
+
+    <select id="queryOrderDetail" parameterType="com.fangcang.report.request.QueryOrderDetailReportDTO"
+            resultType="com.fangcang.report.response.OrderDetailReportDTO">
+        SELECT
+        @row_num:=@row_num+1 as rowNum,
+        @group_row:=CASE when @group_code=tmp.orderCode then @group_row+1 else 1 end as groupRow,
+        @group_code:=tmp.orderCode as groupCode,
+        tmp.*,
+        CASE WHEN @group_row=1 THEN tmp.receivable_amount ELSE NULL END receivableAmount,
+        CASE WHEN @group_row=1 THEN tmp.paid_in_amount ELSE NULL END paidInAmount,
+        CASE WHEN @group_row=1 THEN tmp.order_profit ELSE NULL END profit,
+        CASE WHEN @group_row=1 THEN tmp.payable_amount ELSE NULL END payableAmount,
+        CASE WHEN @group_row=1 THEN tmp.paid_out_amount ELSE NULL END paidOutAmount
+        FROM
+        (
+        SELECT o_info.*,so_amount.payable_amount,so_amount.paid_out_amount FROM(
+        SELECT
+        o.id orderId,
+        o.order_code orderCode,
+        o.order_status orderStatus,
+        o.group_no groupNo,
+        o.hotel_name hotelName,
+        DATE_FORMAT(o.create_time,"%Y-%m-%d")createTime,
+        o.guest_names guest,
+        o.balance_method balanceMethod,
+        o.creator,
+        o.belong_name belongName,
+        o.merchant_bm merchantBm,
+        o.merchant_pm merchantPm,
+        o.merchant_op merchantOp,
+        o.channel_code channelCode,
+        o.customer_order_code customerOrderCode,
+        o.agent_code agentCode,
+        o.agent_name agentName,
+        so.supply_order_code supplyOrderCode,
+        so.supply_status supplyStatus,
+        so.balance_method supplyBalanceMethod,
+        so.confirm_no confirmNo,
+        so.supply_code supplyCode,
+        so.supply_name supplyName,
+
+        o.sale_currency saleCurrency,
+        so.base_currency baseCurrency,
+        o.receivable_amount,
+        oof.settlement_amount paid_in_amount,
+        o.profit order_profit,
+
+        1 itemType,
+        '客房' itemName,
+        sp.room_type_name roomTypeName,
+        CONCAT(sp.room_type_name,'-',sp.rateplan_name) productName,
+        DATE_FORMAT(sp.checkin_date,"%Y/%m/%d") checkInDate,
+        DATE_FORMAT(sp.checkout_date,"%Y/%m/%d") checkOutDate,
+        DATEDIFF(sp.checkout_date,sp.checkin_date)roomNight,
+        sp.room_num roomNum,
+        DATEDIFF(sp.checkout_date,sp.checkin_date)*sp.room_num roomNightNum,
+        sp.sale_price_sum salePriceSum,
+        sp.base_price_sum basePriceSum,
+        n.note
+        FROM
+        o_order o LEFT JOIN (select t.order_id,GROUP_CONCAT(t.note) note from o_order_note t where t.note_type = 3  group by t.order_id ,t.note_type) n ON n.order_id = o.id ,
+        o_order_finance oof,
+        o_supply_order so,
+        o_supply_product sp
+        WHERE o.id=so.order_id AND o.id=oof.order_id AND so.id=sp.supply_order_id and so.supply_status != 4
+        AND o.merchant_code=#{merchantCode}
+        <include refid="queryOrderDetailWithStayDateCondition"/>
+        UNION ALL
+        SELECT
+        o.id orderId,
+        o.order_code orderCode,
+        o.order_status orderStatus,
+        o.group_no groupNo,
+        o.hotel_name hotelName,
+        DATE_FORMAT(o.create_time,"%Y-%m-%d")createTime,
+        o.guest_names guest,
+        o.balance_method balanceMethod,
+        o.creator,
+        o.belong_name belongName,
+        o.merchant_bm merchantBm,
+        o.merchant_pm merchantPm,
+        o.merchant_op merchantOp,
+        o.channel_code channelCode,
+        o.customer_order_code customerOrderCode,
+        o.agent_code agentCode,
+        o.agent_name agentName,
+        so.supply_order_code supplyOrderCode,
+        so.supply_status supplyStatus,
+        so.balance_method supplyBalanceMethod,
+        so.confirm_no confirmNo,
+        so.supply_code supplyCode,
+        so.supply_name supplyName,
+
+        o.sale_currency saleCurrency,
+        so.base_currency baseCurrency,
+        o.receivable_amount,
+        oof.settlement_amount paid_in_amount,
+        o.profit order_profit,
+
+        sac.addition_type+1 itemType,
+        CASE WHEN sac.addition_type=2 THEN
+        '退改费'
+        WHEN sac.addition_type=3 THEN
+        '减免政策'
+        ELSE
+        '附加项'
+        END itemName,
+        '' roomTypeName,
+        sac.name productName,
+        null checkInDate,
+        null checkOutDate,
+        sac.days roomNight,
+        sac.num roomNum,
+        null roomNightNum,
+        sac.sale_price_sum salePriceSum,
+        sac.base_price_sum basePriceSum,
+        '' note
+        FROM
+        o_order o,
+        o_order_finance oof,
+        o_supply_order so,
+        o_supply_addition_charge sac
+        WHERE o.id=so.order_id AND o.id=oof.order_id AND so.id=sac.supply_order_id and so.supply_status != 4
+        AND o.merchant_code=#{merchantCode}
+        <include refid="queryOrderDetailWithStayDateCondition"/>
+        )o_info,
+        (
+        SELECT
+        o.order_code,
+        SUM(so.payable_amount*IFNULL(so.rate,1))payable_amount,
+        SUM(sof.settlement_amount*IFNULL(so.rate,1))paid_out_amount
+        FROM
+        o_order o,
+        o_supply_order so,
+        o_supply_finance sof
+        WHERE o.id=so.order_id AND so.id=sof.supply_order_id and so.supply_status != 4
+        AND o.merchant_code=#{merchantCode}
+        <include refid="queryOrderDetailWithStayDateCondition"/>
+        GROUP BY o.id)so_amount
+        WHERE o_info.orderCode=so_amount.order_code
+        ORDER BY o_info.orderId DESC,o_info.itemType)tmp,
+        (SELECT @row_num:=0, @group_row:=1, @group_code:='') AS gr
+    </select>
+
+    <select id="queryOrderDetailSummary" parameterType="com.fangcang.report.request.QueryOrderDetailReportDTO"
+            resultType="com.fangcang.report.response.OrderDetailSummaryDTO">
+        SELECT
+            SUM( tmp.`receivable_amount` ) receivableAmountSum,
+            SUM( tmp.`receivable_amount` - tmp.`profit` ) payableAmountSum,
+            SUM( tmp.`profit` ) profitSum,
+            SUM(roomNightSum) roomNightSum,
+            SUM(roomNumSum) roomNumSum,
+            FORMAT(SUM( tmp.`profit` )/SUM(roomNightSum),2)avgProfit
+        FROM (
+        SELECT
+            o.`order_code`,
+            o.`receivable_amount`,
+            o.`profit`,
+            SUM( TIMESTAMPDIFF( DAY, sp.`checkin_date`, sp.`checkout_date` ) * sp.`room_num` ) roomNightSum,
+            SUM(sp.`room_num`) roomNumSum
+        FROM
+        `o_order` o, o_supply_order so, o_supply_product sp
+        WHERE o.id = so.order_id
+        and so.id = sp.supply_order_id
+        and so.supply_status != 4
+        <include refid="queryOrderDetailWithStayDateCondition"/>
+        GROUP BY o.`order_code`,o.`receivable_amount`,o.`profit`
+        )tmp
+    </select>
+
+    <sql id="queryOrderDetailCondition">
+        <choose>
+            <when test="dateType==1">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.create_time >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+                </if>
+            </when>
+            <when test="dateType==2">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.checkin_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.checkin_date &lt;= #{endDate}
+                </if>
+            </when>
+            <when test="dateType==3">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.checkout_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.checkout_date &lt;= #{endDate}
+                </if>
+            </when>
+        </choose>
+        <choose>
+            <when test="agentCode!=null and agentCode!=''">
+                AND o.agent_code=#{agentCode}
+            </when>
+            <otherwise>
+                <if test="agentName != null and agentName != ''">
+                    and o.agent_name LIKE concat(concat('%',#{agentName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="supplyCode!=null and supplyCode!=''">
+                AND so.supply_code=#{supplyCode}
+            </when>
+            <otherwise>
+                <if test="supplyName != null and supplyName != ''">
+                    and so.supply_name LIKE concat(concat('%',#{supplyName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="hotelId!=null and hotelId!=''">
+                AND o.hotel_id=#{hotelId}
+            </when>
+            <otherwise>
+                <if test="hotelName != null and hotelName != ''">
+                    and o.hotel_name LIKE concat(concat('%',#{hotelName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <if test="orderCode != null and orderCode!=''">
+            AND o.order_code=#{orderCode}
+        </if>
+        <if test="orderStatus !=null and orderStatus!=''">
+            AND o.order_status=#{orderStatus}
+        </if>
+        <if test="belongName != null and belongName != ''">
+            and o.belong_name LIKE concat(concat('%',#{belongName}),'%')
+        </if>
+        <if test="merchantBm != null and merchantBm != ''">
+            and o.merchant_bm LIKE concat(concat('%',#{merchantBm}),'%')
+        </if>
+        <if test="merchantPm != null and merchantPm != ''">
+            and o.merchant_pm LIKE concat(concat('%',#{merchantPm}),'%')
+        </if>
+        <if test="merchantOp != null and merchantOp != ''">
+            and o.merchant_op LIKE concat(concat('%',#{merchantOp}),'%')
+        </if>
+    </sql>
+
+
+    <sql id="queryOrderDetailWithStayDateCondition">
+        <choose>
+            <when test="dateType==1">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.create_time >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.create_time &lt; date_add(#{endDate},interval 1 day)
+                </if>
+            </when>
+            <when test="dateType==2">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.checkin_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.checkin_date &lt;= #{endDate}
+                </if>
+            </when>
+            <when test="dateType==3">
+                <if test="beginDate!=null and beginDate!=''">
+                    AND o.checkout_date >= #{beginDate}
+                </if>
+                <if test="endDate!=null and endDate!=''">
+                    AND o.checkout_date &lt;= #{endDate}
+                </if>
+            </when>
+        </choose>
+        <choose>
+            <when test="agentCode!=null and agentCode!=''">
+                AND o.agent_code=#{agentCode}
+            </when>
+            <otherwise>
+                <if test="agentName != null and agentName != ''">
+                    and o.agent_name LIKE concat(concat('%',#{agentName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="supplyCode!=null and supplyCode!=''">
+                AND so.supply_code=#{supplyCode}
+            </when>
+            <otherwise>
+                <if test="supplyName != null and supplyName != ''">
+                    and so.supply_name LIKE concat(concat('%',#{supplyName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="hotelId!=null and hotelId!=''">
+                AND o.hotel_id=#{hotelId}
+            </when>
+            <otherwise>
+                <if test="hotelName != null and hotelName != ''">
+                    and o.hotel_name LIKE concat(concat('%',#{hotelName}),'%')
+                </if>
+            </otherwise>
+        </choose>
+        <if test="orderCode != null and orderCode!=''">
+            AND o.order_code=#{orderCode}
+        </if>
+        <if test="orderStatus !=null and orderStatus!=''">
+            AND o.order_status=#{orderStatus}
+        </if>
+        <if test="belongName != null and belongName != ''">
+            and o.belong_name LIKE concat(concat('%',#{belongName}),'%')
+        </if>
+        <if test="merchantBm != null and merchantBm != ''">
+            and o.merchant_bm LIKE concat(concat('%',#{merchantBm}),'%')
+        </if>
+        <if test="merchantPm != null and merchantPm != ''">
+            and o.merchant_pm LIKE concat(concat('%',#{merchantPm}),'%')
+        </if>
+        <if test="merchantOp != null and merchantOp != ''">
+            and o.merchant_op LIKE concat(concat('%',#{merchantOp}),'%')
+        </if>
+        <if test="beginStayDate!=null and beginStayDate!=''">
+            AND
+            ((#{beginStayDate}  &lt;= o.checkin_date and #{endStayDate}  >= o.checkin_date)
+            or
+            (#{beginStayDate}  >= o.checkin_date and #{beginStayDate}  &lt; o.checkout_date))
+        </if>
+        <if test="orderStatusList!=null and orderStatusList.size > 0">
+            AND o.order_status IN
+            <foreach collection="orderStatusList" item="item" open="(" separator="," close=")">#{item}</foreach>
+        </if>
+    </sql>
+
+</mapper>

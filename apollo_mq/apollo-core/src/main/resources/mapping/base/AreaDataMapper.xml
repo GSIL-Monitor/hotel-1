@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.base.mapper.AreaDataMapper">
+
+    <select id="queryTreeAreaData"
+            resultType="com.fangcang.base.response.AreaDataDTO">
+        SELECT
+          id,
+          type,
+          data_name dataName,
+          data_code dataCode,
+          pinyin pinYin,
+          acronympinyin acronymPinYin,
+          parent_id parentId
+        FROM t_areadata t start with t.type = #{type}
+        <if test="dataCode != null and dataCode != ''">
+            and t.data_code = #{dataCode}
+        </if>
+        connect by prior t.id = t.parent_id order by t.type,
+        t.parent_id
+    </select>
+</mapper>

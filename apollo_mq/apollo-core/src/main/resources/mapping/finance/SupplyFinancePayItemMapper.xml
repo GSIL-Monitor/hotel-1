@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.finance.financeorder.mapper.SupplyFinancePayItemMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.finance.financeorder.domain.SupplyFinancePayItemDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="finance_order_id" jdbcType="INTEGER" property="financeOrderId" />
+    <result column="passage" jdbcType="INTEGER" property="passage" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="currency" jdbcType="INTEGER" property="currency" />
+    <result column="exchange_amount" jdbcType="DECIMAL" property="exchangeAmount" />
+    <result column="exchange_currency" jdbcType="INTEGER" property="exchangeCurrency" />
+    <result column="arrival_date" jdbcType="DATE" property="arrivalDate" />
+    <result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="org_bank_name" jdbcType="VARCHAR" property="orgBankName" />
+    <result column="org_bank_account" jdbcType="VARCHAR" property="orgBankAccount" />
+    <result column="merchant_bank_id" jdbcType="INTEGER" property="merchantBankId" />
+    <result column="merchant_bank_name" jdbcType="VARCHAR" property="merchantBankName" />
+    <result column="merchant_bank_account" jdbcType="VARCHAR" property="merchantBankAccount" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+</mapper>

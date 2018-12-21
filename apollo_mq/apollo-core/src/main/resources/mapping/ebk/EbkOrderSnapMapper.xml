@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.ebk.mapper.EbkOrderSnapMapper">
+
+    <resultMap id="requestDetailMap" type="com.fangcang.ebk.response.EbkOrderSnapDTO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="supply_order_code" property="supplyOrderCode" jdbcType="VARCHAR"/>
+        <result column="is_groupon" property="isGroupon" jdbcType="INTEGER"/>
+        <result column="hotel_id" property="hotelId" jdbcType="INTEGER"/>
+        <result column="hotel_name" property="hotelName" jdbcType="VARCHAR"/>
+        <result column="roomtype_id" property="roomtypeId" jdbcType="INTEGER"/>
+        <result column="roomtype_name" property="roomtypeName" jdbcType="VARCHAR"/>
+        <result column="rateplan_id" property="rateplanId" jdbcType="INTEGER"/>
+        <result column="rateplan_name" property="rateplanName" jdbcType="VARCHAR"/>
+        <result column="check_in_date" property="checkInDate" jdbcType="VARCHAR"/>
+        <result column="check_out_date" property="checkOutDate" jdbcType="VARCHAR"/>
+        <result column="night_num" property="nightNum" jdbcType="INTEGER"/>
+        <result column="room_num" property="roomNum" jdbcType="INTEGER"/>
+        <result column="guest" property="guest" jdbcType="VARCHAR"/>
+        <result column="guest_attach_url" property="guestAttachUrl" jdbcType="VARCHAR"/>
+        <result column="order_sum" property="orderSum" jdbcType="DECIMAL"/>
+        <result column="currency" property="currency" jdbcType="VARCHAR"/>
+        <result column="special_requirement" property="specialRequirement" jdbcType="VARCHAR"/>
+        <result column="supply_code" property="supplyCode" jdbcType="VARCHAR"/>
+        <result column="supply_name" property="supplyName" jdbcType="VARCHAR"/>
+        <result column="merchant_code" property="merchantCode" jdbcType="VARCHAR"/>
+        <result column="merchant_name" property="merchantName" jdbcType="VARCHAR"/>
+        <result column="merchant_remark" property="merchantRemark" jdbcType="VARCHAR"/>
+        <result column="balance_method" property="balanceMethod" jdbcType="INTEGER"/>
+        <result column="guide" property="guide" jdbcType="VARCHAR"/>
+        <result column="guide_phone" property="guidePhone" jdbcType="VARCHAR"/>
+        <result column="ebk_request_id" property="ebkRequestId" jdbcType="INTEGER"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <association property="productList" column="id" select="queryProductList"/>
+        <association property="additionList" column="id" select="queryAdditionList"/>
+        <association property="derateList" column="id" select="queryDerateList"/>
+    </resultMap>
+
+    <resultMap id="derateMap" type="com.fangcang.ebk.response.EbkOrderProductDTO">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="itemType" property="itemType" jdbcType="INTEGER"/>
+        <result column="itemName" property="itemName" jdbcType="VARCHAR"/>
+        <result column="nightNum" property="nightNum" jdbcType="INTEGER"/>
+        <result column="roomNum" property="roomNum" jdbcType="INTEGER"/>
+        <result column="salePrice" property="salePrice" jdbcType="DECIMAL"/>
+        <result column="salePriceSum" property="salePriceSum" jdbcType="DECIMAL"/>
+        <association property="priceList" column="id" select="queryDeratePriceList"/>
+    </resultMap>
+
+    <select id="queryModifyRequestDetail" parameterType="java.lang.Long"
+            resultMap="requestDetailMap">
+        SELECT
+          id,
+          supply_order_code,
+          is_groupon,
+          hotel_id,
+          hotel_name,
+          roomtype_id,
+          roomtype_name,
+          rateplan_id,
+          rateplan_name,
+          DATE_FORMAT(check_in_date,"%Y-%m-%d")check_in_date,
+          DATE_FORMAT(check_out_date,"%Y-%m-%d")check_out_date,
+          DATEDIFF(check_out_date,check_in_date)night_num,
+          room_num,
+          guest,
+          guest_attach_url,
+          order_sum,
+          currency,
+          special_requirement,
+          supply_code,
+          supply_name,
+          merchant_code,
+          merchant_name,
+          merchant_remark,
+          balance_method,
+          guide,
+          guide_phone,
+          ebk_request_id,
+          creator,
+          DATE_FORMAT(create_time,"%Y-%m-%d %T")create_time
+        FROM t_ebk_order_snap o
+        WHERE o.ebk_request_id=#{requestId}
+    </select>
+
+    <select id="queryProductList" parameterType="int"
+            resultType="com.fangcang.ebk.response.EbkOrderProductDTO">
+        SELECT
+          id,
+          item_type itemType,
+          item_name itemName,
+          roomtype_id roomtypeId,
+          roomtype_name roomtypeName,
+          rateplan_id rateplanId,
+          rateplan_name rateplanName,
+          bed_type bedType,
+          breakfast_type breakfastType,
+          check_in_date checkInDate,
+          check_out_date checkOutDate,
+          night_num nightNum,
+          room_num roomNum,
+          sale_price salePrice,
+          night_num*room_num*sale_price salePriceSum
+        FROM t_ebk_order_item_snap WHERE item_type=1 and ebk_order_snap_id=#{ebkOrderSnapId,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryAdditionList" parameterType="int"
+            resultType="com.fangcang.ebk.response.EbkOrderProductDTO">
+        SELECT
+          id,
+          item_type itemType,
+          item_name itemName,
+          night_num nightNum,
+          room_num roomNum,
+          sale_price salePrice,
+          night_num*room_num*sale_price salePriceSum
+        FROM t_ebk_order_item_snap WHERE item_type=2 and ebk_order_snap_id=#{ebkOrderSnapId,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryDerateList" parameterType="int"
+            resultMap="derateMap">
+        SELECT
+          id,
+          item_type itemType,
+          item_name itemName,
+          night_num nightNum,
+          room_num roomNum,
+          sale_price salePrice,
+          sale_price salePriceSum
+        FROM t_ebk_order_item_snap WHERE item_type=3 and ebk_order_snap_id=#{ebkOrderSnapId,jdbcType=INTEGER}
+    </select>
+    
+    <select id="queryDeratePriceList" parameterType="int"
+            resultType="com.fangcang.ebk.response.EbkOrderProductPriceDTO">
+        SELECT
+          id,
+          order_item_id orderItemId,
+          DATE_FORMAT(sale_date,"%Y-%m-%d") saleDate,
+          room_num roomNum,
+          sale_price salePrice
+        FROM t_ebk_order_item_price_snap WHERE order_item_id=#{orderItemId,jdbcType=INTEGER}
+    </select>
+</mapper>

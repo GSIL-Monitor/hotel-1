@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.DeratePolicyMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.DeratePolicyDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="supply_order_id" jdbcType="INTEGER" property="supplyOrderId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="sale_price_sum" jdbcType="DECIMAL" property="salePriceSum" />
+    <result column="base_price_sum" jdbcType="DECIMAL" property="basePriceSum" />
+    <result column="room_num_sum" jdbcType="DECIMAL" property="roomNumSum" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+</mapper>

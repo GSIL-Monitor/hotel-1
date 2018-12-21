@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.channel.dao.InterfaceLogPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.channel.entity.po.InterfaceLogPO" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="channel_code" property="channelCode" jdbcType="VARCHAR" />
+    <result column="interface_name" property="interfaceName" jdbcType="VARCHAR" />
+    <result column="hotel_id" property="hotelId" jdbcType="BIGINT" />
+    <result column="room_type_id" property="roomTypeId" jdbcType="BIGINT" />
+    <result column="price_plan_id" property="pricePlanId" jdbcType="BIGINT" />
+    <result column="checkin_date" property="checkinDate" jdbcType="TIMESTAMP" />
+    <result column="checkout_date" property="checkoutDate" jdbcType="TIMESTAMP" />
+    <result column="reutrn_code" property="reutrnCode" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.travel.channel.entity.po.InterfaceLogPOWithBLOBs" extends="BaseResultMap" >
+    <result column="request" property="request" jdbcType="LONGVARCHAR" />
+    <result column="response" property="response" jdbcType="LONGVARCHAR" />
+    <result column="return_msg" property="returnMsg" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, channel_code, interface_name, hotel_id, room_type_id, price_plan_id, checkin_date, 
+    checkout_date, reutrn_code, create_date
+  </sql>
+  <sql id="Blob_Column_List" >
+    request, response, return_msg
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.travel.channel.entity.po.InterfaceLogPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_interface_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.channel.entity.po.InterfaceLogPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_interface_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_interface_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_interface_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.channel.entity.po.InterfaceLogPOExample" >
+    delete from t_interface_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.channel.entity.po.InterfaceLogPOWithBLOBs" >
+    insert into t_interface_log (id, channel_code, interface_name, 
+      hotel_id, room_type_id, price_plan_id, 
+      checkin_date, checkout_date, reutrn_code, 
+      create_date, request, response, 
+      return_msg)
+    values (#{id,jdbcType=BIGINT}, #{channelCode,jdbcType=VARCHAR}, #{interfaceName,jdbcType=VARCHAR}, 
+      #{hotelId,jdbcType=BIGINT}, #{roomTypeId,jdbcType=BIGINT}, #{pricePlanId,jdbcType=BIGINT}, 
+      #{checkinDate,jdbcType=TIMESTAMP}, #{checkoutDate,jdbcType=TIMESTAMP}, #{reutrnCode,jdbcType=INTEGER}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR}, 
+      #{returnMsg,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.channel.entity.po.InterfaceLogPOWithBLOBs" >
+    insert into t_interface_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="channelCode != null" >
+        channel_code,
+      </if>
+      <if test="interfaceName != null" >
+        interface_name,
+      </if>
+      <if test="hotelId != null" >
+        hotel_id,
+      </if>
+      <if test="roomTypeId != null" >
+        room_type_id,
+      </if>
+      <if test="pricePlanId != null" >
+        price_plan_id,
+      </if>
+      <if test="checkinDate != null" >
+        checkin_date,
+      </if>
+      <if test="checkoutDate != null" >
+        checkout_date,
+      </if>
+      <if test="reutrnCode != null" >
+        reutrn_code,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="request != null" >
+        request,
+      </if>
+      <if test="response != null" >
+        response,
+      </if>
+      <if test="returnMsg != null" >
+        return_msg,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="channelCode != null" >
+        #{channelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="interfaceName != null" >
+        #{interfaceName,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelId != null" >
+        #{hotelId,jdbcType=BIGINT},
+      </if>
+      <if test="roomTypeId != null" >
+        #{roomTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="pricePlanId != null" >
+        #{pricePlanId,jdbcType=BIGINT},
+      </if>
+      <if test="checkinDate != null" >
+        #{checkinDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkoutDate != null" >
+        #{checkoutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reutrnCode != null" >
+        #{reutrnCode,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="request != null" >
+        #{request,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="response != null" >
+        #{response,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="returnMsg != null" >
+        #{returnMsg,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.channel.entity.po.InterfaceLogPOExample" resultType="java.lang.Integer" >
+    select count(*) from t_interface_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_interface_log
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.channelCode != null" >
+        channel_code = #{record.channelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.interfaceName != null" >
+        interface_name = #{record.interfaceName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.hotelId != null" >
+        hotel_id = #{record.hotelId,jdbcType=BIGINT},
+      </if>
+      <if test="record.roomTypeId != null" >
+        room_type_id = #{record.roomTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.pricePlanId != null" >
+        price_plan_id = #{record.pricePlanId,jdbcType=BIGINT},
+      </if>
+      <if test="record.checkinDate != null" >
+        checkin_date = #{record.checkinDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.checkoutDate != null" >
+        checkout_date = #{record.checkoutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.reutrnCode != null" >
+        reutrn_code = #{record.reutrnCode,jdbcType=INTEGER},
+      </if>
+      <if test="record.createDate != null" >
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.request != null" >
+        request = #{record.request,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.response != null" >
+        response = #{record.response,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.returnMsg != null" >
+        return_msg = #{record.returnMsg,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update t_interface_log
+    set id = #{record.id,jdbcType=BIGINT},
+      channel_code = #{record.channelCode,jdbcType=VARCHAR},
+      interface_name = #{record.interfaceName,jdbcType=VARCHAR},
+      hotel_id = #{record.hotelId,jdbcType=BIGINT},
+      room_type_id = #{record.roomTypeId,jdbcType=BIGINT},
+      price_plan_id = #{record.pricePlanId,jdbcType=BIGINT},
+      checkin_date = #{record.checkinDate,jdbcType=TIMESTAMP},
+      checkout_date = #{record.checkoutDate,jdbcType=TIMESTAMP},
+      reutrn_code = #{record.reutrnCode,jdbcType=INTEGER},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      request = #{record.request,jdbcType=LONGVARCHAR},
+      response = #{record.response,jdbcType=LONGVARCHAR},
+      return_msg = #{record.returnMsg,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_interface_log
+    set id = #{record.id,jdbcType=BIGINT},
+      channel_code = #{record.channelCode,jdbcType=VARCHAR},
+      interface_name = #{record.interfaceName,jdbcType=VARCHAR},
+      hotel_id = #{record.hotelId,jdbcType=BIGINT},
+      room_type_id = #{record.roomTypeId,jdbcType=BIGINT},
+      price_plan_id = #{record.pricePlanId,jdbcType=BIGINT},
+      checkin_date = #{record.checkinDate,jdbcType=TIMESTAMP},
+      checkout_date = #{record.checkoutDate,jdbcType=TIMESTAMP},
+      reutrn_code = #{record.reutrnCode,jdbcType=INTEGER},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.channel.entity.po.InterfaceLogPOWithBLOBs" >
+    update t_interface_log
+    <set >
+      <if test="channelCode != null" >
+        channel_code = #{channelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="interfaceName != null" >
+        interface_name = #{interfaceName,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelId != null" >
+        hotel_id = #{hotelId,jdbcType=BIGINT},
+      </if>
+      <if test="roomTypeId != null" >
+        room_type_id = #{roomTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="pricePlanId != null" >
+        price_plan_id = #{pricePlanId,jdbcType=BIGINT},
+      </if>
+      <if test="checkinDate != null" >
+        checkin_date = #{checkinDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkoutDate != null" >
+        checkout_date = #{checkoutDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reutrnCode != null" >
+        reutrn_code = #{reutrnCode,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="request != null" >
+        request = #{request,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="response != null" >
+        response = #{response,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="returnMsg != null" >
+        return_msg = #{returnMsg,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.travel.channel.entity.po.InterfaceLogPOWithBLOBs" >
+    update t_interface_log
+    set channel_code = #{channelCode,jdbcType=VARCHAR},
+      interface_name = #{interfaceName,jdbcType=VARCHAR},
+      hotel_id = #{hotelId,jdbcType=BIGINT},
+      room_type_id = #{roomTypeId,jdbcType=BIGINT},
+      price_plan_id = #{pricePlanId,jdbcType=BIGINT},
+      checkin_date = #{checkinDate,jdbcType=TIMESTAMP},
+      checkout_date = #{checkoutDate,jdbcType=TIMESTAMP},
+      reutrn_code = #{reutrnCode,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      request = #{request,jdbcType=LONGVARCHAR},
+      response = #{response,jdbcType=LONGVARCHAR},
+      return_msg = #{returnMsg,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.channel.entity.po.InterfaceLogPO" >
+    update t_interface_log
+    set channel_code = #{channelCode,jdbcType=VARCHAR},
+      interface_name = #{interfaceName,jdbcType=VARCHAR},
+      hotel_id = #{hotelId,jdbcType=BIGINT},
+      room_type_id = #{roomTypeId,jdbcType=BIGINT},
+      price_plan_id = #{pricePlanId,jdbcType=BIGINT},
+      checkin_date = #{checkinDate,jdbcType=TIMESTAMP},
+      checkout_date = #{checkoutDate,jdbcType=TIMESTAMP},
+      reutrn_code = #{reutrnCode,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

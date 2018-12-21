@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.base.mapper.ExchangeLogMapper">
+
+    <select id="queryExchangeLog" parameterType="com.fangcang.base.request.QueryExchangeDTO"
+            resultType="com.fangcang.base.response.ExchangeLogDTO">
+        SELECT
+          id,
+          merchant_code merchantCode,
+          source_currency sourceCurrency,
+          target_currency targetCurrency,
+          old_rate oldRate,
+          new_rate newRate,
+          creator,
+          DATE_FORMAT(create_time,"%Y-%m-%d %T")createTime
+        FROM t_exchange_log e
+        WHERE 1=1
+        <if test="merchantCode != null">
+            AND e.merchant_code=#{merchantCode}
+        </if>
+        <if test="sourceCurrency !=null">
+            AND e.source_currency=#{sourceCurrency}
+        </if>
+        <if test="targetCurrency != null">
+            AND e.target_currency=#{targetCurrency}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.hotelinfo.mapper.HotelPolicyMapper" >
+  <resultMap id="BaseResultMap" type="com.fangcang.hotelinfo.domain.HotelPolicyDO" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="hotel_id" property="hotelId" jdbcType="INTEGER" />
+    <result column="checkin_time" property="checkInTime" jdbcType="VARCHAR" />
+    <result column="checkout_time" property="checkOutTime" jdbcType="VARCHAR" />
+    <result column="pet" property="pet" jdbcType="TINYINT" />
+    <result column="credit_card" property="creditCard" jdbcType="VARCHAR" />
+    <result column="other_policy" property="otherPolicy" jdbcType="VARCHAR" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+  </resultMap>
+   
+   <sql id="Base_Column_List" >
+    id, hotel_id, checkin_time, checkout_time, pet, credit_card, other_policy
+  </sql>
+  
+  <insert id="insertHotelPolicy" parameterType="com.fangcang.hotelinfo.domain.HotelPolicyDO" useGeneratedKeys="true" keyProperty="id">
+    insert into t_hotelpolicy (hotel_id,
+    						   checkin_time, 
+						       checkout_time,
+						       pet,
+						       credit_card, 
+						       other_policy,
+						       create_time,
+                               creator)
+						values (#{hotelId,jdbcType=INTEGER},
+								#{checkInTime,jdbcType=VARCHAR}, 
+						        #{checkOutTime,jdbcType=VARCHAR},
+						        #{pet,jdbcType=TINYINT},
+						        #{creditCard,jdbcType=VARCHAR}, 
+						        #{otherPolicy,jdbcType=VARCHAR},
+						        NOW(),
+                                #{creator,jdbcType=VARCHAR})
+								
+  </insert>
+  
+  <update id="updateHotelPolicy" parameterType="com.fangcang.hotelinfo.domain.HotelPolicyDO" >
+    update t_hotelpolicy
+    <set >
+      <if test="hotelId != null" >
+        hotel_id = #{hotelId,jdbcType=INTEGER},
+      </if>
+      <if test="checkInTime != null and '' != checkInTime" >
+        checkin_time = #{checkInTime,jdbcType=VARCHAR},
+      </if>
+      <if test="checkOutTime != null and '' != checkOutTime" >
+        checkout_time = #{checkOutTime,jdbcType=VARCHAR},
+      </if>
+      <if test="pet != null" >
+        pet = #{pet,jdbcType=TINYINT},
+      </if>
+      <if test="creditCard != null and '' != creditCard" >
+        credit_card = #{creditCard,jdbcType=VARCHAR},
+      </if>
+      <if test="otherPolicy != null and '' != otherPolicy" >
+        other_policy = #{otherPolicy,jdbcType=VARCHAR},
+      </if>
+        modify_time = NOW(),
+      <if test="modifier != null and '' != modifier">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where hotel_id = #{hotelId,jdbcType=INTEGER}
+  </update>
+  
+   <select id="queryHotelPolicyByHotelId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_hotelpolicy
+    where hotel_id = #{hotel_id,jdbcType=INTEGER}
+  </select>
+</mapper>

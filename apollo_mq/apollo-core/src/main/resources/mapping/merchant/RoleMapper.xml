@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.merchant.mapper.RoleMapper">
+	<resultMap id="BaseResultMap" type="com.fangcang.merchant.domain.RoleDO">
+        <id column="id" jdbcType="INTEGER" property="roleId" />
+        <result column="role_code" jdbcType="VARCHAR" property="roleCode" />
+        <result column="role_name" jdbcType="VARCHAR" property="roleName" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+        <result column="is_active" jdbcType="INTEGER" property="isActive" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    </resultMap>
+    
+    <resultMap id="BaseResultMap2" type="com.fangcang.merchant.domain.ResourceDO">
+        <id column="id" jdbcType="INTEGER" property="resourceId" />
+        <result column="resource_code" jdbcType="VARCHAR" property="resourceCode" />
+        <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
+        <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+        <result column="url_pattern" jdbcType="VARCHAR" property="urlPattern" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+        <result column="pid" jdbcType="INTEGER" property="pid" />
+        <result column="level" jdbcType="INTEGER" property="level" />
+        <result column="is_active" jdbcType="INTEGER" property="isActive" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="modify_date" jdbcType="TIMESTAMP" property="modifyTime" />
+    </resultMap>
+    
+    
+    <sql id="Base_Column_List">
+    	id, role_code, role_name, description, is_active,creator,create_time,MODIFIER,modify_time
+  	</sql>
+    <select id="queryRoleList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_role
+    </select>
+
+	<select id="queryResourceByRoleId" resultMap="BaseResultMap2" parameterType="com.fangcang.merchant.request.RoleQueryDTO">
+        SELECT a.*
+        FROM t_resource a,t_role_resource b,t_role c
+        WHERE a.id = b.resource_id
+        AND b.role_id = c.id
+        <if test="roleId != null and roleId !=''">
+            AND b.role_id=#{roleId}
+        </if>
+    </select>
+
+    <select id="queryMenuByRoleId" resultType="com.fangcang.merchant.domain.ResourceDO" parameterType="java.util.ArrayList">
+        SELECT e.p_code pCode,e.p_level pLevel,e.p_name pName,e.p_type pType,e.p_url pUrl,
+        e.id,e.level,e.pid,e.resource_code resourceCode,e.resource_name resourceName,e.resource_type resourceType,e.url_pattern urlPattern
+        FROM (select a.id,a.url_pattern, a.resource_code,a.resource_name,a.resource_type,a.`level`,a.pid,b.resource_code p_code, b.resource_name p_name,b.`level` p_level, b.resource_type p_type,b.url_pattern p_url from t_resource a, t_resource b where a.pid = b.id) e,t_role_resource d,t_role c
+        WHERE e.id = d.resource_id
+        AND d.role_id = c.id
+        AND e.resource_type = 'menu'
+        AND d.role_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getRoleInfoByRoleId" resultMap="BaseResultMap" parameterType="com.fangcang.merchant.request.RoleQueryDTO" >
+    	SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_role
+        where 1=1
+        <if test="roleId != null and roleId !=''">
+            AND id=#{roleId}
+        </if>
+    </select>
+    
+    <select id="getRoleListByUserId" resultMap="BaseResultMap" parameterType="com.fangcang.merchant.request.GetUserByIdRequestDTO" >
+    	SELECT c.id, c.role_code, c.role_name, c.description, c.is_active,c.creator,c.create_time,c.MODIFIER,c.modify_time
+        FROM t_user a , t_user_role b ,t_role c
+        where
+        a.id = b.user_id 
+        and c.id = b.role_id
+        <if test="userId != null and userId !=''">
+            AND a.id=#{userId}
+        </if>
+    </select>
+    
+    <select id="queryRoleListByResourceId" resultMap="BaseResultMap" parameterType="com.fangcang.merchant.request.GetRoleListByResourceIdRequestDTO">
+        SELECT a.*
+        FROM t_role a,t_role_resource b
+        WHERE a.id = b.role_id
+        <if test="resourceId != null and resourceId != ''">
+            AND b.resource_id=#{resourceId}
+        </if>
+    </select>
+    
+    <select id="getRoleListByUser" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    	SELECT a.*
+    	FROM t_role a ,t_user_role b 
+    	WHERE b.role_id = a.id
+    	AND b.user_id = #{id,jdbcType=INTEGER}
+  	</select>
+</mapper>

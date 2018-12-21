@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.channel.dao.ProductMapper" >
+
+  <resultMap id="ProductDetailResultMap" type="com.travel.channel.dto.response.QueryHotelProductDetailResponse" >
+    <result column="sale_date" property="saleDate" jdbcType="TIMESTAMP" />
+    <result column="base_currency" property="baseCurrency" jdbcType="VARCHAR" />
+    <result column="is_active" property="isActive" jdbcType="INTEGER" />
+    <result column="pay_method" property="payMethod" jdbcType="INTEGER" />
+    <result column="priceplan_id" property="pricePlanId" jdbcType="BIGINT" />
+    <result column="priceplan_name" property="pricePlanName" jdbcType="VARCHAR" />
+    <result column="sale_c_currency" property="saleCCurrency" jdbcType="VARCHAR" />
+    <result column="supply_code" property="supplyCode" jdbcType="VARCHAR" />
+    <result column="sale_state" property="saleState" jdbcType="BIGINT" />
+    <result column="quota_state" property="quotaState" jdbcType="INTEGER" />
+    <result column="quota_num" property="quotaNum" jdbcType="INTEGER" />
+    <result column="overdraft" property="overdraft" jdbcType="INTEGER" />
+    <result column="base_price" property="basePrice" jdbcType="DECIMAL" />
+    <result column="sale_channel_currency" property="saleChannelCurrency" jdbcType="VARCHAR" />
+    <result column="tm_price" property="tmPrice" jdbcType="DECIMAL" />
+    <result column="ctrip_price" property="ctripPrice" jdbcType="DECIMAL" />
+    <result column="jd_price" property="jdPrice" jdbcType="DECIMAL" />
+    <result column="xmd_price" property="xmdPrice" jdbcType="DECIMAL" />
+    <result column="tuniu_price" property="tuNiuPrice" jdbcType="DECIMAL" />
+    <result column="tongcheng_price" property="tongChengPrice" jdbcType="DECIMAL" />
+    <result column="breakfast_num" property="breakfastNum" jdbcType="VARCHAR" />
+      <result column="advance_booking_days" property="bookDays" jdbcType="INTEGER" />
+      <result column="advance_booking_hours" property="bookTime" jdbcType="VARCHAR" />
+      <result column="cancel_type" property="cancelType" jdbcType="INTEGER" />
+      <result column="cancel_days" property="cancelDays" jdbcType="INTEGER" />
+      <result column="cancel_hours" property="cancelTime" jdbcType="VARCHAR" />
+      <result column="last_confirm_days" property="lastConfirmDays" jdbcType="INTEGER" />
+      <result column="last_confirm_hours" property="lastConfirmHours" jdbcType="VARCHAR" />
+  </resultMap>
+
+    <select id="selectProductDetail" resultMap="ProductDetailResultMap" parameterType="com.travel.channel.dto.request.QueryHotelProductDetailRequest" >
+        select priceplan.date_date sale_date,
+        priceplan.base_currency,
+        priceplan.is_active,
+        priceplan.pay_method,
+        priceplan.priceplan_id,
+        priceplan.priceplan_name,
+        priceplan.sale_c_currency,
+        priceplan.supply_code,
+        priceplan.sale_state,
+        quota.quota_state,
+        quota.quota_num,
+        quota.overdraft,
+        price.base_currency,
+        price.base_price,
+        price.sale_channel_currency,
+        price.tm_price,
+        price.ctrip_price,
+        price.jd_price,
+        price.xmd_price,
+        price.tuniu_price,
+        price.tongcheng_price,
+        price.breakfast_num,
+        r.advance_booking_days,
+        r.advance_booking_hours,
+        r.cancel_type,
+        r.cancel_days,
+        r.cancel_hours,
+        r.last_confirm_days,
+        r.last_confirm_hours
+        from (select td.date_date,
+        tpp.base_currency,
+        tpp.is_active,
+        tpp.pay_method,
+        tpp.priceplan_id,
+        tpp.priceplan_name,
+        tpp.base_currency sale_c_currency,
+        tpp.supply_code,
+        <if test="channelCode=='ctrip'">
+            tss.ctrip_sale_state sale_state
+        </if>
+        <if test="channelCode=='qunar'">
+            tss.qunar_sale_state sale_state
+        </if>
+        <if test="channelCode=='qunar_son'">
+            tss.qunar_sale_state sale_state
+        </if>
+        from t_htlpro_priceplan tpp, t_date td, t_htlpro_sale_state tss
+        where tpp.priceplan_id = #{pricePlanId,jdbcType=BIGINT}
+        and tpp.priceplan_id = tss.priceplan_id
+        <![CDATA[
+        and td.date_date >= #{checkInDate,jdbcType=DATE}
+        and td.date_date < #{checkOutDate,jdbcType=DATE}
+        ]]>
+        ) priceplan
+        left join (select tq.sale_date, tq.quota_state, tq.quota_num, tq.over_draft overdraft
+        from t_htlpro_priceplan tpp, t_htlpro_quota tq
+        where tpp.quotaaccount_id = tq.quotaaccount_id
+        and tpp.priceplan_id = #{pricePlanId,jdbcType=BIGINT}
+        <![CDATA[
+        and tq.sale_date >= #{checkInDate,jdbcType=DATE}
+        and tq.sale_date < #{checkOutDate,jdbcType=DATE}
+        ]]>
+        ) quota
+        on priceplan.date_date = quota.sale_date
+        left join (select tp.sale_date,
+        tp.priceplan_id,
+        tpp.base_currency,
+        tp.base_price,
+        tms.channel_currency sale_channel_currency,
+        tp.b2b_saleprice tm_price,
+        <if test="channelCode=='ctrip'">
+            tp.ctrip_saleprice ctrip_price,
+        </if>
+        <if test="channelCode=='qunar'">
+            tp.qunar_saleprice ctrip_price,
+        </if>
+        <if test="channelCode=='qunar_son'">
+            tp.qunar_son_saleprice ctrip_price,
+        </if>
+        tp.jd_saleprice jd_price,
+        tp.xmd_saleprice xmd_price,
+        tp.tuniu_saleprice tuniu_price,
+        tp.tongcheng_saleprice tongcheng_price,
+        tpp.breakfast_type breakfast_num
+        from t_htlpro_priceinfo tp,t_htlpro_priceplan tpp,t_htlpro_merchant_salechannel tms
+        where tp.priceplan_id = #{pricePlanId,jdbcType=BIGINT}
+        and tp.priceplan_id = tpp.priceplan_id and tpp.merchant_code = tms.merchant_code
+        and tms.channel_code = #{channelCode,jdbcType=VARCHAR}
+        <![CDATA[
+        and tp.sale_date >= #{checkInDate,jdbcType=DATE}
+        and tp.sale_date < #{checkOutDate,jdbcType=DATE}
+        ]]>
+        ) price
+        on priceplan.date_date = price.sale_date
+        LEFT JOIN t_htlpro_restrict r on priceplan.priceplan_id=r.rate_plan_id
+    </select>
+    
+    <select id="queryHotelRestrict" parameterType="java.lang.Long"
+            resultType="com.travel.hotel.dlt.response.dto.HotelRestrictDTO">
+      SELECT
+        r.rate_plan_id ratePlanId,
+        r.advance_booking_days bookDays,
+        r.advance_booking_hours bookTime,
+        r.occupancy_of_days occupancyOfDays,
+        r.number_of_booking numberOfBooking,
+        r.cancel_type cancelType,
+        r.cancel_days cancelDays,
+        r.cancel_hours cancelTime,
+        r.last_confirm_days lastConfirmDays,
+        r.last_confirm_hours lastConfirmHours
+      FROM t_htlpro_restrict r
+      WHERE r.rate_plan_id=#{ratePlanId}
+    </select>
+</mapper>

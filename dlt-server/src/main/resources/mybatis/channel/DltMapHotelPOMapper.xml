@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.travel.channel.dao.DltMapHotelPOMapper" >
+  <resultMap id="BaseResultMap" type="com.travel.channel.entity.po.DltMapHotelPO" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="m_hotel_id" property="zhHotelId" jdbcType="BIGINT" />
+    <result column="m_hotel_name" property="zhHotelName" jdbcType="VARCHAR" />
+    <result column="dlt_master_hotel_id" property="dltMasterHotelId" jdbcType="BIGINT" />
+    <result column="dlt_hotel_id" property="dltHotelId" jdbcType="BIGINT" />
+    <result column="dlt_hotel_name" property="dltHotelName" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="modifier" property="modifier" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, m_hotel_id, m_hotel_name, dlt_master_hotel_id, dlt_hotel_id, dlt_hotel_name,
+    creator, create_date, modifier, modify_date
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.travel.channel.entity.po.DltMapHotelPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_dlt_map_hotel
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_dlt_map_hotel
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectHotelMappingList" resultType="com.travel.channel.dto.response.DltHotelMappingDTO" parameterType="com.travel.channel.dto.request.DltHotelMappingQueryDTO" >
+    select hotel.*, dmh.dlt_hotel_id dltHotelId
+      from (
+          select h.hotel_id hotelId,
+                 h.hotel_name hotelName,
+                 h.city_code cityCode,
+                 h.city_name cityName,
+                 h.star star,
+                 h.tel tel
+            from t_htlpro_hotel h, t_supply_hotel_relation r, t_supply s
+           where h.hotel_id = r.hotel_id
+             and r.supply_code = s.supply_code
+             and h.isactive = 1
+             <if test="null != hotelId and '' != hotelId">
+             and h.hotel_id= #{hotelId}
+             </if>
+             <if test="null != hotelName and '' != hotelName">
+             and h.hotel_name like concat('%',#{hotelName},'%')
+             </if>
+             <if test="null != cityCode and '' != cityCode">
+             and h.city_code = #{cityCode}
+             </if>
+          ) hotel
+      left join t_dlt_map_hotel dmh on hotel.hotelId = dmh.m_hotel_id
+       <if test="null != mappingStatus">
+         where dmh.dlt_hotel_id is
+         <if test="0 == mappingStatus">
+           null
+         </if>
+         <if test="1 == mappingStatus">
+           not null
+         </if>
+       </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_dlt_map_hotel
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.travel.channel.entity.po.DltMapHotelPOExample" >
+    delete from t_dlt_map_hotel
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.travel.channel.entity.po.DltMapHotelPO" >
+    insert into t_dlt_map_hotel (id, m_hotel_id, m_hotel_name,
+      dlt_master_hotel_id, dlt_hotel_id, dlt_hotel_name, 
+      creator, create_date, modifier, 
+      modify_date)
+    values (#{id,jdbcType=BIGINT}, #{zhHotelId,jdbcType=BIGINT}, #{zhHotelName,jdbcType=VARCHAR}, 
+      #{dltMasterHotelId,jdbcType=BIGINT}, #{dltHotelId,jdbcType=BIGINT}, #{dltHotelName,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{modifier,jdbcType=VARCHAR}, 
+      #{modifyDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.travel.channel.entity.po.DltMapHotelPO" >
+    insert into t_dlt_map_hotel
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="zhHotelId != null" >
+        m_hotel_id,
+      </if>
+      <if test="zhHotelName != null" >
+        m_hotel_name,
+      </if>
+      <if test="dltMasterHotelId != null" >
+        dlt_master_hotel_id,
+      </if>
+      <if test="dltHotelId != null" >
+        dlt_hotel_id,
+      </if>
+      <if test="dltHotelName != null" >
+        dlt_hotel_name,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="modifier != null" >
+        modifier,
+      </if>
+      <if test="modifyDate != null" >
+        modify_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="zhHotelId != null" >
+        #{zhHotelId,jdbcType=BIGINT},
+      </if>
+      <if test="zhHotelName != null" >
+        #{zhHotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="dltMasterHotelId != null" >
+        #{dltMasterHotelId,jdbcType=BIGINT},
+      </if>
+      <if test="dltHotelId != null" >
+        #{dltHotelId,jdbcType=BIGINT},
+      </if>
+      <if test="dltHotelName != null" >
+        #{dltHotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.travel.channel.entity.po.DltMapHotelPOExample" resultType="java.lang.Integer" >
+    select count(*) from t_dlt_map_hotel
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update t_dlt_map_hotel
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.zhHotelId != null" >
+        m_hotel_id = #{record.zhHotelId,jdbcType=BIGINT},
+      </if>
+      <if test="record.zhHotelName != null" >
+        m_hotel_name = #{record.zhHotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dltMasterHotelId != null" >
+        dlt_master_hotel_id = #{record.dltMasterHotelId,jdbcType=BIGINT},
+      </if>
+      <if test="record.dltHotelId != null" >
+        dlt_hotel_id = #{record.dltHotelId,jdbcType=BIGINT},
+      </if>
+      <if test="record.dltHotelName != null" >
+        dlt_hotel_name = #{record.dltHotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creator != null" >
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createDate != null" >
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.modifier != null" >
+        modifier = #{record.modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifyDate != null" >
+        modify_date = #{record.modifyDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update t_dlt_map_hotel
+    set id = #{record.id,jdbcType=BIGINT},
+      m_hotel_id = #{record.zhHotelId,jdbcType=BIGINT},
+      m_hotel_name = #{record.zhHotelName,jdbcType=VARCHAR},
+      dlt_master_hotel_id = #{record.dltMasterHotelId,jdbcType=BIGINT},
+      dlt_hotel_id = #{record.dltHotelId,jdbcType=BIGINT},
+      dlt_hotel_name = #{record.dltHotelName,jdbcType=VARCHAR},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      modifier = #{record.modifier,jdbcType=VARCHAR},
+      modify_date = #{record.modifyDate,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.travel.channel.entity.po.DltMapHotelPO" >
+    update t_dlt_map_hotel
+    <set >
+      <if test="zhHotelId != null" >
+        m_hotel_id = #{zhHotelId,jdbcType=BIGINT},
+      </if>
+      <if test="zhHotelName != null" >
+        m_hotel_name = #{zhHotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="dltMasterHotelId != null" >
+        dlt_master_hotel_id = #{dltMasterHotelId,jdbcType=BIGINT},
+      </if>
+      <if test="dltHotelId != null" >
+        dlt_hotel_id = #{dltHotelId,jdbcType=BIGINT},
+      </if>
+      <if test="dltHotelName != null" >
+        dlt_hotel_name = #{dltHotelName,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyDate != null" >
+        modify_date = #{modifyDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.travel.channel.entity.po.DltMapHotelPO" >
+    update t_dlt_map_hotel
+    set m_hotel_id = #{zhHotelId,jdbcType=BIGINT},
+      m_hotel_name = #{zhHotelName,jdbcType=VARCHAR},
+      dlt_master_hotel_id = #{dltMasterHotelId,jdbcType=BIGINT},
+      dlt_hotel_id = #{dltHotelId,jdbcType=BIGINT},
+      dlt_hotel_name = #{dltHotelName,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      modify_date = #{modifyDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

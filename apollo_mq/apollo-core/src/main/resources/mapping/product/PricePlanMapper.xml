@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.product.mapper.PricePlanMapper">
+
+    <resultMap id="BaseResultMap" type="com.fangcang.product.domain.PricePlanDO">
+        <id column="priceplan_id" jdbcType="INTEGER" property="pricePlanId" />
+        <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+        <result column="room_type_id" jdbcType="INTEGER" property="roomTypeId" />
+        <result column="bedtype" jdbcType="VARCHAR" property="bedType" />
+        <result column="quotaaccount_id" jdbcType="INTEGER" property="quotaAccountId" />
+        <result column="priceplan_name" jdbcType="VARCHAR" property="pricePlanName" />
+        <result column="pay_method" jdbcType="TINYINT" property="payMethod" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="base_currency" jdbcType="VARCHAR" property="currency" />
+        <result column="is_active" jdbcType="TINYINT" property="isActive" />
+        <result column="breakfast_type" jdbcType="TINYINT" property="breakFastType" />
+        <result column="quota_type" jdbcType="TINYINT" property="quotaType" />
+        <result column="supply_way" jdbcType="TINYINT" property="supplyWay" />
+        <result column="supply_code" jdbcType="VARCHAR" property="supplyCode" />
+        <result column="merchant_code" jdbcType="VARCHAR" property="merchantCode" />
+        <result column="cancel_policy" jdbcType="VARCHAR" property="cancelPolicy" />
+        <result column="is_additional" jdbcType="TINYINT" property="isAdditional" />
+        <result column="product_type" jdbcType="TINYINT" property="productType" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        priceplan_id, hotel_id, room_type_id, bedtype, quotaaccount_id, priceplan_name, pay_method,
+        create_time, creator, modify_time, modifier, base_currency, is_active, breakfast_type,
+        quota_type, supply_way, supply_code, merchant_code, cancel_policy, is_additional,
+        product_type
+    </sql>
+
+  <insert id="insertPricePlan" parameterType="com.fangcang.product.domain.PricePlanDO" useGeneratedKeys="true" keyProperty="pricePlanId">
+    insert into t_htlpro_priceplan (hotel_id,
+                                      room_type_id,
+                                      bedtype,
+                                      quotaaccount_id,
+                                      priceplan_name,
+                                      pay_method,
+                                      create_time,
+                                      creator,
+                                      base_currency,
+                                      is_active,
+                                      breakfast_type,
+                                      quota_type,
+                                      supply_way,
+                                      supply_code,
+                                      merchant_code,
+                                      cancel_policy,
+                                      is_additional,
+                                      product_type,
+                                      free_room_policy,
+                                      applicable_people)
+                            values ( #{hotelId,jdbcType=INTEGER},
+                                     #{roomTypeId,jdbcType=INTEGER},
+                                     #{bedType,jdbcType=VARCHAR},
+                                     #{quotaAccountId,jdbcType=INTEGER},
+                                     #{pricePlanName,jdbcType=VARCHAR},
+                                     #{payMethod,jdbcType=TINYINT},
+                                     NOW(),
+                                     #{creator,jdbcType=VARCHAR},
+                                     #{currency,jdbcType=VARCHAR},
+                                     #{isActive,jdbcType=TINYINT},
+                                     #{breakFastType,jdbcType=TINYINT},
+                                     #{quotaType,jdbcType=TINYINT},
+                                    #{supplyWay,jdbcType=TINYINT},
+                                    #{supplyCode,jdbcType=VARCHAR},
+                                    #{merchantCode,jdbcType=VARCHAR},
+                                    #{cancelPolicy,jdbcType=VARCHAR},
+                                    #{isAdditional,jdbcType=TINYINT},
+                                    #{productType,jdbcType=TINYINT},
+                                    #{freeRoomPolicyStr,jdbcType=VARCHAR},
+                                    #{applicablePeople,jdbcType=VARCHAR}
+                                    )
+  </insert>
+
+    <update id="updatePricePlan" parameterType="com.fangcang.product.domain.PricePlanDO">
+        update t_htlpro_priceplan
+        <set>
+            <if test="bedType != null">
+                bedtype = #{bedType,jdbcType=VARCHAR},
+            </if>
+            <if test="quotaAccountId != null">
+                quotaaccount_id = #{quotaAccountId,jdbcType=INTEGER},
+            </if>
+            <if test="pricePlanName != null">
+                priceplan_name = #{pricePlanName,jdbcType=VARCHAR},
+            </if>
+            modify_time = NOW(),
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="isActive != null">
+                is_active = #{isActive,jdbcType=TINYINT},
+            </if>
+            <if test="breakFastType != null">
+                breakfast_type = #{breakFastType,jdbcType=TINYINT},
+            </if>
+            <if test="quotaType != null">
+                quota_type = #{quotaType,jdbcType=TINYINT},
+            </if>
+            <if test="cancelPolicy != null">
+                cancel_policy = #{cancelPolicy,jdbcType=VARCHAR},
+            </if>
+            <if test="isAdditional != null">
+                is_additional = #{isAdditional,jdbcType=TINYINT},
+            </if>
+            <if test="productType != null">
+                product_type = #{productType,jdbcType=TINYINT},
+            </if>
+            <if test="null != freeRoomPolicyStr">
+                free_room_policy = #{freeRoomPolicyStr,jdbcType=VARCHAR}
+            </if>
+            <if test="null != applicablePeople">
+                applicable_people = #{applicablePeople,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where priceplan_id = #{pricePlanId,jdbcType=INTEGER}
+    </update>
+
+    <resultMap id="DynamicPricePlanMap" type="com.fangcang.product.domain.PricePlanDO">
+        <id column="priceplan_id" jdbcType="INTEGER" property="pricePlanId" />
+        <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+        <result column="room_type_id" jdbcType="INTEGER" property="roomTypeId" />
+        <result column="bedtype" jdbcType="VARCHAR" property="bedType" />
+        <result column="quotaaccount_id" jdbcType="INTEGER" property="quotaAccountId" />
+        <result column="priceplan_name" jdbcType="VARCHAR" property="pricePlanName" />
+        <result column="pay_method" jdbcType="TINYINT" property="payMethod" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="base_currency" jdbcType="VARCHAR" property="currency" />
+        <result column="is_active" jdbcType="TINYINT" property="isActive" />
+        <result column="breakfast_type" jdbcType="TINYINT" property="breakFastType" />
+        <result column="quota_type" jdbcType="TINYINT" property="quotaType" />
+        <result column="supply_way" jdbcType="TINYINT" property="supplyWay" />
+        <result column="supply_code" jdbcType="VARCHAR" property="supplyCode" />
+        <result column="merchant_code" jdbcType="VARCHAR" property="merchantCode" />
+        <result column="cancel_policy" jdbcType="VARCHAR" property="cancelPolicy" />
+        <result column="product_type" jdbcType="TINYINT" property="productType" />
+        <result column="hotel_name" jdbcType="VARCHAR" property="hotelName"/>
+        <result column="roomtype_name" jdbcType="VARCHAR" property="roomTypeName"/>
+        <result column="supply_name" jdbcType="VARCHAR" property="supplyName"/>
+        <result column="free_room_policy" jdbcType="VARCHAR" property="freeRoomPolicyStr"/>
+        <result column="applicable_people" jdbcType="VARCHAR" property="applicablePeople"/>
+        <result column="is_additional" jdbcType="VARCHAR" property="isAdditional"/>
+        <result column="quotaaccount_name" jdbcType="VARCHAR" property="quotaAccountName"/>
+        <result column="is_share" jdbcType="TINYINT" property="isShare"/>
+        <result column="b2b_sale_state" jdbcType="VARCHAR" property="b2bSaleState"/>
+        <result column="elong_sale_state" jdbcType="VARCHAR" property="elongSaleState"/>
+        <collection property="hotelAdditionalList" column="{hotelId=hotel_id,merchantCode=merchant_code}"
+                    javaType="java.util.ArrayList" ofType="com.fangcang.hotelinfo.domain.HotelAdditionalDO"
+                    select="com.fangcang.hotelinfo.mapper.HotelAdditionalMapper.queryHotelAdditionalByHotelIdAndMerchantCode"/>
+    </resultMap>
+
+    <select id="dynamicQueryPricePlanList" parameterType="com.fangcang.product.request.DynamicPricePlanQueryDTO" resultMap="DynamicPricePlanMap">
+        SELECT p.priceplan_id,
+                p.quotaaccount_id,
+                p.hotel_id,
+                h.hotel_name,
+                p.room_type_id,
+                r.roomtype_name,
+                p.supply_code,
+                p.base_currency,
+                p.priceplan_name,
+                p.breakfast_type,
+                p.quota_type,
+                p.bedtype,
+                p.cancel_policy,
+                p.pay_method,
+                p.supply_way,
+                p.merchant_code,
+                p.is_active,
+                p.product_type,
+                p.create_time,
+                p.creator,
+                p.modify_time,
+                p.modifier,
+                s.supply_name,
+                p.free_room_policy,
+                p.applicable_people,
+                p.is_additional,
+                qa.quotaaccount_name,
+                qa.is_share,
+                ss.b2b_sale_state,
+                ss.elong_sale_state
+        FROM    t_htlpro_priceplan p
+                left join t_htlpro_quota_account qa on p.quotaaccount_id = qa.quotaaccount_id
+                left join t_htlpro_sale_state ss on p.priceplan_id = ss.priceplan_id,
+                t_hotel h,
+                t_roomtype r,
+                t_supply s
+        WHERE   p.hotel_id = h.hotel_id
+          AND   p.hotel_id = r.hotel_id
+          AND   p.room_type_id = r.roomtype_id
+          AND   p.supply_code = s.supply_code
+          AND   r.is_active = 1
+          AND   s.is_active = 1
+            <if test="null != pricePlanId">
+                AND p.priceplan_id = #{pricePlanId,jdbcType=INTEGER}
+            </if>
+            <if test="null != pricePlanIds and '' != pricePlanIds">
+              AND p.priceplan_id in (${pricePlanIds})
+            </if>
+            <if test="null != hotelId">
+                AND p.hotel_id = #{hotelId,jdbcType=INTEGER}
+            </if>
+            <if test="null != roomTypeId">
+                AND p.room_type_id = #{roomTypeId,jdbcType=INTEGER}
+            </if>
+            <if test="null != merchantCode">
+                AND p.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+            </if>
+            <if test="null != isActive">
+                AND p.is_active = #{isActive,jdbcType=INTEGER}
+            </if>
+            <if test="null != supplyCode and '' != supplyCode">
+                AND s.supply_code = #{supplyCode,jdbcType=VARCHAR}
+            </if>
+            <if test="null != supplyName and '' != supplyName">
+                AND s.supply_name like CONCAT('%',#{supplyName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="null != pricePlanName and '' != pricePlanName">
+                AND p.priceplan_name like CONCAT('%',#{pricePlanName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="null != productType">
+                AND p.product_type = #{productType,jdbcType=INTEGER}
+            </if>
+            order by p.priceplan_id desc
+    </select>
+
+    <update id="addProductToSharedPool" parameterType="java.util.List">
+        update t_htlpro_priceplan
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="quotaaccount_id = case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    when priceplan_id = #{item.pricePlanId} then #{item.quotaAccountId}
+                </foreach>
+            </trim>
+            <trim prefix="modifier = case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    when priceplan_id = #{item.pricePlanId} then #{item.modifier}
+                </foreach>
+            </trim>
+            modify_time = NOW()
+        </trim>
+        where priceplan_id in
+        <foreach collection="list" open="(" close=")" separator="," item="item">
+            #{item.pricePlanId,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <update id="deleteProductFromSharedPool" parameterType="com.fangcang.product.domain.PricePlanDO">
+        update t_htlpro_priceplan
+        <set>
+            quotaaccount_id = 0,
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            modify_time = NOW()
+        </set>
+        where priceplan_id = #{pricePlanId,jdbcType=INTEGER}
+          and quotaaccount_id = #{quotaAccountId,jdbcType=INTEGER}
+    </update>
+
+    <select id="queryNeedSharedProduct" parameterType="com.fangcang.product.domain.PricePlanDO" resultType="com.fangcang.product.domain.PricePlanDO">
+        SELECT r.roomtype_id as roomTypeId,
+                r.roomtype_name as roomTypeName,
+                p.priceplan_id as pricePlanId,
+                p.priceplan_name as pricePlanName
+          FROM  t_htlpro_priceplan p,
+                t_roomtype r
+        WHERE p.hotel_id = r.hotel_id
+          AND p.room_type_id = r.roomtype_id
+          AND p.is_active = #{isActive,jdbcType=INTEGER}
+          AND p.hotel_id = #{hotelId,jdbcType=INTEGER}
+          AND p.supply_code = #{supplyCode,jdbcType=VARCHAR}
+          AND p.quotaaccount_id != #{quotaAccountId,jdbcType=INTEGER}
+          AND p.product_type = 1
+    </select>
+
+    <select id="queryHasProductSupplyList" parameterType="com.fangcang.product.domain.PricePlanDO" resultType="com.fangcang.supplier.domain.SupplyDO">
+        SELECT p.supply_code as supplyCode,s.supply_name as supplyName
+          FROM apollo.t_htlpro_priceplan p,apollo.t_supply s
+         WHERE p.supply_code = s.supply_code
+           AND s.is_active = 1
+           AND p.is_active = 1
+           AND p.hotel_id = #{hotelId,jdbcType=INTEGER}
+           AND p.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+          group by p.supply_code,s.supply_name
+    </select>
+
+    <select id="queryCurrentSharedPool" parameterType="com.fangcang.product.domain.PricePlanDO" resultType="com.fangcang.product.domain.PricePlanDO">
+        SELECT 	q.quotaaccount_id as quotaAccountId,
+                q.quotaaccount_name as quotaAccountName,
+                t.roomtype_id as roomTypeId,
+                t.roomtype_name as roomTypeName,
+                t.priceplan_id as pricePlanId,
+                t.priceplan_name as pricePlanName,
+                q.supply_code as supplyCode
+          FROM  apollo.t_htlpro_quota_account q
+     left join (select p.hotel_id,p.priceplan_id,p.priceplan_name,p.supply_code,r.roomtype_id,r.roomtype_name,p.quotaaccount_id,p.is_active
+                   from apollo.t_htlpro_priceplan p,apollo.t_roomtype r
+                  where p.hotel_id = r.hotel_id
+                    AND p.room_type_id = r.roomtype_id
+                    AND p.is_active = 1) t
+             on q.quotaaccount_id = t.quotaaccount_id
+        <where>
+            <if test="null != quotaAccountId">
+                AND q.quotaaccount_id = #{quotaAccountId,jdbcType=INTEGER}
+            </if>
+            <if test="null != hotelId">
+                AND q.hotel_id = #{hotelId,jdbcType=INTEGER}
+            </if>
+            <if test="null != isShare">
+                AND q.is_share = #{isShare,jdbcType=INTEGER}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryHotelList" parameterType="com.fangcang.product.request.ProductHotelListQueryDTO" resultType="com.fangcang.hotelinfo.domain.HotelDO">
+        SELECT DISTINCT h.hotel_id as hotelId,
+                          h.hotel_name as hotelName,
+                          h.city_code as cityCode,
+                          h.city_name as cityName,
+                          if(ch.hotel_id is null,0,1) as isCommonUsed
+                    FROM  t_hotel h
+               LEFT JOIN  t_common_hotel ch ON h.hotel_id = ch.hotel_id  and ch.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+               LEFT JOIN  t_htlpro_priceplan p ON h.hotel_id = p.hotel_id and p.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+                   WHERE  h.is_active = 1
+                    <if test="null != cityCode and '' != cityCode">
+                        and h.city_code = #{cityCode,jdbcType=VARCHAR}
+                    </if>
+                    <if test="null != hotelId">
+                       and h.hotel_id = #{hotelId,jdbcType=INTEGER}
+                    </if>
+                    <if test="null != hotelName and '' != hotelName">
+                       and h.hotel_name like CONCAT('%',#{hotelName,jdbcType=VARCHAR},'%')
+                    </if>
+                    <if test="null != productManagerId or (null != productManagerName and ''!= productManagerName)">
+                        and p.supply_code IN (SELECT s.supply_code
+                                                 FROM apollo.t_supply s,apollo.t_user u
+                                                WHERE s.merchant_pm = u.id
+                                                  AND u.merchant_id = #{merchantId,jdbcType=INTEGER}
+                                                <if test="null != productManagerId">
+                                                    AND u.id = #{productManagerId,jdbcType=INTEGER}
+                                                </if>
+                                                <if test="null != productManagerName and '' != productManagerName">
+                                                    and u.real_name like CONCAT('%',#{productManagerName,jdbcType=VARCHAR},'%')
+                                                </if>
+                                               )
+                    </if>
+                    order by isCommonUsed desc,h.hotel_id desc
+    </select>
+
+    <update id="batchUpdatePricePlan" parameterType="java.util.List">
+      <foreach collection="list" item="item" separator=";">
+          update t_htlpro_priceplan
+          <trim prefix="set" suffixOverrides=",">
+              <if test="item.quotaAccountId != null">
+                  quotaaccount_id = #{item.quotaAccountId,jdbcType=INTEGER},
+              </if>
+              <if test="item.modifier != null">
+                  modifier = #{item.modifier,jdbcType=VARCHAR},
+              </if>
+              modify_time = NOW()
+          </trim>
+          <where>
+              priceplan_id = #{item.pricePlanId,jdbcType=INTEGER}
+          </where>
+      </foreach>
+    </update>
+
+    <resultMap id="QuotaReportMap" type="com.fangcang.report.dto.PricePlanQuotaDTO">
+        <id column="priceplan_id" jdbcType="INTEGER" property="pricePlanId" />
+        <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+        <result column="room_type_id" jdbcType="INTEGER" property="roomTypeId" />
+        <result column="bedtype" jdbcType="VARCHAR" property="bedType" />
+        <result column="quotaaccount_id" jdbcType="INTEGER" property="quotaAccountId" />
+        <result column="priceplan_name" jdbcType="VARCHAR" property="pricePlanName" />
+        <result column="is_active" jdbcType="TINYINT" property="isActive" />
+        <result column="quota_type" jdbcType="TINYINT" property="quotaType" />
+        <result column="supply_code" jdbcType="VARCHAR" property="supplierCode" />
+        <result column="merchant_code" jdbcType="VARCHAR" property="merchantCode" />
+        <result column="hotel_name" jdbcType="VARCHAR" property="hotelName"/>
+        <result column="roomtype_name" jdbcType="VARCHAR" property="roomTypeName"/>
+        <result column="supply_name" jdbcType="VARCHAR" property="supplierName"/>
+        <result column="is_share" javaType="INTEGER" property="isShare"/>
+        <collection property="quotaDayList" select="com.fangcang.product.mapper.QuotaStateMapper.queryQuotaDailyReport"
+                    column="{pricePlanId=priceplan_id,quotaAccountId=quotaaccount_id,startDate=startDate,endDate=endDate}" javaType="java.util.List" ofType="com.fangcang.report.dto.QuotaDayDTO"/>
+    </resultMap>
+
+
+    <select id="queryPricePlanOfQuotaReport" parameterType="com.fangcang.product.request.DynamicPricePlanQueryDTO" resultMap="QuotaReportMap">
+        SELECT p.priceplan_id,
+                p.quotaaccount_id,
+                p.hotel_id,
+                h.hotel_name,
+                p.room_type_id,
+                r.roomtype_name,
+                p.supply_code,
+                p.priceplan_name,
+                p.quota_type,
+                p.bedtype,
+                p.merchant_code,
+                p.is_active,
+                s.supply_name,
+                #{startDate} as startDate,
+                #{endDate} as endDate,
+                ifnull(qa.is_share,0) as is_share
+        FROM    t_htlpro_priceplan p left join t_htlpro_quota_account qa on p.quotaaccount_id = qa.quotaaccount_id,
+                t_hotel h,
+                t_roomtype r,
+                t_supply s
+        WHERE   p.hotel_id = h.hotel_id
+          AND   p.hotel_id = r.hotel_id
+          AND   p.room_type_id = r.roomtype_id
+          AND   p.supply_code = s.supply_code
+          AND   p.merchant_code = #{merchantCode,jdbcType=VARCHAR}
+          <if test="null != hotelId">
+              AND p.hotel_id = #{hotelId,jdbcType=INTEGER}
+          </if>
+          <if test="null != supplyCode and '' != supplyCode">
+              AND p.supply_code = #{supplyCode,jdbcType=VARCHAR}
+          </if>
+          <if test="null != quotaType">
+              AND p.quota_type = #{quotaType,jdbcType=INTEGER}
+          </if>
+          <if test="null != roomTypeIds and roomTypeIds.size() > 0">
+              AND p.room_type_id in
+              <foreach collection="roomTypeIds" item="roomTypeId" separator="," open="(" close=")">
+                  #{roomTypeId}
+              </foreach>
+          </if>
+          <if test="null != productType">
+              AND p.product_type = #{productType,jdbcType=INTEGER}
+          </if>
+          order by p.priceplan_id desc
+    </select>
+</mapper>

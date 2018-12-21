@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.product.mapper.SaleStateMapper">
+
+    <resultMap id="BaseResultMap" type="com.fangcang.product.domain.SaleStateDO">
+        <id column="salestate_id" jdbcType="INTEGER" property="saleStateId" />
+        <result column="priceplan_id" jdbcType="INTEGER" property="pricePlanId" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="b2b_sale_state" jdbcType="TINYINT" property="b2bSaleState" />
+        <result column="ctrip_sale_state" jdbcType="TINYINT" property="ctripSaleState" />
+        <result column="qunar_sale_state" jdbcType="TINYINT" property="qunarSaleState" />
+        <result column="elong_sale_state" jdbcType="TINYINT" property="elongSaleState" />
+        <result column="tongcheng_sale_state" jdbcType="TINYINT" property="tongchengSaleState" />
+        <result column="tuniu_sale_state" jdbcType="TINYINT" property="tuniuSaleState" />
+        <result column="xmd_sale_state" jdbcType="TINYINT" property="xmdSaleState" />
+        <result column="jd_sale_state" jdbcType="TINYINT" property="jdSaleState" />
+        <result column="taobao_sale_state" jdbcType="TINYINT" property="taobaoSaleState" />
+        <result column="qunar_b2b_sale_state" jdbcType="TINYINT" property="qunarB2bSaleState" />
+        <result column="qunar_ngt_sale_state" jdbcType="TINYINT" property="qunarNgtSaleState" />
+        <result column="qunar_usd_sale_state" jdbcType="TINYINT" property="qunarUsdSaleState" />
+        <result column="qunar_son_sale_state" jdbcType="TINYINT" property="qunarSonSaleState" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        salestate_id, priceplan_id, create_time, creator, modify_time, modifier, b2b_sale_state,
+        ctrip_sale_state, qunar_sale_state, elong_sale_state, tongcheng_sale_state, tuniu_sale_state,
+        xmd_sale_state, jd_sale_state, taobao_sale_state, qunar_b2b_sale_state, qunar_ngt_sale_state,
+        qunar_usd_sale_state,qunar_son_sale_state
+    </sql>
+
+    <select id="queryPricePlanSaleStateInfo" parameterType="com.fangcang.product.domain.SaleStateDO" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_htlpro_sale_state
+        where priceplan_id = #{pricePlanId,jdbcType=INTEGER}
+    </select>
+
+    <insert id="batchOnSale" parameterType="java.util.List">
+        insert into t_htlpro_sale_state (priceplan_id,
+                                         create_time,
+                                         creator,
+                                         b2b_sale_state,
+                                         ctrip_sale_state,
+                                         qunar_sale_state,
+                                         elong_sale_state,
+                                         tongcheng_sale_state,
+                                         tuniu_sale_state,
+                                         xmd_sale_state,
+                                         jd_sale_state,
+                                         taobao_sale_state,
+                                         qunar_b2b_sale_state,
+                                         qunar_ngt_sale_state,
+                                         qunar_usd_sale_state,
+                                         qunar_son_sale_state
+                                       )
+                              values
+                                  <foreach collection="list" item="s" separator=",">
+                                      (
+                                      #{s.pricePlanId,jdbcType=INTEGER},
+                                      NOW(),
+                                      #{s.creator,jdbcType=VARCHAR},
+                                      #{s.b2bSaleState,jdbcType=TINYINT},
+                                      #{s.ctripSaleState,jdbcType=TINYINT},
+                                      #{s.qunarSaleState,jdbcType=TINYINT},
+                                      #{s.elongSaleState,jdbcType=TINYINT},
+                                      #{s.tongchengSaleState,jdbcType=TINYINT},
+                                      #{s.tuniuSaleState,jdbcType=TINYINT},
+                                      #{s.xmdSaleState,jdbcType=TINYINT},
+                                      #{s.jdSaleState,jdbcType=TINYINT},
+                                      #{s.taobaoSaleState,jdbcType=TINYINT},
+                                      #{s.qunarB2BSaleState,jdbcType=TINYINT},
+                                      #{s.qunarNgtSaleState,jdbcType=TINYINT},
+                                      #{s.qunarUsdSaleState,jdbcType=TINYINT},
+                                      #{s.qunarSonSaleState,jdbcType=TINYINT}
+                                      )
+                                  </foreach>
+                  ON DUPLICATE KEY
+                             UPDATE
+                            <trim suffixOverrides=",">
+                                <!--修改者-->
+                                <trim prefix="modifier =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.modifier">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.modifier}
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--修改时间-->
+                                <trim prefix="modify_time =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        when priceplan_id = #{s.pricePlanId} then NOW()
+                                    </foreach>
+                                </trim>
+                                <!--B2B售卖渠道-->
+                                <trim prefix="b2b_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.b2bSaleState and s.b2bSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.b2bSaleState}
+                                        </if>
+                                        <!--取原来数据-->
+                                        <if test="null == s.b2bSaleState or s.b2bSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.b2b_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--携程售卖渠道-->
+                                <trim prefix="ctrip_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.ctripSaleState and s.ctripSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.ctripSaleState}
+                                        </if>
+                                        <if test="null == s.ctripSaleState or s.ctripSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.ctrip_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--去哪儿渠道-->
+                                <trim prefix="qunar_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.qunarSaleState and s.qunarSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.qunarSaleState}
+                                        </if>
+                                        <if test="null == s.qunarSaleState or s.qunarSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.qunar_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--艺龙渠道-->
+                                <trim prefix="elong_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.elongSaleState and s.elongSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.elongSaleState}
+                                        </if>
+                                        <if test="null == s.elongSaleState or s.elongSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.elong_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--同程渠道-->
+                                <trim prefix="tongcheng_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.tongchengSaleState and s.tongchengSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.tongchengSaleState}
+                                        </if>
+                                        <if test="null == s.tongchengSaleState or s.tongchengSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.tongcheng_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--途牛渠道-->
+                                <trim prefix="tuniu_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.tuniuSaleState and s.tuniuSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.tuniuSaleState}
+                                        </if>
+                                        <if test="null == s.tuniuSaleState or s.tuniuSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.tuniu_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--新美大渠道-->
+                                <trim prefix="xmd_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.xmdSaleState and s.xmdSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.xmdSaleState}
+                                        </if>
+                                        <if test="null == s.xmdSaleState or s.xmdSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.xmd_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--京东渠道-->
+                                <trim prefix="jd_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.jdSaleState and s.jdSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.jdSaleState}
+                                        </if>
+                                        <if test="null == s.jdSaleState or s.jdSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.jd_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--淘宝渠道-->
+                                <trim prefix="taobao_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.taobaoSaleState and s.taobaoSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.taobaoSaleState}
+                                        </if>
+                                        <if test="null == s.taobaoSaleState or s.taobaoSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.taobao_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--去哪儿大B渠道-->
+                                <trim prefix="qunar_b2b_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.qunarB2BSaleState and s.qunarB2BSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.qunarB2BSaleState}
+                                        </if>
+                                        <if test="null == s.qunarB2BSaleState or s.qunarB2BSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.qunar_b2b_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--去哪儿夜销渠道-->
+                                <trim prefix="qunar_ngt_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.qunarNgtSaleState and s.qunarNgtSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.qunarNgtSaleState}
+                                        </if>
+                                        <if test="null == s.qunarNgtSaleState or s.qunarNgtSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.qunar_ngt_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--去哪儿美元渠道-->
+                                <trim prefix="qunar_usd_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.qunarUsdSaleState and s.qunarUsdSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.qunarUsdSaleState}
+                                        </if>
+                                        <if test="null == s.qunarUsdSaleState or s.qunarUsdSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.qunar_usd_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                                <!--去哪儿子渠道-->
+                                <trim prefix="qunar_son_sale_state =case" suffix="end,">
+                                    <foreach collection="list" item="s">
+                                        <if test="null != s.qunarSonSaleState and s.qunarSonSaleState != -1">
+                                            when priceplan_id = #{s.pricePlanId} then #{s.qunarSonSaleState}
+                                        </if>
+                                        <if test="null == s.qunarSonSaleState or s.qunarSonSaleState == -1">
+                                            when priceplan_id = #{s.pricePlanId} then t_htlpro_sale_state.qunar_son_sale_state
+                                        </if>
+                                    </foreach>
+                                </trim>
+                            </trim>
+    </insert>
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.product.mapper.PriceInfoLogMapper">
+
+    <insert id="batchSavePriceInfoLog" parameterType="java.util.List">
+        insert into t_htlpro_price_log (priceplan_id,
+                                         start_date,
+                                         end_date,
+                                         weeks,
+                                         merchant_code,
+                                         create_time,
+                                         creator,
+                                         price_standard,
+                                         modify_price,
+                                         modify_type,
+                                         modify_value,
+                                         standard_price
+                                        )
+                                values
+                                <foreach collection="list" item="pi" separator=",">
+                                    (#{pi.pricePlanId,jdbcType=INTEGER},
+                                    #{pi.startDate,jdbcType=DATE},
+                                    #{pi.endDate,jdbcType=DATE},
+                                    #{pi.weeks,jdbcType=VARCHAR},
+                                    #{pi.merchantCode,jdbcType=VARCHAR},
+                                    NOW(),
+                                    #{pi.creator,jdbcType=VARCHAR},
+                                    #{pi.priceStandard,jdbcType=TINYINT},
+                                    #{pi.modifyPrice,jdbcType=TINYINT},
+                                    #{pi.modifyType,jdbcType=INTEGER},
+                                    #{pi.modifyValue,jdbcType=DECIMAL},
+                                    #{pi.standardPrice,jdbcType=DECIMAL}
+                                    )
+                                </foreach>
+    </insert>
+
+</mapper>

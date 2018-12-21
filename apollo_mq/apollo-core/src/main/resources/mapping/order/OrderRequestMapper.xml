@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.OrderRequestMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.OrderRequestDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="handle_result" jdbcType="TINYINT" property="handleResult" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="checkin_date" jdbcType="DATE" property="checkinDate" />
+    <result column="checkout_date" jdbcType="DATE" property="checkoutDate" />
+    <result column="room_num" jdbcType="INTEGER" property="roomNum" />
+    <result column="guest_names" jdbcType="VARCHAR" property="guestNames" />
+    <result column="rateplan_id" jdbcType="INTEGER" property="rateplanId" />
+    <result column="customer_order_code" jdbcType="VARCHAR" property="customerOrderCode" />
+    <result column="request_type" jdbcType="TINYINT" property="requestType" />
+    <result column="ota_handle_result" jdbcType="TINYINT" property="otaHandleResult" />
+  </resultMap>
+  
+  <select id="queryOrderRequestCount" parameterType="java.util.List"
+          resultType="com.fangcang.order.response.OrderRequestCountDTO">
+    SELECT
+        r.order_id orderId,
+        SUM(IF(r.request_type=1,1,0))cancelCount,
+        SUM(IF(r.request_type=2,1,0))modifyCount,
+        SUM(IF(r.request_type=3,1,0))delayCount
+    FROM
+        o_order_request r
+    WHERE
+        r.handle_result = 0
+    AND r.order_id IN
+    <foreach collection="list" item="item" open="(" separator="," close=")">#{item}</foreach>
+    GROUP BY r.order_id
+  </select>
+  
+  <select id="queryOrderRequestStatistics" parameterType="java.lang.String"
+          resultType="com.fangcang.order.response.OrderRequestCountDTO">
+    SELECT
+        SUM(IF(r.request_type=1,1,0))cancelCount,
+        SUM(IF(r.request_type=2,1,0))modifyCount,
+        SUM(IF(r.request_type=3,1,0))delayCount
+    FROM
+        o_order_request r,o_order o
+    WHERE
+        r.order_id=o.id
+    AND r.handle_result = 0
+    AND o.order_status != 4
+    AND o.merchant_code=#{merchantCode}
+  </select>
+</mapper>

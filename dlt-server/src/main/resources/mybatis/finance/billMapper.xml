@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.finance.dao.BillMapper">
+
+	<!-- 保存挂账记录 -->
+	<insert id="saveCreditItem" parameterType="com.travel.finance.entity.CreditItem" useGeneratedKeys="true" keyProperty="itemId">
+		insert into t_order_credit_item (order_code, order_credit_amount, supply_credit_amount, checkout_type, create_date, creator, order_id) 
+		values (#{orderCode,jdbcType=VARCHAR}, #{orderCreditAmount,jdbcType=DECIMAL},#{supplyCreditAmount,jdbcType=DECIMAL},#{checkOutType,jdbcType=VARCHAR},now(),#{creator,jdbcType=VARCHAR},#{orderId,jdbcType=BIGINT})
+	</insert>
+	
+	<!-- 批量保存对账信息 -->
+	<insert id="batchSaveCheckOut" parameterType="java.util.List">
+		insert into t_checkout (orgcode, order_code, hotel_id, hotel_name, room_type_id, room_type_name, order_state, guest_name, room_no, checkin_date, checkout_date, rooms, room_price, receivable, actualreceived, unreceivable, current_actual, day_price_id, creator, create_date)
+		values 
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.orgCode,jdbcType=VARCHAR},#{item.orderCode,jdbcType=VARCHAR},#{item.hotelId,jdbcType=BIGINT},#{item.hotelName,jdbcType=VARCHAR},#{item.roomTypeId,jdbcType=BIGINT},#{item.roomTypeName,jdbcType=VARCHAR},#{item.orderState,jdbcType=VARCHAR},#{item.guestName,jdbcType=VARCHAR}, #{item.roomNo,jdbcType=VARCHAR},#{item.checkInDate,jdbcType=DATE},#{item.checkOutDate,jdbcType=DATE},#{item.rooms,jdbcType=INTEGER},#{item.roomPrice,jdbcType=DECIMAL},#{item.receivable,jdbcType=DECIMAL},#{item.actualReceived,jdbcType=DECIMAL},#{item.unreceivable,jdbcType=DECIMAL},#{item.currentActualReceived,jdbcType=DECIMAL},#{item.dayPriceId,jdbcType=BIGINT},#{item.creator,jdbcType=VARCHAR},now())
+		</foreach>
+	</insert>
+	
+	<!-- 保存销账信息 -->
+	<insert id="saveBillOff" parameterType="com.travel.finance.entity.BillOff" useGeneratedKeys="true" keyProperty="billOffId">
+		insert into t_billoff (serial_number, billoff_amount, creator, create_date, orgcode, state, receive_amount, orgname, bank_no, bank_name, remark, pay_type)
+		values (#{serialNumber,jdbcType=VARCHAR},#{billOffAmount,jdbcType=DECIMAL},#{creator,jdbcType=VARCHAR},now(),#{orgCode,jdbcType=VARCHAR},#{state,jdbcType=INTEGER},#{receivable,jdbcType=DECIMAL},#{orgName,jdbcType=VARCHAR},#{bankNo,jdbcType=VARCHAR},#{bankName,jdbcType=VARCHAR},#{remark,jdbcType=VARCHAR},#{payType,jdbcType=INTEGER})
+	</insert>
+	
+	<update id="updateBillOff" parameterType="com.travel.finance.entity.BillOff">
+		update t_billoff t
+		<trim prefix="set" suffixOverrides=",">
+			<if test="serialNumber != null">
+				t.serial_number = #{serialNumber},
+			</if>
+			<if test="billOffAmount != null">
+				t.billoff_amount = #{billOffAmount},
+			</if>
+			<if test="orgCode != null">
+				t.orgcode = #{orgCode},
+			</if>
+			<if test="state != null">
+				t.state = #{state},
+			</if>
+			<if test="receivable != null">
+				t.receive_amount = #{receivable},
+			</if>
+			<if test="orgName != null">
+				t.orgname = #{orgName},
+			</if>
+			<if test="bankNo != null">
+				t.bank_no = #{bankNo},
+			</if>
+			<if test="bankName != null">
+				t.bank_name = #{bankName},
+			</if>
+			<if test="remark != null">
+				t.remark = #{remark},
+			</if>
+			<if test="payType != null">
+				t.pay_type = #{payType},
+			</if>
+		</trim>
+		where t.billoff_id = #{billOffId}
+	</update>
+	
+	<!-- 批量保存销账明细 -->
+	<insert id="batchSaveBillOffDetail" parameterType="java.util.List">
+		insert into t_billoff_detail (day_price_id, billoff_id, orgcode, orgname, order_code, receivable, actual_received, current_actual_received, creator, create_date)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.dayPriceId,jdbcType=BIGINT},#{item.billOffId,jdbcType=BIGINT},#{item.orgCode,jdbcType=VARCHAR},#{item.orgName,jdbcType=VARCHAR},#{item.orderCode,jdbcType=VARCHAR},#{item.receivable,jdbcType=DECIMAL},#{item.actualReceived,jdbcType=DECIMAL},#{item.currentActualReceived,jdbcType=DECIMAL},#{item.creator,jdbcType=VARCHAR},now())
+		</foreach>
+	</insert>
+	
+	<!-- 保存反核销信息 -->
+	<insert id="saveReverse" parameterType="com.travel.finance.entity.ReverseBillOff">
+		insert into t_reverse_billoff (reverse_amount, create_date, creator, serial_number, orgcode, billoff_id, orgname)
+		values (#{reverseAmount,jdbcType=DECIMAL},now(),#{creator,jdbcType=VARCHAR},#{serialNumber,jdbcType=VARCHAR},#{orgCode,jdbcType=VARCHAR},#{billOffId,jdbcType=BIGINT},#{orgName,jdbcType=VARCHAR})
+	</insert>
+	
+	<!-- 查询销账记录 -->
+	<select id="queryBillOffList" parameterType="com.travel.common.dto.finance.query.BillOffQueryDTO" resultType="com.travel.finance.entity.BillOff">
+		select
+		  t.billoff_id     billOffId,
+		  t.serial_number  serialNumber,
+		  t.orgcode        orgCode,
+		  t.orgname        orgName,
+		  t.receive_amount receivable,
+		  t.billoff_amount billOffAmount,
+		  t.create_date    createDate,
+		  t.creator        creator,
+		  t.pay_type	   payType,
+		  t.state		   state
+		from t_billoff t
+		<where>
+			t.orgcode like concat(#{orgType},'%')
+			<if test="billOffId != null">
+				and t.billoff_id = #{billOffId}
+			</if>
+			<if test="orgCode != null and orgCode != ''">
+				and t.orgcode = #{orgCode}
+			</if>
+            <if test="payType != null">
+             	and t.pay_type = #{payType}
+            </if>
+			<if test="orgCode == null or orgCode == ''">
+				<if test="orgName != null and orgName != ''">
+					and t.orgname like concat('%',#{orgName},'%')
+				</if>
+			</if>
+			<if test="serialNumber != null and serialNumber != ''">
+				and t.serial_number like concat('%',#{serialNumber},'%')
+			</if>
+		</where>
+		order by t.create_date desc
+	</select>
+	
+	<!-- 查询销账明细 -->
+	<select id="queryBillOffDetailList" resultType="com.travel.finance.entity.BillOffDetail" parameterType="java.util.List">
+		select
+		  t.billoff_detail_id       billOffDetailId,
+		  t.billoff_id              billOffId,
+		  t.orgcode                 orgCode,
+		  t.orgname                 orgName,
+		  t.day_price_id            dayPriceId,
+		  t.order_code              orderCode,
+		  t.receivable              receivable,
+		  t.actual_received         actualReceived,
+		  t.current_actual_received currentActualReceived
+		from t_billoff_detail t
+		where t.billoff_id in <foreach collection="list" index="index" item="item" open="(" separator="," close=")">#{item}</foreach>
+	</select>
+	
+</mapper>

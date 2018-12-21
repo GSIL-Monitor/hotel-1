@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fangcang.merchant.mapper.UserBankCardMapper">
+	<resultMap id="BaseResultMap" type="com.fangcang.merchant.domain.UserBankCardDO">
+        <id column="bank_card_id" jdbcType="INTEGER" property="bankCardId" />
+        <result column="type" jdbcType="INTEGER" property="type" />
+        <result column="opening_bank" jdbcType="VARCHAR" property="openingBank" />
+        <result column="account_name" jdbcType="VARCHAR" property="accountName" />
+        <result column="account_number" jdbcType="VARCHAR" property="accountNumber" />
+        <result column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="real_path" jdbcType="VARCHAR" property="realPath" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+    	bank_card_id,type, opening_bank, account_name, account_number, user_id,real_path,create_time,creator,modifier,modify_time
+  	</sql>
+    <select id="queryUserBankCardList" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT a.*
+        FROM t_user_bank_card a,t_user b 
+        WHERE a.user_id = b.id
+        <if test="merchantId != null">
+            AND b.merchant_id = #{merchantId,jdbcType=INTEGER}
+        </if>
+    </select>
+    
+    <insert id="insertUserBankCard" parameterType="com.fangcang.merchant.domain.UserBankCardDO"
+            useGeneratedKeys="true" keyProperty="bankCardId">
+        INSERT INTO t_user_bank_card
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type != null">
+                type,
+            </if>
+            <if test="openingBank != null">
+                opening_bank,
+            </if>
+            <if test="accountName != null">
+                account_name,
+            </if>
+            <if test="accountNumber != null">
+                account_number,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="realPath != null">
+                real_path,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="creator != null">
+                creator
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="openingBank != null">
+                #{openingBank,jdbcType=VARCHAR},
+            </if>
+            <if test="accountName != null">
+                #{accountName,jdbcType=VARCHAR},
+            </if>
+            <if test="accountNumber != null">
+                #{accountNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="realPath != null">
+                #{realPath,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fangcang.order.mapper.SupplyProductMapper">
+  <resultMap id="BaseResultMap" type="com.fangcang.order.domain.SupplyProductDO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="supply_order_id" jdbcType="INTEGER" property="supplyOrderId" />
+    <result column="room_type_id" jdbcType="INTEGER" property="roomTypeId" />
+    <result column="room_type_name" jdbcType="VARCHAR" property="roomTypeName" />
+    <result column="rateplan_id" jdbcType="INTEGER" property="rateplanId" />
+    <result column="rateplan_name" jdbcType="VARCHAR" property="rateplanName" />
+    <result column="quota_type" jdbcType="TINYINT" property="quotaType" />
+    <result column="bedtype" jdbcType="VARCHAR" property="bedtype" />
+    <result column="breakfast_type" jdbcType="TINYINT" property="breakfastType" />
+    <result column="checkin_date" jdbcType="DATE" property="checkinDate" />
+    <result column="checkout_date" jdbcType="DATE" property="checkoutDate" />
+    <result column="room_num" jdbcType="INTEGER" property="roomNum" />
+    <result column="sale_price_sum" jdbcType="DECIMAL" property="salePriceSum" />
+    <result column="base_price_sum" jdbcType="DECIMAL" property="basePriceSum" />
+    <result column="quota_account_id" jdbcType="INTEGER" property="quotaAccountId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+</mapper>
